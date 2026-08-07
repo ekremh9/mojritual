@@ -4,12 +4,14 @@ import { categories } from './categories';
 import { ingredients, productIngredients } from './ingredients';
 import { productCategories, productImages, products } from './products';
 import { brandUsers, businessAccounts, users } from './users';
+import { wholesalePriceTiers } from './wholesale';
 
 export * from './brands';
 export * from './categories';
 export * from './ingredients';
 export * from './products';
 export * from './users';
+export * from './wholesale';
 
 export const usersRelations = relations(users, ({ many }) => ({
   brandUsers: many(brandUsers),
@@ -79,6 +81,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   images: many(productImages),
   productCategories: many(productCategories),
   productIngredients: many(productIngredients),
+  wholesaleTiers: many(wholesalePriceTiers),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -111,5 +114,12 @@ export const productIngredientsRelations = relations(productIngredients, ({ one 
   ingredient: one(ingredients, {
     fields: [productIngredients.ingredientId],
     references: [ingredients.id],
+  }),
+}));
+
+export const wholesalePriceTiersRelations = relations(wholesalePriceTiers, ({ one }) => ({
+  product: one(products, {
+    fields: [wholesalePriceTiers.productId],
+    references: [products.id],
   }),
 }));
