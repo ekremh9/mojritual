@@ -3,6 +3,7 @@ import { brandCertificates, brands } from './brands';
 import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { ingredients, productIngredients } from './ingredients';
+import { orderItems, orderShipments, orders } from './orders';
 import { productCategories, productImages, products } from './products';
 import { brandUsers, businessAccounts, users } from './users';
 import { wholesalePriceTiers } from './wholesale';
@@ -11,6 +12,7 @@ export * from './brands';
 export * from './bundles';
 export * from './categories';
 export * from './ingredients';
+export * from './orders';
 export * from './products';
 export * from './users';
 export * from './wholesale';
@@ -22,6 +24,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     relationName: 'businessAccountApprover',
   }),
   approvedProducts: many(products),
+  orders: many(orders),
 }));
 
 export const brandUsersRelations = relations(brandUsers, ({ one }) => ({
@@ -35,7 +38,7 @@ export const brandUsersRelations = relations(brandUsers, ({ one }) => ({
   }),
 }));
 
-export const businessAccountsRelations = relations(businessAccounts, ({ one }) => ({
+export const businessAccountsRelations = relations(businessAccounts, ({ one, many }) => ({
   user: one(users, {
     fields: [businessAccounts.userId],
     references: [users.id],
@@ -46,6 +49,7 @@ export const businessAccountsRelations = relations(businessAccounts, ({ one }) =
     references: [users.id],
     relationName: 'businessAccountApprover',
   }),
+  orders: many(orders),
 }));
 
 export const brandsRelations = relations(brands, ({ many }) => ({
@@ -53,6 +57,7 @@ export const brandsRelations = relations(brands, ({ many }) => ({
   certificates: many(brandCertificates),
   products: many(products),
   bundles: many(bundles),
+  orderShipments: many(orderShipments),
 }));
 
 export const brandCertificatesRelations = relations(brandCertificates, ({ one }) => ({
@@ -86,6 +91,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   productIngredients: many(productIngredients),
   wholesaleTiers: many(wholesalePriceTiers),
   bundleItems: many(bundleItems),
+  orderItems: many(orderItems),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -134,6 +140,7 @@ export const bundlesRelations = relations(bundles, ({ one, many }) => ({
     references: [brands.id],
   }),
   items: many(bundleItems),
+  orderItems: many(orderItems),
 }));
 
 export const bundleItemsRelations = relations(bundleItems, ({ one }) => ({
@@ -144,5 +151,44 @@ export const bundleItemsRelations = relations(bundleItems, ({ one }) => ({
   product: one(products, {
     fields: [bundleItems.productId],
     references: [products.id],
+  }),
+}));
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
+  businessAccount: one(businessAccounts, {
+    fields: [orders.businessAccountId],
+    references: [businessAccounts.id],
+  }),
+  shipments: many(orderShipments),
+}));
+
+export const orderShipmentsRelations = relations(orderShipments, ({ one, many }) => ({
+  order: one(orders, {
+    fields: [orderShipments.orderId],
+    references: [orders.id],
+  }),
+  brand: one(brands, {
+    fields: [orderShipments.brandId],
+    references: [brands.id],
+  }),
+  items: many(orderItems),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  shipment: one(orderShipments, {
+    fields: [orderItems.shipmentId],
+    references: [orderShipments.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }),
+  bundle: one(bundles, {
+    fields: [orderItems.bundleId],
+    references: [bundles.id],
   }),
 }));
