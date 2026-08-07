@@ -1,4 +1,3 @@
-import { relations } from 'drizzle-orm';
 import {
   index,
   pgEnum,
@@ -84,29 +83,6 @@ export const businessAccounts = pgTable(
     index('business_accounts_odobrio_user_id_idx').on(table.odobrioUserId),
   ],
 );
-
-export const usersRelations = relations(users, ({ many }) => ({
-  brandUsers: many(brandUsers),
-  businessAccounts: many(businessAccounts),
-}));
-
-export const brandUsersRelations = relations(brandUsers, ({ one }) => ({
-  users: one(users, {
-    fields: [brandUsers.userId],
-    references: [users.id],
-  }),
-  brands: one(brands, {
-    fields: [brandUsers.brandId],
-    references: [brands.id],
-  }),
-}));
-
-export const businessAccountsRelations = relations(businessAccounts, ({ one }) => ({
-  users: one(users, {
-    fields: [businessAccounts.userId],
-    references: [users.id],
-  }),
-}));
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

@@ -1,4 +1,3 @@
-import { relations } from 'drizzle-orm';
 import {
   boolean,
   date,
@@ -11,7 +10,6 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { brandUsers } from './users';
 
 export const brandStatusEnum = pgEnum('brand_status', [
   'na_cekanju',
@@ -63,18 +61,6 @@ export const brandCertificates = pgTable(
   },
   (table) => [index('brand_certificates_brand_id_idx').on(table.brandId)],
 );
-
-export const brandsRelations = relations(brands, ({ many }) => ({
-  brandCertificates: many(brandCertificates),
-  brandUsers: many(brandUsers),
-}));
-
-export const brandCertificatesRelations = relations(brandCertificates, ({ one }) => ({
-  brands: one(brands, {
-    fields: [brandCertificates.brandId],
-    references: [brands.id],
-  }),
-}));
 
 export type Brand = typeof brands.$inferSelect;
 export type NewBrand = typeof brands.$inferInsert;
