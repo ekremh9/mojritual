@@ -43,6 +43,13 @@
       "when": 1786120649785,
       "tag": "0005_slow_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786120845441,
+      "tag": "0006_bored_the_spike",
+      "breakpoints": true
     }
   ]
 }

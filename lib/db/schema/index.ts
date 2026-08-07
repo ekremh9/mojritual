@@ -3,6 +3,7 @@ import { brandCertificates, brands } from './brands';
 import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { commissionPeriods } from './commission';
+import { goals, guideSessions, productGoals } from './guide';
 import { ingredients, productIngredients } from './ingredients';
 import { orderItems, orderShipments, orders } from './orders';
 import { productCategories, productImages, products } from './products';
@@ -13,6 +14,7 @@ export * from './brands';
 export * from './bundles';
 export * from './categories';
 export * from './commission';
+export * from './guide';
 export * from './ingredients';
 export * from './orders';
 export * from './products';
@@ -27,6 +29,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   }),
   approvedProducts: many(products),
   orders: many(orders),
+  guideSessions: many(guideSessions),
 }));
 
 export const brandUsersRelations = relations(brandUsers, ({ one }) => ({
@@ -95,6 +98,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   wholesaleTiers: many(wholesalePriceTiers),
   bundleItems: many(bundleItems),
   orderItems: many(orderItems),
+  productGoals: many(productGoals),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -200,5 +204,27 @@ export const commissionPeriodsRelations = relations(commissionPeriods, ({ one })
   brand: one(brands, {
     fields: [commissionPeriods.brandId],
     references: [brands.id],
+  }),
+}));
+
+export const goalsRelations = relations(goals, ({ many }) => ({
+  productGoals: many(productGoals),
+}));
+
+export const productGoalsRelations = relations(productGoals, ({ one }) => ({
+  product: one(products, {
+    fields: [productGoals.productId],
+    references: [products.id],
+  }),
+  goal: one(goals, {
+    fields: [productGoals.goalId],
+    references: [goals.id],
+  }),
+}));
+
+export const guideSessionsRelations = relations(guideSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [guideSessions.userId],
+    references: [users.id],
   }),
 }));
