@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { brandCertificates, brands } from './brands';
+import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { ingredients, productIngredients } from './ingredients';
 import { productCategories, productImages, products } from './products';
@@ -7,6 +8,7 @@ import { brandUsers, businessAccounts, users } from './users';
 import { wholesalePriceTiers } from './wholesale';
 
 export * from './brands';
+export * from './bundles';
 export * from './categories';
 export * from './ingredients';
 export * from './products';
@@ -50,6 +52,7 @@ export const brandsRelations = relations(brands, ({ many }) => ({
   brandUsers: many(brandUsers),
   certificates: many(brandCertificates),
   products: many(products),
+  bundles: many(bundles),
 }));
 
 export const brandCertificatesRelations = relations(brandCertificates, ({ one }) => ({
@@ -82,6 +85,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   productCategories: many(productCategories),
   productIngredients: many(productIngredients),
   wholesaleTiers: many(wholesalePriceTiers),
+  bundleItems: many(bundleItems),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -120,6 +124,25 @@ export const productIngredientsRelations = relations(productIngredients, ({ one 
 export const wholesalePriceTiersRelations = relations(wholesalePriceTiers, ({ one }) => ({
   product: one(products, {
     fields: [wholesalePriceTiers.productId],
+    references: [products.id],
+  }),
+}));
+
+export const bundlesRelations = relations(bundles, ({ one, many }) => ({
+  brand: one(brands, {
+    fields: [bundles.brandId],
+    references: [brands.id],
+  }),
+  items: many(bundleItems),
+}));
+
+export const bundleItemsRelations = relations(bundleItems, ({ one }) => ({
+  bundle: one(bundles, {
+    fields: [bundleItems.bundleId],
+    references: [bundles.id],
+  }),
+  product: one(products, {
+    fields: [bundleItems.productId],
     references: [products.id],
   }),
 }));
