@@ -6,7 +6,7 @@ const ADMIN_PREFIX = '/admin';
 const BRAND_PREFIX = '/brend';
 const NALOG_PREFIX = '/nalog';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
@@ -31,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [`${ADMIN_PREFIX}/:path*`, `${BRAND_PREFIX}/:path*`, `${NALOG_PREFIX}/:path*`],
+  matcher: ['/admin/:path*', '/brend/:path*', '/nalog/:path*'],
 };
