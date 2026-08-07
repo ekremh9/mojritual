@@ -50,6 +50,13 @@
       "when": 1786120845441,
       "tag": "0006_bored_the_spike",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786122009965,
+      "tag": "0007_tearful_boom_boom",
+      "breakpoints": true
     }
   ]
 }

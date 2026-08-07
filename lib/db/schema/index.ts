@@ -3,10 +3,13 @@ import { brandCertificates, brands } from './brands';
 import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { commissionPeriods } from './commission';
+import { medicalReviewers, posts } from './content';
 import { goals, guideSessions, productGoals } from './guide';
 import { ingredients, productIngredients } from './ingredients';
 import { orderItems, orderShipments, orders } from './orders';
 import { productCategories, productImages, products } from './products';
+import { productReviews } from './reviews';
+import { supportTickets, ticketMessages } from './support';
 import { brandUsers, businessAccounts, users } from './users';
 import { wholesalePriceTiers } from './wholesale';
 
@@ -14,10 +17,15 @@ export * from './brands';
 export * from './bundles';
 export * from './categories';
 export * from './commission';
+export * from './content';
 export * from './guide';
 export * from './ingredients';
+export * from './leads';
 export * from './orders';
 export * from './products';
+export * from './reviews';
+export * from './settings';
+export * from './support';
 export * from './users';
 export * from './wholesale';
 
@@ -30,6 +38,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   approvedProducts: many(products),
   orders: many(orders),
   guideSessions: many(guideSessions),
+  ticketMessages: many(ticketMessages),
 }));
 
 export const brandUsersRelations = relations(brandUsers, ({ one }) => ({
@@ -64,6 +73,7 @@ export const brandsRelations = relations(brands, ({ many }) => ({
   bundles: many(bundles),
   orderShipments: many(orderShipments),
   commissionPeriods: many(commissionPeriods),
+  supportTickets: many(supportTickets),
 }));
 
 export const brandCertificatesRelations = relations(brandCertificates, ({ one }) => ({
@@ -99,6 +109,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   bundleItems: many(bundleItems),
   orderItems: many(orderItems),
   productGoals: many(productGoals),
+  reviews: many(productReviews),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -171,6 +182,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     references: [businessAccounts.id],
   }),
   shipments: many(orderShipments),
+  supportTickets: many(supportTickets),
 }));
 
 export const orderShipmentsRelations = relations(orderShipments, ({ one, many }) => ({
@@ -183,6 +195,7 @@ export const orderShipmentsRelations = relations(orderShipments, ({ one, many })
     references: [brands.id],
   }),
   items: many(orderItems),
+  supportTickets: many(supportTickets),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -197,6 +210,10 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   bundle: one(bundles, {
     fields: [orderItems.bundleId],
     references: [bundles.id],
+  }),
+  review: one(productReviews, {
+    fields: [orderItems.id],
+    references: [productReviews.orderItemId],
   }),
 }));
 
@@ -227,4 +244,53 @@ export const guideSessionsRelations = relations(guideSessions, ({ one }) => ({
     fields: [guideSessions.userId],
     references: [users.id],
   }),
+}));
+
+export const supportTicketsRelations = relations(supportTickets, ({ one, many }) => ({
+  order: one(orders, {
+    fields: [supportTickets.orderId],
+    references: [orders.id],
+  }),
+  shipment: one(orderShipments, {
+    fields: [supportTickets.shipmentId],
+    references: [orderShipments.id],
+  }),
+  brand: one(brands, {
+    fields: [supportTickets.brandId],
+    references: [brands.id],
+  }),
+  messages: many(ticketMessages),
+}));
+
+export const ticketMessagesRelations = relations(ticketMessages, ({ one }) => ({
+  ticket: one(supportTickets, {
+    fields: [ticketMessages.ticketId],
+    references: [supportTickets.id],
+  }),
+  autorUser: one(users, {
+    fields: [ticketMessages.autorUserId],
+    references: [users.id],
+  }),
+}));
+
+export const productReviewsRelations = relations(productReviews, ({ one }) => ({
+  product: one(products, {
+    fields: [productReviews.productId],
+    references: [products.id],
+  }),
+  orderItem: one(orderItems, {
+    fields: [productReviews.orderItemId],
+    references: [orderItems.id],
+  }),
+}));
+
+export const postsRelations = relations(posts, ({ one }) => ({
+  recenzent: one(medicalReviewers, {
+    fields: [posts.recenzentId],
+    references: [medicalReviewers.id],
+  }),
+}));
+
+export const medicalReviewersRelations = relations(medicalReviewers, ({ many }) => ({
+  posts: many(posts),
 }));
