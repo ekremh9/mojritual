@@ -91,6 +91,37 @@ export const bs = {
     greskaAutomatskePrijave:
       'Nalog je kreiran, ali automatska prijava nije uspjela. Prijavite se ručno.',
   },
+  portal: {
+    logo: 'MojRitual Portal',
+    nazadNaSajt: 'Nazad na sajt',
+    nepovezanNalog: 'Vaš nalog još nije povezan sa brendom.',
+    kontaktirajtePodrsku: 'Kontaktirajte podršku.',
+    status: {
+      na_cekanju: 'Na čekanju',
+      odobren: 'Odobren',
+      suspendovan: 'Suspendovan',
+    },
+    nav: {
+      naslov: 'Navigacija portala',
+      pregled: 'Pregled',
+      profil: 'Profil brenda',
+      proizvodi: 'Proizvodi',
+      narudzbe: 'Narudžbe',
+      reklamacije: 'Reklamacije',
+    },
+    dashboard: {
+      naslov: 'Pregled',
+      podnaslov: (naziv: string) => `Portal brenda ${naziv}`,
+      aktivnihProizvoda: 'Aktivnih proizvoda',
+      novihNarudzbi: 'Novih narudžbi',
+      otvorenihReklamacija: 'Otvorenih reklamacija',
+      prihodMjesec: 'Prihod ovog mjeseca',
+      brziLinkovi: 'Brzi linkovi',
+      dodajProizvod: 'Dodaj novi proizvod',
+      urediProfil: 'Uredi profil brenda',
+      pogledajNarudzbe: 'Pogledaj narudžbe',
+    },
+  },
   brend: {
     metaNaslov: (naziv: string) => `Brend – ${naziv}`,
     verifikovan: 'Verifikovan brend',
