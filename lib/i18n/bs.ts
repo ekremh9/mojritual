@@ -42,4 +42,13 @@ export const bs = {
     nazadNaPocetnu: 'Nazad na početnu',
     opisGenericki: 'Pregledajte proizvode u ovoj kategoriji na MojRitualu.',
   },
+  brend: {
+    metaNaslov: (naziv: string) => `Brend – ${naziv}`,
+    verifikovan: 'Verifikovan brend',
+    oBrendu: 'O brendu',
+    certifikati: 'Certifikati',
+    pogledajDokument: 'Pogledaj dokument',
+    ponudaBrenda: 'Ponuda brenda',
+    prazno: 'Ovaj brend trenutno nema dostupnih proizvoda.',
+  },
 } as const;

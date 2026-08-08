@@ -28,7 +28,7 @@ procjena koja daje personaliziranu preporuku.
 ```
 /app
   /(shop)        javni dio — katalog, proizvod, brend, vodič, checkout
-  /(brand)       portal za brend — /brend/*
+  /(brand)       portal za brend — /portal/*
   /(admin)       admin dashboard — /admin/*
   /api           REST granica (koristit će je i buduća mobilna aplikacija)
 /lib

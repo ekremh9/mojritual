@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 
 const ADMIN_PREFIX = '/admin';
-const BRAND_PREFIX = '/brend';
+const PORTAL_PREFIX = '/portal';
 const NALOG_PREFIX = '/nalog';
 
 export async function proxy(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  if (pathname.startsWith(BRAND_PREFIX) && role !== 'brand' && role !== 'admin') {
+  if (pathname.startsWith(PORTAL_PREFIX) && role !== 'brand' && role !== 'admin') {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
@@ -31,5 +31,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/brend/:path*', '/nalog/:path*'],
+  matcher: ['/admin/:path*', '/portal/:path*', '/nalog/:path*'],
 };
