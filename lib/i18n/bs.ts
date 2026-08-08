@@ -1,4 +1,13 @@
 export const bs = {
+  header: {
+    logo: 'MojRitual',
+    kategorije: 'Kategorije',
+    ritualVodic: 'Ritual Vodič',
+    blog: 'Blog',
+    korpa: 'Korpa',
+    prijava: 'Prijava',
+    otvoriMeni: 'Otvori meni',
+  },
   homepage: {
     hero: {
       naslov: 'Započnite svoj Ritual zdravijeg života.',
