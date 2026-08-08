@@ -8,6 +8,14 @@ export const bs = {
     prijava: 'Prijava',
     otvoriMeni: 'Otvori meni',
   },
+  korisnickiMeni: {
+    otvoriMeni: 'Otvori korisnički meni',
+    mojNalog: 'Moj nalog',
+    mojeNarudzbe: 'Moje narudžbe',
+    adminPanel: 'Admin panel',
+    portalBrenda: 'Portal za brend',
+    odjava: 'Odjava',
+  },
   homepage: {
     hero: {
       naslov: 'Započnite svoj Ritual zdravijeg života.',

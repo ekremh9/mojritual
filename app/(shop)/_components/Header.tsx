@@ -1,8 +1,12 @@
 import Link from 'next/link';
 import { Menu, ShoppingBag } from 'lucide-react';
+import { auth } from '@/auth';
 import { bs } from '@/lib/i18n/bs';
+import { KorisnickiMeni } from './KorisnickiMeni';
 
-export function Header() {
+export async function Header() {
+  const session = await auth();
+
   return (
     <header className="sticky top-0 z-50 border-b border-[#1C2B22]/10 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
@@ -43,12 +47,16 @@ export function Header() {
             </span>
           </Link>
 
-          <Link
-            href="/prijava"
-            className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-4 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] sm:px-5"
-          >
-            {bs.header.prijava}
-          </Link>
+          {session?.user ? (
+            <KorisnickiMeni user={session.user} />
+          ) : (
+            <Link
+              href="/prijava"
+              className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-4 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] sm:px-5"
+            >
+              {bs.header.prijava}
+            </Link>
+          )}
 
           <button
             type="button"
