@@ -14,4 +14,12 @@ export const bs = {
       naslov: 'Istaknuti proizvodi',
     },
   },
+  proizvod: {
+    dodajUKorpu: 'Dodaj u korpu',
+    prodaje: 'Prodaje',
+    opis: 'Opis proizvoda',
+    sastojciIDoziranje: 'Sastojci i doziranje',
+    upozorenja: 'Upozorenja',
+    kategorije: 'Kategorije',
+  },
 } as const;
