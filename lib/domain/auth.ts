@@ -15,6 +15,19 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 export type PublicUser = Omit<User, 'passwordHash'>;
 
+export type RegisterUserErrorCode = 'email_zauzet';
+
+/** Domenska greška — poruku za korisnika bira pozivalac iz `/lib/i18n/bs.ts`. */
+export class RegisterUserError extends Error {
+  readonly code: RegisterUserErrorCode;
+
+  constructor(code: RegisterUserErrorCode) {
+    super(code);
+    this.name = 'RegisterUserError';
+    this.code = code;
+  }
+}
+
 export async function registerUser(input: {
   email: string;
   password: string;
@@ -30,7 +43,7 @@ export async function registerUser(input: {
     .limit(1);
 
   if (postojeci) {
-    throw new Error('Korisnik sa ovom email adresom već postoji.');
+    throw new RegisterUserError('email_zauzet');
   }
 
   const passwordHash = await hashPassword(password);

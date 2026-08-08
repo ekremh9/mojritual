@@ -28,7 +28,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const [korisnik] = await db
           .select()
           .from(users)
-          .where(eq(users.email, email))
+          .where(eq(users.email, email.trim().toLowerCase()))
           .limit(1);
 
         if (!korisnik || !korisnik.passwordHash) {
