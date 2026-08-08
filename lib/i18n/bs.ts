@@ -22,4 +22,15 @@ export const bs = {
     upozorenja: 'Upozorenja',
     kategorije: 'Kategorije',
   },
+  kategorija: {
+    brojProizvoda: (broj: number) => {
+      const zadnjaCifra = broj % 10;
+      const zadnjeDvijeCifre = broj % 100;
+      const jednina = zadnjaCifra === 1 && zadnjeDvijeCifre !== 11;
+      return `${broj} ${jednina ? 'proizvod' : 'proizvoda'}`;
+    },
+    prazno: 'Trenutno nema proizvoda u ovoj kategoriji',
+    nazadNaPocetnu: 'Nazad na početnu',
+    opisGenericki: 'Pregledajte proizvode u ovoj kategoriji na MojRitualu.',
+  },
 } as const;

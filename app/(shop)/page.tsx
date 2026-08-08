@@ -1,10 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories, productImages, products } from '@/lib/db/schema';
-import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
+import { ProizvodKartica } from './_components/ProizvodKartica';
 
 async function getKategorije() {
   return db
@@ -129,32 +128,7 @@ export default async function HomePage() {
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {istaknutiProizvodi.map((proizvod) => (
-              <Link
-                key={proizvod.id}
-                href={`/proizvod/${proizvod.slug}`}
-                className="flex flex-col overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-white transition-shadow hover:shadow-md"
-              >
-                <div className="relative aspect-square w-full bg-[#F2F5ED]">
-                  {proizvod.slika ? (
-                    <Image
-                      src={proizvod.slika.url}
-                      alt={proizvod.slika.alt ?? proizvod.naziv}
-                      fill
-                      sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
-                      className="object-cover"
-                    />
-                  ) : null}
-                </div>
-                <div className="flex flex-1 flex-col gap-1 p-4">
-                  <span className="text-sm font-medium text-[#1C2B22]">{proizvod.naziv}</span>
-                  {proizvod.kratkiOpis ? (
-                    <span className="text-sm text-[#1C2B22]/70">{proizvod.kratkiOpis}</span>
-                  ) : null}
-                  <span className="mt-auto pt-2 text-base font-semibold text-[#1C2B22]">
-                    {formatCijena(proizvod.cijena)}
-                  </span>
-                </div>
-              </Link>
+              <ProizvodKartica key={proizvod.id} proizvod={proizvod} />
             ))}
           </div>
         </div>
