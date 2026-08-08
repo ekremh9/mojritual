@@ -84,6 +84,18 @@ npm run lint           # ESLint + tsc --noEmit
 - Svaka nova domenska funkcija dobija test u istom PR-u
 - Migracije se nikad ne edituju retroaktivno
 
+## Lokalni razvoj — baza
+
+ISP blokira direktan izlazni port 5432. Prije `npm run dev`, u posebnom
+terminalu otvori SSH tunel i ostavi ga da radi:
+
+```bash
+railway connect postgres --tunnel-only --port 5433
+```
+
+`.env.local` mora imati `DATABASE_URL` koji pokazuje na `localhost:5433`,
+ne na Railwayov javni domen — tunel prenosi saobraćaj u pozadini.
+
 ## Prije nego počneš zadatak
 
 Pročitaj `/docs/schema.md` ako zadatak dira podatke, i `/docs/spec.md` ako
