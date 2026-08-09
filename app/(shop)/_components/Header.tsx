@@ -16,6 +16,12 @@ export async function Header() {
 
         <nav className="hidden items-center gap-8 sm:flex">
           <Link
+            href="/shop"
+            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
+          >
+            {bs.header.shop}
+          </Link>
+          <Link
             href="/kategorije"
             className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
           >

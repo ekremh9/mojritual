@@ -1,6 +1,15 @@
+function jeJednina(broj: number): boolean {
+  return broj % 10 === 1 && broj % 100 !== 11;
+}
+
+function brojProizvoda(broj: number): string {
+  return `${broj} ${jeJednina(broj) ? 'proizvod' : 'proizvoda'}`;
+}
+
 export const bs = {
   header: {
     logo: 'Ritual',
+    shop: 'Shop',
     kategorije: 'Kategorije',
     ritualVodic: 'Ritual Vodič',
     blog: 'Blog',
@@ -40,15 +49,54 @@ export const bs = {
     kategorije: 'Kategorije',
   },
   kategorija: {
-    brojProizvoda: (broj: number) => {
-      const zadnjaCifra = broj % 10;
-      const zadnjeDvijeCifre = broj % 100;
-      const jednina = zadnjaCifra === 1 && zadnjeDvijeCifre !== 11;
-      return `${broj} ${jednina ? 'proizvod' : 'proizvoda'}`;
-    },
+    brojProizvoda,
     prazno: 'Trenutno nema proizvoda u ovoj kategoriji',
     nazadNaPocetnu: 'Nazad na početnu',
     opisGenericki: 'Pregledajte proizvode u ovoj kategoriji na Ritualu.',
+  },
+  shop: {
+    naslov: 'Shop',
+    metaOpis:
+      'Pretražite kompletnu ponudu dodataka prehrani i proizvoda za njegu na Ritualu — po nazivu, kategoriji ili obliku proizvoda.',
+    rezultati: (broj: number) =>
+      `${brojProizvoda(broj)} ${jeJednina(broj) ? 'pronađen' : 'pronađeno'}`,
+    prazno:
+      'Nema proizvoda koji odgovaraju vašim kriterijima. Pokušajte drugu pretragu ili očistite filtere.',
+    pretraga: {
+      labela: 'Pretraga proizvoda',
+      placeholder: 'Pretražite po nazivu ili opisu…',
+      dugme: 'Traži',
+    },
+    filteri: {
+      naslov: 'Filteri',
+      otvori: 'Filteri',
+      kategorija: 'Kategorija',
+      sveKategorije: 'Sve kategorije',
+      forma: 'Oblik proizvoda',
+      sveForme: 'Svi oblici',
+      sort: 'Sortiranje',
+      ocisti: 'Očisti filtere',
+    },
+    forme: {
+      kapsula: 'Kapsule',
+      tableta: 'Tablete',
+      prah: 'Prah',
+      tecnost: 'Tečnost',
+      gel: 'Gel',
+      krema: 'Krema',
+      zvakaca: 'Žvakaće',
+    },
+    sort: {
+      novo: 'Najnovije',
+      cijena_asc: 'Cijena: niža prvo',
+      cijena_desc: 'Cijena: viša prvo',
+    },
+    paginacija: {
+      naslov: 'Paginacija rezultata',
+      prethodna: 'Prethodna',
+      sljedeca: 'Sljedeća',
+      stranicaOd: (stranica: number, ukupno: number) => `Stranica ${stranica} od ${ukupno}`,
+    },
   },
   prijava: {
     naslov: 'Prijava',
