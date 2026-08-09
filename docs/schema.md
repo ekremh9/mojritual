@@ -1,4 +1,4 @@
-# Model podataka — MojRitual
+# Model podataka — Ritual
 
 Verzija 1.0 · 6. avgust 2026.
 
@@ -376,7 +376,7 @@ Ovo **ne gradimo sada**, ali šema ostavlja mjesta:
 | Stepen naknade = 50 artikala | `brands.naknada_stepen_velicina` default 50 |
 
 **Platforma nije prodavac.** Ugovor je između kupca i brenda. To znači da
-model podataka nikad ne smije implicirati da MojRitual naplaćuje robu —
+model podataka nikad ne smije implicirati da Ritual naplaćuje robu —
 jedini novčani tok prema platformi je provizija u `commission_periods`.
 
 ---

@@ -1,4 +1,4 @@
-# MojRitual — kontekst za Claude Code
+# Ritual — kontekst za Claude Code
 
 Marketplace za suplemente, zdravlje i njegu u BiH. Domena: **mojritual.ba**.
 Brendovi (farmaceutske kuće) sami listaju proizvode. Kupci kupuju kao gosti

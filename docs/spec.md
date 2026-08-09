@@ -1,16 +1,16 @@
-# SPECIFIKACIJA — MojRitual (marketplace suplemenata)
+# SPECIFIKACIJA — Ritual (marketplace suplemenata)
 
 > Domena: **mojritual.ba** · Verzija 2.0 · 6. avgust 2026.
 > Model podataka: `docs/schema.md` · Pravila za razvoj: `CLAUDE.md`
 
-## 0. Brend: MojRitual
+## 0. Brend: Ritual
 
-**Ime:** MojRitual (mojritual.ba)
+**Ime:** Ritual (domena: mojritual.ba)
 
-Naziv platforme je **MojRitual**. Nazivi funkcionalnosti zadržavaju
+Naziv platforme je **Ritual**. Nazivi funkcionalnosti zadržavaju
 postojeću terminologiju iz prototipa: **Ritual Vodič**, **Ritual Blog**.
 
-**Pozicioniranje:** MojRitual je najveća ponuda suplemenata na jednom mjestu —
+**Pozicioniranje:** Ritual je najveća ponuda suplemenata na jednom mjestu —
 sve što ti treba, pretraživo po nazivu, sastojku ili cilju, uz Ritual Vodič
 koji za par klikova pretvara nepregledne police u jasan, lični prijedlog.
 Jedna platforma, hiljade rješenja, jedan ritual koji ti odgovara.
@@ -51,8 +51,8 @@ koristiti neutralniju formulaciju. Vidi 17.2.
 
 **Sekcija za buduću marketplace fazu** (prikazuje se kao najava, bez
 funkcije u MVP-u):
-> "Postanite dio MojRitual ponude. Predstavite svoj brend korisnicima
-> koji već kupuju na MojRitualu."
+> "Postanite dio Ritual ponude. Predstavite svoj brend korisnicima
+> koji već kupuju na Ritualu."
 
 **Paleta i tipografija (na osnovu poslanog screenshota — hex vrijednosti su
 procjena iz slike, provjeriti/fino podesiti kad se otvori dizajn u alatu s
@@ -405,7 +405,7 @@ admina** prije nego postane javno vidljivo.
 
 ### 10.1 Registracija i pristup
 
-1. Brend se prijavljuje kroz formu „Postanite dio MojRitual ponude"
+1. Brend se prijavljuje kroz formu „Postanite dio Ritual ponude"
 2. Admin pregleda i kreira nalog, ili odbija
 3. Brend dobija pristup na `/brend`
 
@@ -546,7 +546,7 @@ podiže vrijednost korpe po brendu.
 - Zamrzava se u trenutku narudžbe — kasnija promjena ne dira stare narudžbe
 - Obračun ulazi **samo za isporučene pošiljke**
 
-Novac ide **brendu** (kupac plaća kuriru brenda). MojRitual naknadno
+Novac ide **brendu** (kupac plaća kuriru brenda). Ritual naknadno
 fakturiše proviziju po obračunskom periodu.
 
 ### 13.2 Naknada za prisustvo — kasnija faza
@@ -597,7 +597,7 @@ primljena i ko je pošiljalac proizvoda.
 
 ### 14.2 Podjela odgovornosti
 
-| | Brend | MojRitual |
+| | Brend | Ritual |
 |---|---|---|
 | Prima i rješava reklamaciju | ✓ | |
 | Komunicira s kupcem | ✓ | kod eskalacije |
@@ -609,7 +609,7 @@ primljena i ko je pošiljalac proizvoda.
 
 ### 14.3 Zašto ipak pratimo
 
-Kupac je kupio „na MojRitualu" i tebe vidi kao odgovornog bez obzira
+Kupac je kupio „na Ritualu" i tebe vidi kao odgovornog bez obzira
 čiji je račun. Ako brend ignoriše reklamacije, to se vraća platformi
 kroz recenzije i ugled.
 
@@ -662,11 +662,11 @@ Uz postojeći opseg (proizvodi, kategorije, paketi, blog, osnovni izvještaji):
 ### 16.1 Šta ovo znači u praksi
 
 Platforma **nije prodavac.** Ugovor o kupoprodaji je između kupca i
-brenda. MojRitual je posrednik koji naplaćuje proviziju za posredovanje.
+brenda. Ritual je posrednik koji naplaćuje proviziju za posredovanje.
 
 Posljedice koje moraju biti vidljive u interfejsu i uslovima korištenja:
 - Na stranici proizvoda i u checkoutu jasno stoji **ko je prodavac**
-- Račun stiže od brenda, ne od MojRituala
+- Račun stiže od brenda, ne od Rituala
 - Uslovi povrata se prikazuju uz podatke brenda
 - Uslovi korištenja moraju eksplicitno definisati ulogu posrednika
 

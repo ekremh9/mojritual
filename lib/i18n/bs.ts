@@ -1,6 +1,6 @@
 export const bs = {
   header: {
-    logo: 'MojRitual',
+    logo: 'Ritual',
     kategorije: 'Kategorije',
     ritualVodic: 'Ritual Vodič',
     blog: 'Blog',
@@ -18,7 +18,7 @@ export const bs = {
   },
   homepage: {
     hero: {
-      naslov: 'Započnite svoj Ritual zdravijeg života.',
+      naslov: 'Tvoj ritual zdravijeg života.',
       podnaslov:
         'Ispunite kratki Ritual Vodič i otkrijte stručno odabrane preporuke za svoje zdravstvene ciljeve — ili jednostavno pretražite najveći izbor dodataka prehrani i kozmetičkih proizvoda na jednom mjestu.',
       cta: 'Pokreni Ritual Vodič',
@@ -48,7 +48,7 @@ export const bs = {
     },
     prazno: 'Trenutno nema proizvoda u ovoj kategoriji',
     nazadNaPocetnu: 'Nazad na početnu',
-    opisGenericki: 'Pregledajte proizvode u ovoj kategoriji na MojRitualu.',
+    opisGenericki: 'Pregledajte proizvode u ovoj kategoriji na Ritualu.',
   },
   prijava: {
     naslov: 'Prijava',
@@ -92,7 +92,7 @@ export const bs = {
       'Nalog je kreiran, ali automatska prijava nije uspjela. Prijavite se ručno.',
   },
   portal: {
-    logo: 'MojRitual Portal',
+    logo: 'Ritual Portal',
     nazadNaSajt: 'Nazad na sajt',
     nepovezanNalog: 'Vaš nalog još nije povezan sa brendom.',
     kontaktirajtePodrsku: 'Kontaktirajte podršku.',
