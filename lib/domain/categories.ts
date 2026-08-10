@@ -36,6 +36,19 @@ export type KategorijaStablo = KategorijaSaBrojem & {
   podkategorije: KategorijaSaBrojem[];
 };
 
+export type PodkategorijaOpcija = {
+  id: string;
+  slug: string;
+  naziv: string;
+};
+
+export type KategorijaOpcija = {
+  id: string;
+  slug: string;
+  naziv: string;
+  podkategorije: PodkategorijaOpcija[];
+};
+
 /** Ručni redoslijed brenda ima prednost; naziv je samo stabilan tie-break. */
 function usporediKategorije(a: KategorijaRed, b: KategorijaRed): number {
   if (a.redoslijed !== b.redoslijed) {
@@ -94,6 +107,27 @@ export function sloziKategorijeStablo(
   }
 
   return stablo;
+}
+
+/**
+ * Sve top-level kategorije sa svim podkategorijama, bez obzira na broj
+ * proizvoda. Za portal, gdje brend bira kategoriju za proizvod koji tek
+ * dodaje — filtriranje po broju proizvoda bi ovdje sakrilo svaku
+ * podkategoriju koja još nema nijedan proizvod.
+ */
+export function sloziSveKategorijeStablo(sve: readonly KategorijaRed[]): KategorijaOpcija[] {
+  const poredane = [...sve].sort(usporediKategorije);
+
+  return poredane
+    .filter((kategorija) => kategorija.parentId === null)
+    .map((kategorija) => ({
+      id: kategorija.id,
+      slug: kategorija.slug,
+      naziv: kategorija.naziv,
+      podkategorije: poredane
+        .filter((dijete) => dijete.parentId === kategorija.id)
+        .map((dijete) => ({ id: dijete.id, slug: dijete.slug, naziv: dijete.naziv })),
+    }));
 }
 
 const getSveKategorije = cache(async (): Promise<KategorijaRed[]> => {
@@ -166,6 +200,15 @@ export const getCategoryTree = cache(async (): Promise<KategorijaStablo[]> => {
  * Top-level kategorije koje imaju bar jedan proizvod — direktno ili kroz neku
  * svoju podkategoriju. `brojProizvoda` je broj proizvoda u cijelom podstablu.
  */
+/**
+ * Sve kategorije, hijerarhijski, bez filtriranja po proizvodima. Koristi
+ * portal za brend kod dodavanja/uređivanja proizvoda.
+ */
+export const getFullCategoryTree = cache(async (): Promise<KategorijaOpcija[]> => {
+  const sve = await getSveKategorije();
+  return sloziSveKategorijeStablo(sve);
+});
+
 export const getTopLevelCategoriesWithProducts = cache(
   async (): Promise<KategorijaSaBrojem[]> => {
     const stablo = await getCategoryTree();

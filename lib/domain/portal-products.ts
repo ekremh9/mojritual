@@ -7,6 +7,8 @@ import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories, productCategories, productImages, products } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
+import type { ProizvodUnos } from '@/lib/domain/product-form';
+import { feningToKm } from '@/lib/domain/format';
 
 export const PRODUCT_STATUSI = [
   'nacrt',
@@ -119,4 +121,55 @@ export async function getBrandProductCounts(brandId: string): Promise<PortalProi
     brojaci[red.status] = red.ukupno;
   }
   return brojaci;
+}
+
+export type PortalProizvodZaUredjivanje = {
+  id: string;
+  status: Product['status'];
+  razlogOdbijanja: string | null;
+  pocetneVrijednosti: ProizvodUnos;
+};
+
+/**
+ * Proizvod za formu uređivanja u portalu — samo ako pripada datom brendu.
+ * `null` znači "ne postoji ili nije vaš" — stranica to tretira jednako
+ * (notFound), da se ne otkriva postojanje tuđeg proizvoda.
+ */
+export async function getPortalProductForEdit(
+  brandId: string,
+  productId: string,
+): Promise<PortalProizvodZaUredjivanje | null> {
+  const [proizvod] = await db
+    .select()
+    .from(products)
+    .where(and(eq(products.id, productId), eq(products.brandId, brandId)))
+    .limit(1);
+
+  if (!proizvod) {
+    return null;
+  }
+
+  const kategorijeProizvoda = await db
+    .select({ categoryId: productCategories.categoryId })
+    .from(productCategories)
+    .where(eq(productCategories.productId, proizvod.id));
+
+  return {
+    id: proizvod.id,
+    status: proizvod.status,
+    razlogOdbijanja: proizvod.razlogOdbijanja,
+    pocetneVrijednosti: {
+      naziv: proizvod.naziv,
+      kratkiOpis: proizvod.kratkiOpis ?? '',
+      opis: proizvod.opis ?? '',
+      forma: proizvod.forma,
+      kategorije: kategorijeProizvoda.map((red) => red.categoryId),
+      sastojci: proizvod.sastojci ?? '',
+      doziranje: proizvod.doziranje ?? '',
+      upozorenja: proizvod.upozorenja ?? '',
+      cijenaKm: feningToKm(proizvod.cijena).toFixed(2),
+      staraCijenaKm: proizvod.staraCijena === null ? '' : feningToKm(proizvod.staraCijena).toFixed(2),
+      dostupnost: proizvod.dostupnost,
+    },
+  };
 }

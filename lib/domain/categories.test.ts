@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sloziKategorijeStablo, type KategorijaRed } from './categories';
+import { sloziKategorijeStablo, sloziSveKategorijeStablo, type KategorijaRed } from './categories';
 
 function red(dio: Partial<KategorijaRed> & { id: string; slug: string }): KategorijaRed {
   return {
@@ -92,6 +92,27 @@ describe('sloziKategorijeStablo', () => {
         ['spo', 1],
       ]),
     );
+
+    expect(stablo.map((kategorija) => kategorija.slug)).toEqual(['suplementi', 'sport']);
+  });
+});
+
+describe('sloziSveKategorijeStablo', () => {
+  it('uključuje top-level kategoriju i kad nema nijedan proizvod', () => {
+    const stablo = sloziSveKategorijeStablo([SUPLEMENTI, VITAMINI, MINERALI, SPORT]);
+
+    expect(stablo.map((kategorija) => kategorija.slug)).toEqual(['suplementi', 'sport']);
+    expect(stablo[1]?.podkategorije).toEqual([]);
+  });
+
+  it('zadržava sve podkategorije bez obzira na broj proizvoda', () => {
+    const stablo = sloziSveKategorijeStablo([SUPLEMENTI, VITAMINI, MINERALI]);
+
+    expect(stablo[0]?.podkategorije.map((pod) => pod.slug)).toEqual(['minerali', 'vitamini']);
+  });
+
+  it('poštuje redoslijed pa naziv', () => {
+    const stablo = sloziSveKategorijeStablo([SPORT, PROTEINI, SUPLEMENTI, VITAMINI]);
 
     expect(stablo.map((kategorija) => kategorija.slug)).toEqual(['suplementi', 'sport']);
   });
