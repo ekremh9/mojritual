@@ -233,6 +233,34 @@ export const bs = {
       greskaSuspendovan: 'Vaš brend je suspendovan. Izmjene profila nisu moguće.',
       greskaOpsta: 'Snimanje nije uspjelo. Pokušajte ponovo.',
     },
+    proizvodi: {
+      naslov: 'Proizvodi',
+      dodajProizvod: 'Dodaj proizvod',
+      prazno: 'Još nemate nijedan proizvod. Dodajte prvi da se pojavi u vašoj ponudi.',
+      praznoFilter: 'Nema proizvoda sa ovim statusom.',
+      bezKategorije: '—',
+      status: {
+        nacrt: 'Nacrt',
+        na_cekanju: 'Na čekanju',
+        odobren: 'Odobren',
+        odbijen: 'Odbijen',
+      },
+      filteri: {
+        svi: 'Svi',
+      },
+      tabela: {
+        slika: 'Slika',
+        naziv: 'Naziv',
+        kategorija: 'Kategorija',
+        cijena: 'Cijena',
+        status: 'Status',
+      },
+      novi: {
+        naslov: 'Dodaj proizvod',
+        poruka: 'Forma za dodavanje proizvoda dolazi uskoro.',
+        nazad: 'Nazad na proizvode',
+      },
+    },
   },
   brend: {
     metaNaslov: (naziv: string) => `Brend – ${naziv}`,

@@ -1,0 +1,122 @@
+/**
+ * Proizvodi u portalu za brend — lista i brojevi po statusu.
+ * Brend mora vidjeti sve svoje proizvode bez obzira na status, uključujući
+ * nacrte i odbijene, ne samo odobrene.
+ */
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { categories, productCategories, productImages, products } from '@/lib/db/schema';
+import type { Product } from '@/lib/db/schema';
+
+export const PRODUCT_STATUSI = [
+  'nacrt',
+  'na_cekanju',
+  'odobren',
+  'odbijen',
+] as const satisfies readonly Product['status'][];
+
+export function jeProizvodStatus(vrijednost: string): vrijednost is Product['status'] {
+  return (PRODUCT_STATUSI as readonly string[]).includes(vrijednost);
+}
+
+export type PortalProizvod = {
+  id: string;
+  naziv: string;
+  cijena: number;
+  status: Product['status'];
+  razlogOdbijanja: string | null;
+  createdAt: Date;
+  slika: { url: string; alt: string | null } | null;
+  kategorija: { naziv: string; slug: string } | null;
+};
+
+/**
+ * Dohvata proizvode brenda, opciono filtrirane po statusu, sortirane
+ * najnovije prvo, sa prvom slikom i prvom kategorijom po proizvodu.
+ */
+export async function getBrandProducts(
+  brandId: string,
+  statusFilter?: Product['status'],
+): Promise<PortalProizvod[]> {
+  const uslov = statusFilter
+    ? and(eq(products.brandId, brandId), eq(products.status, statusFilter))
+    : eq(products.brandId, brandId);
+
+  const odabraniProizvodi = await db
+    .select({
+      id: products.id,
+      naziv: products.naziv,
+      cijena: products.cijena,
+      status: products.status,
+      razlogOdbijanja: products.razlogOdbijanja,
+      createdAt: products.createdAt,
+    })
+    .from(products)
+    .where(uslov)
+    .orderBy(desc(products.createdAt));
+
+  if (odabraniProizvodi.length === 0) {
+    return [];
+  }
+
+  const ids = odabraniProizvodi.map((proizvod) => proizvod.id);
+
+  const slike = await db
+    .select({
+      productId: productImages.productId,
+      url: productImages.url,
+      alt: productImages.alt,
+      redoslijed: productImages.redoslijed,
+    })
+    .from(productImages)
+    .where(inArray(productImages.productId, ids))
+    .orderBy(asc(productImages.redoslijed));
+
+  const prvaSlikaPoProizvodu = new Map<string, { url: string; alt: string | null }>();
+  for (const slika of slike) {
+    if (!prvaSlikaPoProizvodu.has(slika.productId)) {
+      prvaSlikaPoProizvodu.set(slika.productId, { url: slika.url, alt: slika.alt });
+    }
+  }
+
+  const kategorijeRedovi = await db
+    .select({
+      productId: productCategories.productId,
+      naziv: categories.naziv,
+      slug: categories.slug,
+    })
+    .from(productCategories)
+    .innerJoin(categories, eq(productCategories.categoryId, categories.id))
+    .where(inArray(productCategories.productId, ids))
+    .orderBy(asc(categories.naziv));
+
+  const prvaKategorijaPoProizvodu = new Map<string, { naziv: string; slug: string }>();
+  for (const red of kategorijeRedovi) {
+    if (!prvaKategorijaPoProizvodu.has(red.productId)) {
+      prvaKategorijaPoProizvodu.set(red.productId, { naziv: red.naziv, slug: red.slug });
+    }
+  }
+
+  return odabraniProizvodi.map((proizvod) => ({
+    ...proizvod,
+    slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
+    kategorija: prvaKategorijaPoProizvodu.get(proizvod.id) ?? null,
+  }));
+}
+
+export type PortalProizvodBrojaci = Record<Product['status'], number>;
+
+/** Broj proizvoda brenda po svakom statusu — za brojeve uz filter tabove. */
+export async function getBrandProductCounts(brandId: string): Promise<PortalProizvodBrojaci> {
+  const redovi = await db
+    .select({ status: products.status, ukupno: count() })
+    .from(products)
+    .where(eq(products.brandId, brandId))
+    .groupBy(products.status);
+
+  const brojaci: PortalProizvodBrojaci = { nacrt: 0, na_cekanju: 0, odobren: 0, odbijen: 0 };
+  for (const red of redovi) {
+    brojaci[red.status] = red.ukupno;
+  }
+  return brojaci;
+}
