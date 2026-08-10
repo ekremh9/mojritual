@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import { asc, count, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { categories, productImages, products } from '@/lib/db/schema';
+import { productImages, products } from '@/lib/db/schema';
+import { getCategoryTree } from '@/lib/domain/categories';
 import {
   buildShopOrderBy,
   buildShopWhere,
   imaAktivneFiltere,
   parseShopParams,
+  razrijesiKategorijuIds,
   shopPaginacija,
-  withKategorijaJoin,
   type ShopFilteri,
   type ShopSearchParams,
 } from '@/lib/domain/shop-query';
@@ -26,46 +27,31 @@ type ShopPageProps = {
   searchParams: Promise<ShopSearchParams>;
 };
 
-async function getKategorije() {
-  return db
-    .select({
-      id: categories.id,
-      slug: categories.slug,
-      naziv: categories.naziv,
-    })
-    .from(categories)
-    .orderBy(asc(categories.redoslijed), asc(categories.naziv));
-}
-
-async function getUkupnoProizvoda(filteri: ShopFilteri, kategorijaId: string | null) {
-  const redovi = await withKategorijaJoin(
-    db.select({ ukupno: count() }).from(products).$dynamic(),
-    kategorijaId,
-  ).where(buildShopWhere(filteri, kategorijaId));
+async function getUkupnoProizvoda(filteri: ShopFilteri, kategorijaIds: string[] | null) {
+  const redovi = await db
+    .select({ ukupno: count() })
+    .from(products)
+    .where(buildShopWhere(filteri, kategorijaIds));
 
   return redovi[0]?.ukupno ?? 0;
 }
 
 async function getProizvodi(
   filteri: ShopFilteri,
-  kategorijaId: string | null,
+  kategorijaIds: string[] | null,
   limit: number,
   offset: number,
 ) {
-  const odabraniProizvodi = await withKategorijaJoin(
-    db
-      .select({
-        id: products.id,
-        slug: products.slug,
-        naziv: products.naziv,
-        kratkiOpis: products.kratkiOpis,
-        cijena: products.cijena,
-      })
-      .from(products)
-      .$dynamic(),
-    kategorijaId,
-  )
-    .where(buildShopWhere(filteri, kategorijaId))
+  const odabraniProizvodi = await db
+    .select({
+      id: products.id,
+      slug: products.slug,
+      naziv: products.naziv,
+      kratkiOpis: products.kratkiOpis,
+      cijena: products.cijena,
+    })
+    .from(products)
+    .where(buildShopWhere(filteri, kategorijaIds))
     .orderBy(...buildShopOrderBy(filteri.sort))
     .limit(limit)
     .offset(offset);
@@ -105,24 +91,21 @@ async function getProizvodi(
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const filteri = parseShopParams(await searchParams);
-  const kategorije = await getKategorije();
+  const kategorije = await getCategoryTree();
 
-  const odabranaKategorija =
-    filteri.kategorija === null
-      ? null
-      : (kategorije.find((kategorija) => kategorija.slug === filteri.kategorija) ?? null);
+  // Prazan niz = slug iz URL-a ne postoji (ili kategorija nema proizvoda) —
+  // to je filter bez rezultata, ne filter koji se tiho ignoriše.
+  const kategorijaIds = razrijesiKategorijuIds(kategorije, filteri.kategorija);
 
-  // Slug iz URL-a koji ne postoji tretiramo kao filter bez rezultata, ne kao
-  // filter koji se tiho ignoriše — inače bi korisnik vidio cijeli katalog.
-  const nepoznataKategorija = filteri.kategorija !== null && odabranaKategorija === null;
-  const kategorijaId = odabranaKategorija?.id ?? null;
-
-  const ukupno = nepoznataKategorija ? 0 : await getUkupnoProizvoda(filteri, kategorijaId);
+  const ukupno =
+    kategorijaIds !== null && kategorijaIds.length === 0
+      ? 0
+      : await getUkupnoProizvoda(filteri, kategorijaIds);
   const paginacija = shopPaginacija(ukupno, filteri.stranica);
   const proizvodi =
     ukupno === 0
       ? []
-      : await getProizvodi(filteri, kategorijaId, paginacija.limit, paginacija.offset);
+      : await getProizvodi(filteri, kategorijaIds, paginacija.limit, paginacija.offset);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -139,7 +122,11 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         <aside className="lg:w-60 lg:shrink-0">
           <ShopFilterPanel
             filteri={filteri}
-            kategorije={kategorije.map(({ slug, naziv }) => ({ slug, naziv }))}
+            kategorije={kategorije.map(({ slug, naziv, podkategorije }) => ({
+              slug,
+              naziv,
+              podkategorije: podkategorije.map((pod) => ({ slug: pod.slug, naziv: pod.naziv })),
+            }))}
             aktivniFilteri={imaAktivneFiltere(filteri)}
           />
         </aside>

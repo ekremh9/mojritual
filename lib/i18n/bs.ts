@@ -34,7 +34,7 @@ export const bs = {
       mikroOznake: ['Stručno kreirane preporuke', 'Provjereni proizvodi', 'Brza dostava'],
     },
     kategorije: {
-      naslov: 'Kupujte po cilju',
+      naslov: 'Kupujte po kategoriji',
     },
     istaknutiProizvodi: {
       naslov: 'Istaknuti proizvodi',
@@ -50,9 +50,6 @@ export const bs = {
   },
   kategorija: {
     brojProizvoda,
-    prazno: 'Trenutno nema proizvoda u ovoj kategoriji',
-    nazadNaPocetnu: 'Nazad na početnu',
-    opisGenericki: 'Pregledajte proizvode u ovoj kategoriji na Ritualu.',
   },
   shop: {
     naslov: 'Shop',
@@ -72,6 +69,7 @@ export const bs = {
       otvori: 'Filteri',
       kategorija: 'Kategorija',
       sveKategorije: 'Sve kategorije',
+      sveIzKategorije: (naziv: string) => `Sve — ${naziv}`,
       forma: 'Oblik proizvoda',
       sveForme: 'Svi oblici',
       sort: 'Sortiranje',

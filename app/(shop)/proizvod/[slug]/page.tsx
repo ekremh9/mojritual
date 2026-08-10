@@ -121,7 +121,7 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
               {proizvod.kategorijeProizvoda.map((kategorija) => (
                 <Link
                   key={kategorija.slug}
-                  href={`/kategorija/${kategorija.slug}`}
+                  href={`/shop?kategorija=${kategorija.slug}`}
                   className="rounded-full bg-[#C7D6BA] px-3 py-1 text-xs font-medium text-[#1C2B22] transition-colors hover:bg-[#C7D6BA]/70"
                 >
                   {kategorija.naziv}

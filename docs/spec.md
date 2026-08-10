@@ -200,24 +200,47 @@ prati tekst.
 
 ## 3. Kategorizacija proizvoda
 
-| Kategorija | Primjeri grupa proizvoda |
+Dva odvojena modela — ne miješati ih:
+
+| Model | Odgovara na | Gdje se koristi |
+|---|---|---|
+| **Kategorija** (`categories`) | Šta proizvod **jeste** | Navigacija i filter kataloga |
+| **Cilj** (`goals`) | Šta proizvod **rješava** | Isključivo Ritual Vodič |
+
+**Ciljevi se nikad ne prikazuju kao filter ni kao navigacija.** Ranija verzija
+ove specifikacije je ciljeve tretirala kao kategorije — to je bila greška.
+
+### 3.1 Kategorije
+
+Hijerarhija je dva nivoa: top-level → podkategorija. Proizvod se veže za
+podkategoriju, a u prikazu se broji i za njenog roditelja.
+
+Pet top-level kategorija: **Suplementi · Sport · Higijena · Kozmetika ·
+Bebe** — sa ukupno 23 podkategorije. Tačan popis je u bazi (`categories`),
+ne ovdje, jer se održava kroz admin.
+
+- Homepage prikazuje samo top-level kategorije koje imaju bar jedan proizvod
+  u svom podstablu; kartica vodi na `/shop?kategorija=<slug>`
+- Kategorija nema zasebnu stranicu — `/kategorija/:slug` trajno redirectuje
+  na katalog s filterom
+- Izbor top-level kategorije u filteru obuhvata **sve njene podkategorije**
+
+Katalog uz kategoriju nudi i:
+- **Primarni filter:** aktivni sastojak, brend, cijena, ocjena, dostupnost
+  (odmah dostupno / na upit)
+- **Sekundarni filter:** oblik proizvoda (kapsule, prah, tečnost, žvake,
+  krema/gel gdje je primjenjivo) — koristan za suženje rezultata
+- Sortiranje: popularnost, cijena, ocjena, novo
+
+### 3.2 Ciljevi (samo Vodič)
+
+| Cilj | Primjeri grupa proizvoda |
 |---|---|
 | Imunitet i Energija | vitamin C, vitamin D3, cink, beta-glukan, propolis, med s dodacima |
 | Kosa, Koža i Nokti | kolagen, biotin, cink, vitamin C, omega-3 |
 | Kosti, Zglobovi, Mišići | kalcij, vitamin D3, vitamin K2, magnezij, OsteoCare-tip kompleksi, kolagen tip II, glukozamin, hondroitin |
 | Probava i Metabolizam | probiotici, prebiotici, digestivni enzimi, biljne tinkture za probavu, čajevi za probavu, psilijum, simetikon (nadutost) |
 | San i Opuštanje | magnezij glicinat, melatonin, ashwagandha, L-teanin, valerijana, matičnjak, pasiflora |
-
-Ovo su konačnih 5 kategorija za lansiranje.
-
-Svaka kategorija treba:
-- Kratak uvodni tekst (šta pokriva, disclaimer)
-- **Primarni filter:** cilj/problem, aktivni sastojak, brend, cijena, ocjena,
-  dostupnost (odmah dostupno / na upit)
-- **Sekundarni filter:** oblik proizvoda (kapsule, prah, tečnost, žvake,
-  krema/gel gdje je primjenjivo) — koristan za suženje rezultata, ali ne
-  primarni način pretrage jer korisnici prije svega traže po cilju/sastojku
-- Sortiranje: popularnost, cijena, ocjena, novo
 
 **Bundle ponude (grupe proizvoda):**
 - Dobavljač/brend može ponuditi bundle — više svojih proizvoda spojenih u

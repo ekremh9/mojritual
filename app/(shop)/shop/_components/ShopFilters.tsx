@@ -9,6 +9,7 @@ import type { ShopFilteri, ShopForma, ShopSort } from '@/lib/domain/shop-query';
 export type ShopKategorijaOpcija = {
   slug: string;
   naziv: string;
+  podkategorije: readonly { slug: string; naziv: string }[];
 };
 
 // Labele su jedini izvor liste — redoslijed ključeva u `bs` je i redoslijed u dropdownu.
@@ -143,11 +144,28 @@ export function ShopFilterPanel({ filteri, kategorije, aktivniFilteri }: ShopFil
           onPromjena={(vrijednost) => primijeni({ kategorija: vrijednost || null })}
         >
           <option value="">{bs.shop.filteri.sveKategorije}</option>
-          {kategorije.map((kategorija) => (
-            <option key={kategorija.slug} value={kategorija.slug}>
-              {kategorija.naziv}
-            </option>
-          ))}
+          {kategorije.map((kategorija) =>
+            // Kategorija bez podkategorija ne treba grupu — bio bi optgroup s
+            // jednom stavkom. Kod ostalih je roditelj prva opcija u svojoj
+            // grupi, jer se `optgroup` labela ne može izabrati, a filter po
+            // roditelju mora obuhvatiti i sve podkategorije.
+            kategorija.podkategorije.length === 0 ? (
+              <option key={kategorija.slug} value={kategorija.slug}>
+                {kategorija.naziv}
+              </option>
+            ) : (
+              <optgroup key={kategorija.slug} label={kategorija.naziv}>
+                <option value={kategorija.slug}>
+                  {bs.shop.filteri.sveIzKategorije(kategorija.naziv)}
+                </option>
+                {kategorija.podkategorije.map((podkategorija) => (
+                  <option key={podkategorija.slug} value={podkategorija.slug}>
+                    {podkategorija.naziv}
+                  </option>
+                ))}
+              </optgroup>
+            ),
+          )}
         </FilterSelect>
 
         <FilterSelect

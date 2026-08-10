@@ -97,8 +97,19 @@ mijenja **isključivo admin**. Brend ih vidi, ne edituje.
 ### `categories`
 | id, slug, naziv, opis, parent_id, ikona, redoslijed |
 
-Pet početnih: Imunitet i Energija · Kosa, Koža i Nokti · Kosti, Zglobovi,
-Mišići · Probava i Metabolizam · San i Opuštanje.
+Kategorija opisuje **šta proizvod jeste**. Hijerarhija je dva nivoa:
+top-level (`parent_id IS NULL`) → podkategorija. Proizvod se veže za
+podkategoriju, ali se u prikazu broji i za njenog roditelja.
+
+Pet top-level: Suplementi · Sport · Higijena · Kozmetika · Bebe —
+sa ukupno 23 podkategorije.
+
+`ikona` je ime lucide ikone (`Pill`, `Dumbbell`, `Droplets`, `Sparkles`,
+`Baby`); mapa poznatih imena je u `app/(shop)/_components/CategoryIcon.tsx`.
+
+Kategorije se koriste za navigaciju i filter kataloga. **Ciljevi (`goals`)
+su odvojen model** — šta proizvod *rješava* — i žive isključivo u Ritual
+Vodiču. Ciljevi se ne prikazuju kao filter ni kao navigacija.
 
 ### `products`
 | Polje | Tip | Napomena |
@@ -262,6 +273,9 @@ polje iz `brands` koje se tiče plaćanja ne smije ući u rangiranje.**
 | id, slug, naziv, opis |
 Ciljevi: više energije, bolji san, jači imunitet, zdrava kosa/koža/nokti,
 zglobovi i pokretljivost, probava i metabolizam, podrška kod treninga.
+
+Cilj opisuje **šta proizvod rješava** i koristi se samo u Vodiču — nije
+kategorija i ne pojavljuje se u navigaciji ni u filteru kataloga.
 
 ### `product_goals`
 | product_id, goal_id, relevantnost (integer 1–100) |

@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Kategorije više nemaju zasebnu stranicu — katalog ih pokriva kroz filter.
+  // Stari linkovi (indeksirani, podijeljeni) ostaju živi kroz trajni redirect.
+  async redirects() {
+    return [
+      {
+        source: "/kategorija/:slug",
+        destination: "/shop?kategorija=:slug",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

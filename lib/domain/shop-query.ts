@@ -1,6 +1,10 @@
-import { and, asc, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
-import type { PgSelect } from 'drizzle-orm/pg-core';
+import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
+import { QueryBuilder } from 'drizzle-orm/pg-core';
 import { productCategories, products } from '@/lib/db/schema';
+
+// Samostalni graditelj upita — podupit za kategorije ne treba konekciju na bazu,
+// pa `/lib/domain` ostaje bez zavisnosti na `db`.
+const upitnik = new QueryBuilder();
 
 export const PROIZVODA_PO_STRANICI = 20;
 
@@ -86,11 +90,54 @@ export function shopUzorakPretrage(q: string): string {
   return `%${escapeLikeUzorak(q)}%`;
 }
 
+export type KategorijaIzbor = {
+  id: string;
+  slug: string;
+  podkategorije: readonly { id: string; slug: string }[];
+};
+
 /**
- * Gradi WHERE za katalog. `kategorijaId` se prosljeđuje odvojeno jer dolazi iz
- * slug → id razrješenja; uslov ima smisla samo uz join iz `withKategorijaJoin`.
+ * Iz slug-a razrješava listu ID-eva kategorija za filter. Za top-level
+ * kategoriju vraća njen ID **i ID-eve svih podkategorija**, jer su proizvodi
+ * vezani za podkategorije — filter po roditelju mora obuhvatiti cijelo
+ * podstablo. Za podkategoriju vraća samo njen ID.
+ *
+ * `null` znači "bez filtera", a prazan niz znači nepoznat slug — to je filter
+ * bez rezultata, ne filter koji se tiho ignoriše. URL je javan i uređiv.
  */
-export function buildShopWhere(filteri: ShopFilteri, kategorijaId: string | null): SQL | undefined {
+export function razrijesiKategorijuIds(
+  stablo: readonly KategorijaIzbor[],
+  slug: string | null,
+): string[] | null {
+  if (slug === null) {
+    return null;
+  }
+
+  const korijen = stablo.find((kategorija) => kategorija.slug === slug);
+  if (korijen) {
+    return [korijen.id, ...korijen.podkategorije.map((dijete) => dijete.id)];
+  }
+
+  for (const kategorija of stablo) {
+    const dijete = kategorija.podkategorije.find((pod) => pod.slug === slug);
+    if (dijete) {
+      return [dijete.id];
+    }
+  }
+
+  return [];
+}
+
+/**
+ * Gradi WHERE za katalog. `kategorijaIds` se prosljeđuje odvojeno jer dolazi iz
+ * `razrijesiKategorijuIds`. Uslov je `IN (subquery)` umjesto joina — proizvod u
+ * dvije podkategorije istog roditelja inače bi se pojavio dvaput u rezultatu i
+ * pokvario i listu i ukupan broj.
+ */
+export function buildShopWhere(
+  filteri: ShopFilteri,
+  kategorijaIds: readonly string[] | null,
+): SQL | undefined {
   const uslovi: SQL[] = [eq(products.status, 'odobren')];
 
   if (filteri.q !== null) {
@@ -110,27 +157,21 @@ export function buildShopWhere(filteri: ShopFilteri, kategorijaId: string | null
     uslovi.push(eq(products.forma, filteri.forma));
   }
 
-  if (kategorijaId !== null) {
-    uslovi.push(eq(productCategories.categoryId, kategorijaId));
+  if (kategorijaIds !== null) {
+    uslovi.push(
+      kategorijaIds.length === 0
+        ? sql`false`
+        : inArray(
+            products.id,
+            upitnik
+              .select({ productId: productCategories.productId })
+              .from(productCategories)
+              .where(inArray(productCategories.categoryId, [...kategorijaIds])),
+          ),
+    );
   }
 
   return and(...uslovi);
-}
-
-/**
- * Join se dodaje samo kad se filtrira po kategoriji. `product_categories` ima
- * složeni PK (product_id, category_id), pa jedna kategorija ne može duplirati
- * proizvod — count ostaje tačan bez DISTINCT.
- */
-export function withKategorijaJoin<T extends PgSelect>(upit: T, kategorijaId: string | null): T {
-  if (kategorijaId === null) {
-    return upit;
-  }
-
-  return upit.innerJoin(
-    productCategories,
-    eq(productCategories.productId, products.id),
-  ) as unknown as T;
 }
 
 export function buildShopOrderBy(sort: ShopSort): SQL[] {

@@ -1,23 +1,11 @@
 import Link from 'next/link';
-import { asc, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { categories, productImages, products } from '@/lib/db/schema';
+import { productImages, products } from '@/lib/db/schema';
+import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
 import { bs } from '@/lib/i18n/bs';
+import { CategoryIcon } from './_components/CategoryIcon';
 import { ProizvodKartica } from './_components/ProizvodKartica';
-
-async function getKategorije() {
-  return db
-    .select({
-      id: categories.id,
-      slug: categories.slug,
-      naziv: categories.naziv,
-      opis: categories.opis,
-    })
-    .from(categories)
-    .where(isNull(categories.parentId))
-    .orderBy(asc(categories.redoslijed))
-    .limit(5);
-}
 
 async function getIstaknutiProizvodi() {
   const odobreniProizvodi = await db
@@ -68,7 +56,7 @@ async function getIstaknutiProizvodi() {
 
 export default async function HomePage() {
   const [kategorije, istaknutiProizvodi] = await Promise.all([
-    getKategorije(),
+    getTopLevelCategoriesWithProducts(),
     getIstaknutiProizvodi(),
   ]);
 
@@ -108,12 +96,15 @@ export default async function HomePage() {
             {kategorije.map((kategorija) => (
               <Link
                 key={kategorija.id}
-                href={`/kategorija/${kategorija.slug}`}
-                className="flex flex-col justify-between rounded-2xl bg-[#C7D6BA] p-5 transition-transform hover:-translate-y-0.5"
+                href={`/shop?kategorija=${kategorija.slug}`}
+                className="flex flex-col rounded-2xl bg-[#C7D6BA] p-5 transition-transform hover:-translate-y-0.5"
               >
-                <span className="text-base font-medium text-[#1C2B22]">{kategorija.naziv}</span>
+                <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-[#16332A]" />
+                <span className="mt-3 text-base font-medium text-[#1C2B22]">
+                  {kategorija.naziv}
+                </span>
                 {kategorija.opis ? (
-                  <span className="mt-2 text-sm text-[#1C2B22]/70">{kategorija.opis}</span>
+                  <span className="mt-1 text-sm text-[#1C2B22]/70">{kategorija.opis}</span>
                 ) : null}
               </Link>
             ))}
