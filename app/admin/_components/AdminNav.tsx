@@ -1,0 +1,28 @@
+import { Building2, LayoutDashboard, Package } from 'lucide-react';
+import { bs } from '@/lib/i18n/bs';
+import { AdminNavLink } from './AdminNavLink';
+
+const IKONA_KLASE = 'h-4 w-4 shrink-0';
+
+/**
+ * Navigacija admin panela. Na mobitelu horizontalna traka koja se
+ * skroluje, na `sm+` uspravni sidebar — isti pattern kao PortalNav.
+ */
+export function AdminNav() {
+  return (
+    <nav
+      aria-label={bs.admin.nav.naslov}
+      className="flex gap-1 overflow-x-auto pb-1 sm:flex-col sm:gap-1 sm:overflow-x-visible sm:pb-0"
+    >
+      <AdminNavLink href="/admin" label={bs.admin.nav.pregled}>
+        <LayoutDashboard className={IKONA_KLASE} />
+      </AdminNavLink>
+      <AdminNavLink href="/admin/proizvodi" label={bs.admin.nav.proizvodi}>
+        <Package className={IKONA_KLASE} />
+      </AdminNavLink>
+      <AdminNavLink href="/admin/brendovi" label={bs.admin.nav.brendovi}>
+        <Building2 className={IKONA_KLASE} />
+      </AdminNavLink>
+    </nav>
+  );
+}

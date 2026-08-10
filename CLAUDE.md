@@ -32,7 +32,8 @@ procjena koja daje personaliziranu preporuku.
   /(admin)       admin dashboard — /admin/*
   /api           REST granica (koristit će je i buduća mobilna aplikacija)
 /lib
-  /db            Drizzle šema i upiti
+  /db            Drizzle še
+  ma i upiti
   /domain        poslovna logika — čista, bez React zavisnosti
   /i18n          bs.ts
 /docs
