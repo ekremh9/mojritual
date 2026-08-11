@@ -8,6 +8,7 @@ import { db } from '@/lib/db';
 import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
 import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
+import { DodajUKorpuDugme } from './_components/DodajUKorpuDugme';
 
 type ProizvodPageProps = {
   params: Promise<{ slug: string }>;
@@ -152,13 +153,7 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
             </Link>
           </span>
 
-          <button
-            type="button"
-            disabled
-            className="mt-1 inline-flex items-center justify-center rounded-full bg-[#16332A] px-8 py-3 text-base font-medium text-[#F2F5ED] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {bs.proizvod.dodajUKorpu}
-          </button>
+          <DodajUKorpuDugme productId={proizvod.id} />
         </div>
 
         {pasusiOpisa.length > 0 ? (

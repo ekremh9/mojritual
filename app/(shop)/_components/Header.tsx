@@ -3,6 +3,7 @@ import { Menu, ShoppingBag } from 'lucide-react';
 import { auth } from '@/auth';
 import { bs } from '@/lib/i18n/bs';
 import { KorisnickiMeni } from './KorisnickiMeni';
+import { KorpaBroj } from './KorpaBroj';
 
 export async function Header() {
   const session = await auth();
@@ -48,9 +49,7 @@ export async function Header() {
             aria-label={bs.header.korpa}
           >
             <ShoppingBag className="h-5 w-5" />
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#16332A] text-[10px] font-medium text-white">
-              0
-            </span>
+            <KorpaBroj />
           </Link>
 
           {session?.user ? (
