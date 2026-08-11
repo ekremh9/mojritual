@@ -25,6 +25,7 @@ type CartContextValue = {
   dodajUKorpu: (productId: string, kolicina?: number) => void;
   postaviKolicinu: (productId: string, kolicina: number) => void;
   ukloniStavku: (productId: string) => void;
+  clearCart: () => void;
   brojArtikala: number;
 };
 
@@ -73,15 +74,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setStavke((prethodneStavke) => ukloniStavkuIzListe(prethodneStavke, productId));
   }, []);
 
+  // Poziva se nakon uspješne narudžbe — briše i stanje i localStorage, da se
+  // izbjegne da korisnik slučajno naruči iste stavke dvaput.
+  const clearCart = useCallback(() => {
+    setStavke([]);
+    try {
+      window.localStorage.removeItem(KLJUC_LOCALSTORAGE);
+    } catch {
+      // localStorage nedostupan (npr. privatni mod) — stanje u memoriji je i dalje očišćeno.
+    }
+  }, []);
+
   const value = useMemo<CartContextValue>(
     () => ({
       stavke,
       dodajUKorpu,
       postaviKolicinu,
       ukloniStavku,
+      clearCart,
       brojArtikala: izracunajBrojArtikala(stavke),
     }),
-    [stavke, dodajUKorpu, postaviKolicinu, ukloniStavku],
+    [stavke, dodajUKorpu, postaviKolicinu, ukloniStavku, clearCart],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -3,7 +3,8 @@
 Marketplace za suplemente, zdravlje i njegu u BiH. Domena: **mojritual.ba**.
 Brendovi (farmaceutske kuće) sami listaju proizvode. Kupci kupuju kao gosti
 uz plaćanje pouzećem. Srce proizvoda je **Ritual Vodič** — kratka zdravstvena
-procjena koja daje personaliziranu preporuku.
+procjena koja daje personaliziran
+u preporuku.
 
 ## Jezik
 

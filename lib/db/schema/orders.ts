@@ -4,6 +4,7 @@ import {
   integer,
   numeric,
   pgEnum,
+  pgSequence,
   pgTable,
   text,
   timestamp,
@@ -13,6 +14,24 @@ import { brands } from './brands';
 import { bundles } from './bundles';
 import { products } from './products';
 import { businessAccounts, users } from './users';
+
+/**
+ * Izvor broja narudžbe (`MR-2026-00421`). `nextval()` je atoman na nivou
+ * baze — dvije istovremene narudžbe nikad ne mogu dobiti isti broj, bez
+ * eksplicitnog zaključavanja (za razliku od SELECT FOR UPDATE nad brojačem
+ * u `settings`, koje bi pod konkurentnim narudžbama moglo dovesti do
+ * čekanja ili deadlock-a). Cijena: broj nije bez rupa — narudžba čija
+ * transakcija padne u rollback ostavlja preskočen broj. To je prihvatljivo,
+ * jedinstvenost je jedino što je bitno.
+ *
+ * Sekvenca se nikad ne resetuje po godini — godina u broju je snapshot
+ * trenutka narudžbe, ne dio brojača.
+ */
+export const orderBrojSequence = pgSequence('order_broj_seq', {
+  startWith: 1,
+  increment: 1,
+  minValue: 1,
+});
 
 export const orderTipEnum = pgEnum('order_tip', ['maloprodaja', 'veleprodaja']);
 
