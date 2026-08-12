@@ -9,7 +9,11 @@ const NALOG_PREFIX = '/nalog';
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === 'production',
+  });
 
   if (!token) {
     const prijavaUrl = new URL('/prijava', request.url);
