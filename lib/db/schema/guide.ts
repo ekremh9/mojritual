@@ -3,6 +3,7 @@ import {
   index,
   integer,
   jsonb,
+  pgEnum,
   pgTable,
   primaryKey,
   text,
@@ -19,6 +20,13 @@ export const goals = pgTable('goals', {
   opis: text('opis'),
 });
 
+// primarni = glavni razlog da se proizvod pojavi u toj grupi preporuka.
+// sekundarni = koristan dodatak, ne nosilac preporuke.
+export const productGoalOznakaEnum = pgEnum('product_goal_oznaka', [
+  'primarni',
+  'sekundarni',
+]);
+
 export const productGoals = pgTable(
   'product_goals',
   {
@@ -30,12 +38,32 @@ export const productGoals = pgTable(
       .references(() => goals.id, { onDelete: 'cascade' }),
     // Postavlja admin ili medicinski recenzent. NIKAD brend — vidi CLAUDE.md pravilo 2.
     relevantnost: integer('relevantnost').notNull(),
+    // Postavlja admin ili medicinski recenzent. NIKAD brend — vidi CLAUDE.md pravilo 2.
+    oznaka: productGoalOznakaEnum('oznaka').notNull().default('sekundarni'),
   },
   (table) => [
     primaryKey({ columns: [table.productId, table.goalId] }),
     index('product_goals_product_id_idx').on(table.productId),
     index('product_goals_goal_id_idx').on(table.goalId),
   ],
+);
+
+// Statični tekst objašnjenja prikazan uz preporuke za dati cilj u Ritual
+// Vodiču. Za sada JEDAN aktivan tekst po cilju, ne više varijanti —
+// prošireno kasnije ako zatreba.
+export const guideExplanationTemplates = pgTable(
+  'guide_explanation_templates',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    goalId: uuid('goal_id')
+      .notNull()
+      .references(() => goals.id, { onDelete: 'cascade' }),
+    tekst: text('tekst').notNull(),
+    aktivan: boolean('aktivan').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('guide_explanation_templates_goal_id_idx').on(table.goalId)],
 );
 
 export const guideSessions = pgTable(
@@ -63,3 +91,6 @@ export type NewProductGoal = typeof productGoals.$inferInsert;
 
 export type GuideSession = typeof guideSessions.$inferSelect;
 export type NewGuideSession = typeof guideSessions.$inferInsert;
+
+export type GuideExplanationTemplate = typeof guideExplanationTemplates.$inferSelect;
+export type NewGuideExplanationTemplate = typeof guideExplanationTemplates.$inferInsert;

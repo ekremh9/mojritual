@@ -4,7 +4,7 @@ import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { commissionPeriods } from './commission';
 import { medicalReviewers, posts } from './content';
-import { goals, guideSessions, productGoals } from './guide';
+import { goals, guideExplanationTemplates, guideSessions, productGoals } from './guide';
 import { ingredients, productIngredients } from './ingredients';
 import { orderItems, orderShipments, orders } from './orders';
 import { productCategories, productImages, products } from './products';
@@ -226,6 +226,7 @@ export const commissionPeriodsRelations = relations(commissionPeriods, ({ one })
 
 export const goalsRelations = relations(goals, ({ many }) => ({
   productGoals: many(productGoals),
+  explanationTemplates: many(guideExplanationTemplates),
 }));
 
 export const productGoalsRelations = relations(productGoals, ({ one }) => ({
@@ -238,6 +239,16 @@ export const productGoalsRelations = relations(productGoals, ({ one }) => ({
     references: [goals.id],
   }),
 }));
+
+export const guideExplanationTemplatesRelations = relations(
+  guideExplanationTemplates,
+  ({ one }) => ({
+    goal: one(goals, {
+      fields: [guideExplanationTemplates.goalId],
+      references: [goals.id],
+    }),
+  }),
+);
 
 export const guideSessionsRelations = relations(guideSessions, ({ one }) => ({
   user: one(users, {
