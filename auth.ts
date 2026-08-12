@@ -7,6 +7,7 @@ import { verifyPassword } from '@/lib/domain/auth';
 import '@/lib/auth/types';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/prijava',
