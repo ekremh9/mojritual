@@ -422,6 +422,65 @@ export const bs = {
     ponudaBrenda: 'Ponuda brenda',
     prazno: 'Ovaj brend trenutno nema dostupnih proizvoda.',
   },
+  vodic: {
+    naslov: 'Ritual Vodič',
+    korakOd: (trenutni: number, ukupno: number) => `Korak ${trenutni} od ${ukupno}`,
+    disclaimer:
+      'Suplementi služe kao podrška općem zdravlju i ne mogu biti zamjena za dijagnozu niti propisanu terapiju. Kod ozbiljnih ili dugotrajnih simptoma obratite se zdravstvenom stručnjaku.',
+    dugmad: {
+      dalje: 'Dalje',
+      nazad: 'Nazad',
+      vidiRezultate: 'Vidi rezultate',
+      ucitavanje: 'Izračunavanje…',
+    },
+    korak1: {
+      naslov: 'Osnovni podaci',
+      podnaslov: 'Ovaj korak je opcion — možete ga preskočiti.',
+      spol: {
+        naslov: 'Spol',
+        m: 'Muški',
+        z: 'Ženski',
+        preskoci: 'Preskoči',
+      },
+      starosnaGrupa: {
+        naslov: 'Starosna grupa',
+        opcije: {
+          '<18': 'Mlađi od 18',
+          '18-30': '18–30',
+          '31-45': '31–45',
+          '46-60': '46–60',
+          '60+': '60+',
+        } as Record<string, string>,
+      },
+      napomenaMaloljetni:
+        'Za osobe mlađe od 18 godina potrebno je prisustvo roditelja/staratelja i konsultacija sa pedijatrom prije upotrebe bilo kojeg dodatka prehrani.',
+      potvrdaMaloljetni: 'Razumijem',
+    },
+    korak2: {
+      naslov: 'Koji je vaš cilj?',
+      podnaslov: 'Odaberite do 3 cilja.',
+      odabrano: (broj: number) => `${broj}/${3} odabrano`,
+    },
+    korak3: {
+      naslov: 'Još par pitanja',
+      podnaslov: 'Ovo nam pomaže da bolje razumijemo vašu situaciju.',
+    },
+    rezultat: {
+      naslov: 'Vaš prijedlog',
+      podnaslov: 'Za vaš cilj obično se koriste sljedeći proizvodi.',
+      prazno: 'Trenutno nemamo proizvode za ovaj cilj — uskoro dodajemo nove.',
+      sacuvajNalog: 'Kreiraj nalog da sačuvaš ovaj rezultat',
+      nazadNaPocetak: 'Ponovi Vodič',
+      dodajUKorpu: 'Dodaj u korpu',
+      dodanoUKorpu: 'Dodano ✓',
+      sacuvajRezultat: 'Sačuvaj rezultat',
+      cuvanje: 'Snimanje…',
+      rezultatSacuvan: 'Rezultat je sačuvan na vaš nalog.',
+      greskaNijeUlogovan: 'Morate biti prijavljeni da sačuvate rezultat.',
+    },
+    greskaBrojCiljeva: 'Odaberite od 1 do 3 cilja.',
+    greskaOpsta: 'Nešto nije uspjelo. Pokušajte ponovo.',
+  },
   admin: {
     logo: 'Ritual Admin',
     nazadNaSajt: 'Nazad na sajt',
