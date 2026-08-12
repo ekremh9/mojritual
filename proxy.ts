@@ -9,10 +9,19 @@ const NALOG_PREFIX = '/nalog';
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const jeHttps = request.nextUrl.protocol === 'https:';
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === 'production',
+    secureCookie: jeHttps,
+  });
+
+  console.log('[proxy debug]', {
+    pathname,
+    hasToken: !!token,
+    protocol: request.nextUrl.protocol,
+    cookieNames: request.cookies.getAll().map(c => c.name),
   });
 
   if (!token) {
