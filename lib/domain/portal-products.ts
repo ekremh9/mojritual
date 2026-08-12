@@ -128,6 +128,7 @@ export type PortalProizvodZaUredjivanje = {
   status: Product['status'];
   razlogOdbijanja: string | null;
   pocetneVrijednosti: ProizvodUnos;
+  slike: { id: string; url: string; alt: string | null }[];
 };
 
 /**
@@ -154,10 +155,17 @@ export async function getPortalProductForEdit(
     .from(productCategories)
     .where(eq(productCategories.productId, proizvod.id));
 
+  const slikeProizvoda = await db
+    .select({ id: productImages.id, url: productImages.url, alt: productImages.alt })
+    .from(productImages)
+    .where(eq(productImages.productId, proizvod.id))
+    .orderBy(asc(productImages.redoslijed));
+
   return {
     id: proizvod.id,
     status: proizvod.status,
     razlogOdbijanja: proizvod.razlogOdbijanja,
+    slike: slikeProizvoda,
     pocetneVrijednosti: {
       naziv: proizvod.naziv,
       kratkiOpis: proizvod.kratkiOpis ?? '',

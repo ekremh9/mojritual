@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { AlertTriangle, Info } from 'lucide-react';
 import { auth } from '@/auth';
 import { getUserBrand } from '@/lib/domain/brand-access';
 import type { BrandProfilUnos } from '@/lib/domain/brand-profile';
 import { feningToKm } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
+import { ImageUpload } from './_components/ImageUpload';
 import { ProfilForma } from './_components/ProfilForma';
 
 export const metadata: Metadata = {
@@ -67,52 +67,30 @@ export default async function PortalProfilPage() {
         <p className="text-sm text-[#1C2B22]/80">{bs.portal.profil.napomena}</p>
       </div>
 
-      {/* Upload slika traži storage konfiguraciju — zasad samo pregled. */}
       <section className="flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5">
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.portal.profil.slike.naslov}</h2>
-          <p className="text-sm text-[#8A9086]">{bs.portal.profil.slike.napomena}</p>
         </div>
 
-        {brand.logoUrl || brand.coverUrl ? (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
-            {brand.logoUrl ? (
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-[#1C2B22]">
-                  {bs.portal.profil.slike.logo}
-                </span>
-                <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-[#F2F5ED]">
-                  <Image
-                    src={brand.logoUrl}
-                    alt={brand.naziv}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            ) : null}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+          <ImageUpload
+            label={bs.portal.profil.slike.logo}
+            trenutniUrl={brand.logoUrl}
+            tip="logo"
+            brandId={brand.id}
+            onemoguceno={suspendovan}
+          />
 
-            {brand.coverUrl ? (
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <span className="text-sm font-medium text-[#1C2B22]">
-                  {bs.portal.profil.slike.cover}
-                </span>
-                <div className="relative h-32 w-full overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-[#F2F5ED]">
-                  <Image
-                    src={brand.coverUrl}
-                    alt=""
-                    fill
-                    sizes="(min-width: 640px) 32rem, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            ) : null}
+          <div className="min-w-0 flex-1">
+            <ImageUpload
+              label={bs.portal.profil.slike.cover}
+              trenutniUrl={brand.coverUrl}
+              tip="cover"
+              brandId={brand.id}
+              onemoguceno={suspendovan}
+            />
           </div>
-        ) : (
-          <p className="text-sm text-[#1C2B22]/70">{bs.portal.profil.slike.nema}</p>
-        )}
+        </div>
       </section>
 
       <ProfilForma

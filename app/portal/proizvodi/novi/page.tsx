@@ -46,6 +46,10 @@ export default async function PortalNoviProizvodPage() {
         <h1 className="text-2xl font-semibold text-[#1C2B22]">{bs.portal.proizvodi.novi.naslov}</h1>
       </div>
 
+      <div className="rounded-2xl border border-[#1C2B22]/10 bg-[#C7D6BA]/25 px-4 py-3">
+        <p className="text-sm text-[#1C2B22]/80">{bs.portal.proizvodi.slike.napomenaNoviProizvod}</p>
+      </div>
+
       <ProizvodForma
         brandId={pristup.brand.id}
         productId={null}

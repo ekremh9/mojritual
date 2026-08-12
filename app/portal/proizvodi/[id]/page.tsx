@@ -5,6 +5,7 @@ import { getUserBrand } from '@/lib/domain/brand-access';
 import { getFullCategoryTree } from '@/lib/domain/categories';
 import { getPortalProductForEdit } from '@/lib/domain/portal-products';
 import { bs } from '@/lib/i18n/bs';
+import { ProductImageUpload } from '../_components/ProductImageUpload';
 import { ProizvodForma } from '../_components/ProizvodForma';
 
 export const metadata: Metadata = {
@@ -47,6 +48,18 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold text-[#1C2B22]">{bs.portal.proizvodi.uredi.naslov}</h1>
       </div>
+
+      <section className="flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.portal.proizvodi.slike.naslov}</h2>
+        </div>
+
+        <ProductImageUpload
+          productId={proizvod.id}
+          slike={proizvod.slike}
+          onemoguceno={pristup.brand.status === 'suspendovan'}
+        />
+      </section>
 
       <ProizvodForma
         brandId={pristup.brand.id}

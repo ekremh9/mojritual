@@ -252,6 +252,15 @@ export const bs = {
       urediProfil: 'Uredi profil brenda',
       pogledajNarudzbe: 'Pogledaj narudžbe',
     },
+    slike: {
+      greskaPristup: 'Nemate pristup ovoj slici.',
+      greskaSuspendovan: 'Vaš brend je suspendovan. Izmjene slika nisu moguće.',
+      greskaFajl: 'Odaberite fajl za upload.',
+      greskaTip: 'Dozvoljeni formati su JPEG, PNG i WebP.',
+      greskaVelicina: 'Slika je prevelika. Maksimalna veličina je 8MB.',
+      greskaMaxSlika: 'Proizvod već ima maksimalan broj slika (4).',
+      greskaOpsta: 'Upload slike nije uspio. Pokušajte ponovo.',
+    },
     profil: {
       naslov: 'Profil brenda',
       podnaslov: 'Podaci koje kupci vide na javnoj stranici vašeg brenda.',
@@ -262,8 +271,10 @@ export const bs = {
         naslov: 'Logo i naslovna slika',
         logo: 'Logo',
         cover: 'Naslovna slika',
-        nema: 'Logo i naslovna slika još nisu postavljeni.',
-        napomena: 'Postavljanje slika dolazi u sljedećem koraku — ovdje je za sada samo pregled.',
+        dodaj: 'Dodaj sliku',
+        ucitavanje: 'Učitavanje…',
+        napomena:
+          'Slike se automatski smanjuju i pretvaraju u WebP prije objave — učitavanje može potrajati par sekundi.',
       },
       sekcije: {
         osnovno: 'Osnovno',
@@ -347,6 +358,17 @@ export const bs = {
       uredi: {
         naslov: 'Uredi proizvod',
         nazad: 'Nazad na proizvode',
+      },
+      slike: {
+        naslov: 'Slike proizvoda',
+        napomena:
+          'Do 4 slike po proizvodu. Slike se automatski smanjuju i pretvaraju u WebP prije objave — učitavanje može potrajati par sekundi.',
+        dodajSliku: 'Dodaj sliku',
+        ucitavanje: 'Učitavanje…',
+        ukloni: 'Ukloni sliku',
+        maxDostignut: 'Dostigli ste maksimalan broj slika (4) za ovaj proizvod.',
+        nema: 'Ovaj proizvod još nema slika.',
+        napomenaNoviProizvod: 'Sačuvajte proizvod prije dodavanja slika.',
       },
       forma: {
         trenutniStatus: 'Trenutni status',
