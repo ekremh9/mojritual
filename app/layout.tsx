@@ -26,8 +26,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-  <Providers>{children}</Providers>
-</body>
+        <Providers>{children}</Providers>
+        {process.env.NODE_ENV === "development" && (
+          <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-orange-500 py-1 text-center text-xs font-bold tracking-wide text-white">
+            DEV ENVIRONMENT
+          </div>
+        )}
+      </body>
     </html>
   );
 }

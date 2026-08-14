@@ -1,7 +1,7 @@
 import { cache } from 'react';
-import { asc, count, countDistinct, eq, sql } from 'drizzle-orm';
+import { and, asc, count, countDistinct, eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { categories, productCategories, products } from '@/lib/db/schema';
+import { brands, categories, productCategories, products } from '@/lib/db/schema';
 
 /**
  * Kategorije opisuju **šta proizvod jeste** i koriste se za navigaciju i filter
@@ -145,7 +145,11 @@ const getSveKategorije = cache(async (): Promise<KategorijaRed[]> => {
     .orderBy(asc(categories.redoslijed), asc(categories.naziv));
 });
 
-/** Broj odobrenih proizvoda direktno vezanih za svaku kategoriju. */
+/**
+ * Broj odobrenih proizvoda direktno vezanih za svaku kategoriju — samo od
+ * brendova koji su takođe odobreni (kategorija se ne broji kao "ima
+ * proizvoda" ako su svi ti proizvodi od brenda na čekanju).
+ */
 const getBrojPoKategoriji = cache(async (): Promise<Map<string, number>> => {
   const redovi = await db
     .select({
@@ -154,7 +158,8 @@ const getBrojPoKategoriji = cache(async (): Promise<Map<string, number>> => {
     })
     .from(productCategories)
     .innerJoin(products, eq(products.id, productCategories.productId))
-    .where(eq(products.status, 'odobren'))
+    .innerJoin(brands, eq(brands.id, products.brandId))
+    .where(and(eq(products.status, 'odobren'), eq(brands.status, 'odobren')))
     .groupBy(productCategories.categoryId);
 
   return new Map(redovi.map((red) => [red.categoryId, Number(red.broj)]));
@@ -163,7 +168,8 @@ const getBrojPoKategoriji = cache(async (): Promise<Map<string, number>> => {
 /**
  * Broj različitih odobrenih proizvoda po korijenu podstabla. `coalesce` svodi
  * podkategoriju na roditelja, a `count(distinct)` sprječava dvostruko brojanje
- * proizvoda koji je u više podkategorija istog korijena.
+ * proizvoda koji je u više podkategorija istog korijena. Isto kao gore,
+ * broje se samo proizvodi od odobrenih brendova.
  */
 const getBrojPoKorijenu = cache(async (): Promise<Map<string, number>> => {
   const korijenId = sql<string>`coalesce(${categories.parentId}, ${categories.id})`;
@@ -176,7 +182,8 @@ const getBrojPoKorijenu = cache(async (): Promise<Map<string, number>> => {
     .from(productCategories)
     .innerJoin(categories, eq(categories.id, productCategories.categoryId))
     .innerJoin(products, eq(products.id, productCategories.productId))
-    .where(eq(products.status, 'odobren'))
+    .innerJoin(brands, eq(brands.id, products.brandId))
+    .where(and(eq(products.status, 'odobren'), eq(brands.status, 'odobren')))
     .groupBy(korijenId);
 
   return new Map(redovi.map((red) => [red.korijenId, Number(red.broj)]));

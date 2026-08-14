@@ -11,9 +11,10 @@ import { brands, productImages, products } from '@/lib/db/schema';
 import type { KorpaProizvod } from '@/lib/domain/cart';
 
 /**
- * Vraća samo proizvode statusa `odobren`. Proizvod koji je u međuvremenu
- * povučen ili odbijen se jednostavno ne vrati — stranica korpe ga tretira
- * kao nedostajući (`nedostajuciIds`).
+ * Vraća samo proizvode statusa `odobren` čiji je brend takođe `odobren`.
+ * Proizvod koji je u međuvremenu povučen/odbijen, ili čiji brend još nije
+ * odobren, se jednostavno ne vrati — stranica korpe ga tretira kao
+ * nedostajući (`nedostajuciIds`).
  */
 export async function getCartProductsData(productIds: string[]): Promise<KorpaProizvod[]> {
   if (productIds.length === 0) {
@@ -34,7 +35,13 @@ export async function getCartProductsData(productIds: string[]): Promise<KorpaPr
     })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
-    .where(and(inArray(products.id, productIds), eq(products.status, 'odobren')));
+    .where(
+      and(
+        inArray(products.id, productIds),
+        eq(products.status, 'odobren'),
+        eq(brands.status, 'odobren'),
+      ),
+    );
 
   if (redovi.length === 0) {
     return [];

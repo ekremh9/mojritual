@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { asc, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { productImages, products } from '@/lib/db/schema';
+import { brands, productImages, products } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
 import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
@@ -17,7 +17,8 @@ async function getIstaknutiProizvodi() {
       cijena: products.cijena,
     })
     .from(products)
-    .where(eq(products.status, 'odobren'))
+    .innerJoin(brands, eq(products.brandId, brands.id))
+    .where(and(eq(products.status, 'odobren'), eq(brands.status, 'odobren')))
     .orderBy(desc(products.createdAt))
     .limit(5);
 

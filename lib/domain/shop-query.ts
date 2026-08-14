@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
 import { QueryBuilder } from 'drizzle-orm/pg-core';
-import { productCategories, products } from '@/lib/db/schema';
+import { brands, productCategories, products } from '@/lib/db/schema';
 
 // Samostalni graditelj upita — podupit za kategorije ne treba konekciju na bazu,
 // pa `/lib/domain` ostaje bez zavisnosti na `db`.
@@ -133,12 +133,16 @@ export function razrijesiKategorijuIds(
  * `razrijesiKategorijuIds`. Uslov je `IN (subquery)` umjesto joina — proizvod u
  * dvije podkategorije istog roditelja inače bi se pojavio dvaput u rezultatu i
  * pokvario i listu i ukupan broj.
+ *
+ * Uslov na `brands.status` zahtijeva da upit pozivaoca joinuje `brands` —
+ * proizvod odobrenog statusa od brenda koji još nije odobren ne smije biti
+ * javno vidljiv.
  */
 export function buildShopWhere(
   filteri: ShopFilteri,
   kategorijaIds: readonly string[] | null,
 ): SQL | undefined {
-  const uslovi: SQL[] = [eq(products.status, 'odobren')];
+  const uslovi: SQL[] = [eq(products.status, 'odobren'), eq(brands.status, 'odobren')];
 
   if (filteri.q !== null) {
     const uzorak = shopUzorakPretrage(filteri.q);

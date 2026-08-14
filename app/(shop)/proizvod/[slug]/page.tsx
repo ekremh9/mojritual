@@ -30,7 +30,13 @@ const getProizvod = cache(async (slug: string) => {
     })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
-    .where(and(eq(products.slug, slug), eq(products.status, 'odobren')))
+    .where(
+      and(
+        eq(products.slug, slug),
+        eq(products.status, 'odobren'),
+        eq(brands.status, 'odobren'),
+      ),
+    )
     .limit(1);
 
   const proizvod = redovi[0];

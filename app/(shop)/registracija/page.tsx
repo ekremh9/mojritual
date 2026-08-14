@@ -35,6 +35,16 @@ export default async function RegistracijaPage() {
             {bs.registracija.prijaviteSe}
           </Link>
         </p>
+
+        <p className="mt-2 text-center text-sm text-[#1C2B22]/70">
+          {bs.registracija.predstavljateBrend}{' '}
+          <Link
+            href="/registracija-brend"
+            className="font-medium text-[#16332A] underline underline-offset-2"
+          >
+            {bs.registracija.registrujteBrend}
+          </Link>
+        </p>
       </div>
     </div>
   );

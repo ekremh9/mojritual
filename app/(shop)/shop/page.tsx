@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { asc, count, inArray } from 'drizzle-orm';
+import { asc, count, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { productImages, products } from '@/lib/db/schema';
+import { brands, productImages, products } from '@/lib/db/schema';
 import { getCategoryTree } from '@/lib/domain/categories';
 import {
   buildShopOrderBy,
@@ -31,6 +31,7 @@ async function getUkupnoProizvoda(filteri: ShopFilteri, kategorijaIds: string[] 
   const redovi = await db
     .select({ ukupno: count() })
     .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
     .where(buildShopWhere(filteri, kategorijaIds));
 
   return redovi[0]?.ukupno ?? 0;
@@ -51,6 +52,7 @@ async function getProizvodi(
       cijena: products.cijena,
     })
     .from(products)
+    .innerJoin(brands, eq(products.brandId, brands.id))
     .where(buildShopWhere(filteri, kategorijaIds))
     .orderBy(...buildShopOrderBy(filteri.sort))
     .limit(limit)

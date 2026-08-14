@@ -52,9 +52,5 @@ export async function registerCustomerAction(formData: FormData): Promise<Regist
     if (greska instanceof RegisterUserError && greska.code === 'email_zauzet') {
       return { ok: false, error: bs.registracija.greskaEmailZauzet };
     }
-
-    // Bez detalja i bez ličnih podataka kupca u logu.
-    console.error('registerCustomerAction: registracija nije uspjela');
-    return { ok: false, error: bs.registracija.greskaOpsta };
   }
 }
