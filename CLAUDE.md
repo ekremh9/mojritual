@@ -1,10 +1,9 @@
-# Ritual — kontekst za Claude Code
+# MojRitual — kontekst za Claude Code
 
 Marketplace za suplemente, zdravlje i njegu u BiH. Domena: **mojritual.ba**.
 Brendovi (farmaceutske kuće) sami listaju proizvode. Kupci kupuju kao gosti
 uz plaćanje pouzećem. Srce proizvoda je **Ritual Vodič** — kratka zdravstvena
-procjena koja daje personaliziran
-u preporuku.
+procjena koja daje personaliziranu preporuku.
 
 ## Jezik
 
@@ -29,12 +28,11 @@ u preporuku.
 ```
 /app
   /(shop)        javni dio — katalog, proizvod, brend, vodič, checkout
-  /(brand)       portal za brend — /portal/*
+  /(brand)       portal za brend — /brend/*
   /(admin)       admin dashboard — /admin/*
   /api           REST granica (koristit će je i buduća mobilna aplikacija)
 /lib
-  /db            Drizzle še
-  ma i upiti
+  /db            Drizzle šema i upiti
   /domain        poslovna logika — čista, bez React zavisnosti
   /i18n          bs.ts
 /docs
@@ -63,6 +61,30 @@ u preporuku.
 7. **Reklamacije rješava brend, ne platforma.** Tiket se otvara na brendu
    čija je pošiljka. Admin ima uvid i eskalaciju nakon 48h bez odgovora.
 8. **Ne dirati `guide_*` tabele bez konsultacije** — tu je zdravstvena logika.
+
+## Self-review prije commita
+
+Nakon svake izmjene koda, prije nego predložiš commit:
+
+1. Pokreni `git diff --stat` pa `git diff` da vidiš tačno šta je promijenjeno
+2. Pokreni `npm run lint` (ESLint + tsc --noEmit)
+3. Provjeri da je kod konzistentan s postojećom konvencijom u projektu
+   (imenovanje, stil komponenti, gdje relacije žive, gdje validacija žive —
+   vidi obrasce u postojećem kodu prije nego uvodiš novi pattern)
+4. Provjeri posebno: da li nova logika slučajno otvara rupu u već
+   uspostavljenim pravilima ovog fajla (npr. brend/proizvod vidljivost,
+   PII u javnim upitima, ko postavlja product_goals, cijene kao integer) —
+   ovo su mjesta gdje je kod prije znao "raditi" a ipak biti pogrešan
+5. Prijavi kratak rezultat pregleda (šta je provjereno, šta eventualno
+   nedostaje ili treba doraditi) i ČEKAJ potvrdu prije commit-a
+
+Self-review hvata sintaksu, lint i očiglednu nekonzistentnost. Ne zamjenjuje
+pregled izvan ove sesije — logičke i sigurnosne rupe (npr. matcher koji
+pogodi sve rute umjesto namijenjenih, duple definicije koje se tiho
+preklapaju, upit koji vidljivost provjerava na proizvodu a zaboravi na
+brend) su ranije prošle kroz self-review neopaženo i uhvaćene su tek u
+vanjskom pregledu. Kad se traži pregled van sesije, prosljeđuje se
+`git diff`, ne cijeli fajlovi.
 
 ## Komande
 
