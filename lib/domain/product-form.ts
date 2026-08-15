@@ -12,6 +12,16 @@ import { bs } from '@/lib/i18n/bs';
 
 export const MAX_KRATKI_OPIS = 200;
 
+/**
+ * Placeholder naziv koji dobija svaki nacrt kreiran pri otvaranju
+ * `/portal/proizvodi/novi` (vidi `createDraftProductAction`). Smije ostati
+ * kao naziv nacrta, ali ne smije proći na pregled admina.
+ */
+export const NAZIV_PLACEHOLDER = 'Novi proizvod';
+
+/** Ciljni status forme — jedino ova dva mogu proći kroz `saveProductAction`. */
+export type CiljniStatus = 'nacrt' | 'na_cekanju';
+
 export const PRODUCT_FORME = [
   'kapsula',
   'tableta',
@@ -109,12 +119,19 @@ export function normalizujProizvod(data: unknown): ProizvodUnos {
   };
 }
 
-export function validirajProizvod(unos: ProizvodUnos): GreskeProizvoda {
+/**
+ * `ciljniStatus` određuje koliko je unos strog: nacrt smije ostati sa
+ * placeholder nazivom (`NAZIV_PLACEHOLDER`), ali slanje na odobrenje
+ * (`na_cekanju`) to tretira kao da naziv uopšte nije unesen.
+ */
+export function validirajProizvod(unos: ProizvodUnos, ciljniStatus: CiljniStatus): GreskeProizvoda {
   const greske: GreskeProizvoda = {};
   const poruke = bs.portal.proizvodi.forma.validacija;
 
   if (unos.naziv.trim() === '') {
     greske.naziv = poruke.nazivObavezan;
+  } else if (ciljniStatus === 'na_cekanju' && unos.naziv.trim() === NAZIV_PLACEHOLDER) {
+    greske.naziv = poruke.nazivPlaceholder;
   }
 
   const kratkiOpis = unos.kratkiOpis.trim();

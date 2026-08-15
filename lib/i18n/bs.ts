@@ -403,7 +403,6 @@ export const bs = {
         ukloni: 'Ukloni sliku',
         maxDostignut: 'Dostigli ste maksimalan broj slika (4) za ovaj proizvod.',
         nema: 'Ovaj proizvod još nema slika.',
-        napomenaNoviProizvod: 'Sačuvajte proizvod prije dodavanja slika.',
       },
       forma: {
         trenutniStatus: 'Trenutni status',
@@ -454,6 +453,7 @@ export const bs = {
           'Izmjena odobrenog proizvoda šalje ga ponovo na pregled. Do odobrenja, kupci vide prethodnu verziju.',
         validacija: {
           nazivObavezan: 'Unesite naziv proizvoda.',
+          nazivPlaceholder: 'Unesite pravi naziv proizvoda.',
           kratkiOpisObavezan: 'Unesite kratki opis.',
           kratkiOpisDug: 'Kratki opis može imati najviše 200 karaktera.',
           formaObavezna: 'Odaberite oblik proizvoda.',

@@ -5,7 +5,12 @@ import { and, eq, like, or } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { brandUsers, brands, productCategories, products } from '@/lib/db/schema';
-import { normalizujProizvod, pripremiProizvod, validirajProizvod } from '@/lib/domain/product-form';
+import {
+  NAZIV_PLACEHOLDER,
+  normalizujProizvod,
+  pripremiProizvod,
+  validirajProizvod,
+} from '@/lib/domain/product-form';
 import { generisiSlug } from '@/lib/domain/slug';
 import { bs } from '@/lib/i18n/bs';
 
@@ -37,6 +42,75 @@ async function osiguraJedinstvenSlug(baza: string): Promise<string> {
     broj += 1;
   }
   return `${baza}-${broj}`;
+}
+
+/** Kratak nasumičan niz (baza-36) za privremeni slug nacrta. */
+function nasumicniNiz(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+/**
+ * Kreira prazan nacrt proizvoda čim brend otvori formu za novi proizvod —
+ * bez ovoga `ProductImageUpload` sekcija ne postoji dok se forma prvi put
+ * ne sačuva (nema `productId`), pa korisnik ne može dodati slike dok ne
+ * popuni cijelu formu. Nacrt dobija minimalan, validan sadržaj (spec 10.4:
+ * proizvod kreće kao `nacrt`, javno nevidljiv dok ne prođe odobrenje).
+ *
+ * Naziv dobija privremeni placeholder (`NAZIV_PLACEHOLDER`) kojeg korisnik
+ * treba prepisati — smije ostati kao nacrt, ali `validirajProizvod` ga
+ * odbija čim se cilja na `na_cekanju` (slanje na odobrenje). Slug dobija
+ * prefiks `nacrt-`, signal da još nije zamijenjen pravim, izvedenim iz
+ * stvarnog naziva (vidi `saveProductAction`).
+ */
+export async function createDraftProductAction(brandId: string): Promise<PortalProizvodRezultat> {
+  try {
+    const poruke = bs.portal.proizvodi.forma;
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    if (typeof brandId !== 'string' || brandId.trim() === '') {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    const [pristup] = await db
+      .select({ uloga: brandUsers.uloga, status: brands.status })
+      .from(brandUsers)
+      .innerJoin(brands, eq(brandUsers.brandId, brands.id))
+      .where(and(eq(brandUsers.userId, session.user.id), eq(brandUsers.brandId, brandId)))
+      .limit(1);
+
+    if (!pristup || (pristup.uloga !== 'vlasnik' && pristup.uloga !== 'urednik')) {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    if (pristup.status === 'suspendovan') {
+      return { ok: false, error: poruke.greskaSuspendovan };
+    }
+
+    const slug = await osiguraJedinstvenSlug(`nacrt-${nasumicniNiz()}`);
+
+    const [noviProizvod] = await db
+      .insert(products)
+      .values({
+        brandId,
+        slug,
+        naziv: NAZIV_PLACEHOLDER,
+        forma: 'kapsula',
+        cijena: 1,
+        status: 'nacrt',
+      })
+      .returning({ id: products.id });
+
+    revalidatePath('/portal/proizvodi');
+
+    return { ok: true, productId: noviProizvod!.id };
+  } catch {
+    console.error('createDraftProductAction: kreiranje nacrta nije uspjelo');
+    return { ok: false, error: bs.portal.proizvodi.forma.greskaOpsta };
+  }
 }
 
 /**
@@ -90,7 +164,7 @@ export async function saveProductAction(
       return { ok: false, error: poruke.greskaSuspendovan };
     }
 
-    let postojeciProizvod: { id: string } | null = null;
+    let postojeciProizvod: { id: string; slug: string } | null = null;
 
     if (productId !== null) {
       if (typeof productId !== 'string' || productId.trim() === '') {
@@ -98,7 +172,7 @@ export async function saveProductAction(
       }
 
       const [red] = await db
-        .select({ id: products.id })
+        .select({ id: products.id, slug: products.slug })
         .from(products)
         .where(and(eq(products.id, productId), eq(products.brandId, brandId)))
         .limit(1);
@@ -111,7 +185,7 @@ export async function saveProductAction(
     }
 
     const unos = normalizujProizvod(data);
-    const greske = validirajProizvod(unos);
+    const greske = validirajProizvod(unos, ciljniStatus);
     const prvaGreska = Object.values(greske)[0];
 
     if (prvaGreska) {
@@ -129,10 +203,20 @@ export async function saveProductAction(
       if (postojeciProizvod) {
         idProizvoda = postojeciProizvod.id;
 
+        // Nacrt kreiran čim se forma otvori (createDraftProductAction) dobija
+        // samo privremeni slug ('nacrt-...'). Prvo snimanje nakon toga
+        // izvodi pravi slug iz (stvarnog ili još uvijek placeholder) naziva
+        // — nakon toga slug ostaje zamrznut kao i za svaki drugi proizvod
+        // (stabilan javni URL).
+        const noviSlug = postojeciProizvod.slug.startsWith('nacrt-')
+          ? await osiguraJedinstvenSlug(generisiSlug(poljaProizvoda.naziv))
+          : null;
+
         await tx
           .update(products)
           .set({
             ...poljaProizvoda,
+            ...(noviSlug ? { slug: noviSlug } : {}),
             status: ciljniStatus,
             // Stari razlog odbijanja više ne opisuje stanje nakon izmjene.
             razlogOdbijanja: null,

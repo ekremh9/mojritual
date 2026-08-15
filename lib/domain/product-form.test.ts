@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   MAX_KRATKI_OPIS,
+  NAZIV_PLACEHOLDER,
   normalizujProizvod,
   pripremiProizvod,
   validirajProizvod,
@@ -48,12 +49,13 @@ describe('normalizujProizvod', () => {
 
 describe('validirajProizvod', () => {
   it('ispravan unos nema grešaka', () => {
-    expect(validirajProizvod(unos())).toEqual({});
+    expect(validirajProizvod(unos(), 'na_cekanju')).toEqual({});
   });
 
   it('traži naziv, kratki opis, formu i kategoriju', () => {
     const greske = validirajProizvod(
       unos({ naziv: '', kratkiOpis: '', forma: '', kategorije: [] }),
+      'na_cekanju',
     );
 
     expect(greske.naziv).toBeDefined();
@@ -64,36 +66,57 @@ describe('validirajProizvod', () => {
 
   it('ograničava kratki opis na 200 karaktera', () => {
     expect(
-      validirajProizvod(unos({ kratkiOpis: 'a'.repeat(MAX_KRATKI_OPIS) })).kratkiOpis,
+      validirajProizvod(unos({ kratkiOpis: 'a'.repeat(MAX_KRATKI_OPIS) }), 'na_cekanju').kratkiOpis,
     ).toBeUndefined();
     expect(
-      validirajProizvod(unos({ kratkiOpis: 'a'.repeat(MAX_KRATKI_OPIS + 1) })).kratkiOpis,
+      validirajProizvod(unos({ kratkiOpis: 'a'.repeat(MAX_KRATKI_OPIS + 1) }), 'na_cekanju')
+        .kratkiOpis,
     ).toBeDefined();
   });
 
   it('odbija formu koja nije u dozvoljenom skupu', () => {
-    expect(validirajProizvod(unos({ forma: 'nepostojeca' })).forma).toBeDefined();
+    expect(validirajProizvod(unos({ forma: 'nepostojeca' }), 'na_cekanju').forma).toBeDefined();
   });
 
   it('cijena mora biti unesena i veća od 0', () => {
-    expect(validirajProizvod(unos({ cijenaKm: '' })).cijenaKm).toBeDefined();
-    expect(validirajProizvod(unos({ cijenaKm: '0' })).cijenaKm).toBeDefined();
-    expect(validirajProizvod(unos({ cijenaKm: '-5' })).cijenaKm).toBeDefined();
-    expect(validirajProizvod(unos({ cijenaKm: 'pet' })).cijenaKm).toBeDefined();
-    expect(validirajProizvod(unos({ cijenaKm: '24.90' })).cijenaKm).toBeUndefined();
+    expect(validirajProizvod(unos({ cijenaKm: '' }), 'na_cekanju').cijenaKm).toBeDefined();
+    expect(validirajProizvod(unos({ cijenaKm: '0' }), 'na_cekanju').cijenaKm).toBeDefined();
+    expect(validirajProizvod(unos({ cijenaKm: '-5' }), 'na_cekanju').cijenaKm).toBeDefined();
+    expect(validirajProizvod(unos({ cijenaKm: 'pet' }), 'na_cekanju').cijenaKm).toBeDefined();
+    expect(validirajProizvod(unos({ cijenaKm: '24.90' }), 'na_cekanju').cijenaKm).toBeUndefined();
   });
 
   it('stara cijena je opciona, ali mora biti veća od cijene kad je unesena', () => {
-    expect(validirajProizvod(unos({ staraCijenaKm: '' })).staraCijenaKm).toBeUndefined();
     expect(
-      validirajProizvod(unos({ cijenaKm: '24.90', staraCijenaKm: '20.00' })).staraCijenaKm,
-    ).toBeDefined();
-    expect(
-      validirajProizvod(unos({ cijenaKm: '24.90', staraCijenaKm: '24.90' })).staraCijenaKm,
-    ).toBeDefined();
-    expect(
-      validirajProizvod(unos({ cijenaKm: '24.90', staraCijenaKm: '29.90' })).staraCijenaKm,
+      validirajProizvod(unos({ staraCijenaKm: '' }), 'na_cekanju').staraCijenaKm,
     ).toBeUndefined();
+    expect(
+      validirajProizvod(unos({ cijenaKm: '24.90', staraCijenaKm: '20.00' }), 'na_cekanju')
+        .staraCijenaKm,
+    ).toBeDefined();
+    expect(
+      validirajProizvod(unos({ cijenaKm: '24.90', staraCijenaKm: '24.90' }), 'na_cekanju')
+        .staraCijenaKm,
+    ).toBeDefined();
+    expect(
+      validirajProizvod(unos({ cijenaKm: '24.90', staraCijenaKm: '29.90' }), 'na_cekanju')
+        .staraCijenaKm,
+    ).toBeUndefined();
+  });
+
+  it('dozvoljava placeholder naziv nacrta kad se sprema kao nacrt', () => {
+    const greske = validirajProizvod(unos({ naziv: NAZIV_PLACEHOLDER }), 'nacrt');
+    expect(greske.naziv).toBeUndefined();
+  });
+
+  it('odbija placeholder naziv nacrta kad se šalje na odobrenje', () => {
+    const greske = validirajProizvod(unos({ naziv: NAZIV_PLACEHOLDER }), 'na_cekanju');
+    expect(greske.naziv).toBeDefined();
+  });
+
+  it('placeholder naziv sa dodatnim razmacima se i dalje prepoznaje', () => {
+    const greske = validirajProizvod(unos({ naziv: `  ${NAZIV_PLACEHOLDER}  ` }), 'na_cekanju');
+    expect(greske.naziv).toBeDefined();
   });
 });
 

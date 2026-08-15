@@ -133,7 +133,7 @@ export function ProizvodForma({
       return;
     }
 
-    const greske = validirajProizvod(vrijednosti);
+    const greske = validirajProizvod(vrijednosti, ciljniStatus);
     setGreskePolja(greske);
 
     if (Object.keys(greske).length > 0) {
