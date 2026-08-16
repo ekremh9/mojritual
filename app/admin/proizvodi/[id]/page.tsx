@@ -7,6 +7,7 @@ import { getProductForAdmin } from '@/lib/domain/admin-products';
 import { formatCijena } from '@/lib/domain/format';
 import type { Product } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
+import { IsticanjeProizvoda } from '../_components/IsticanjeProizvoda';
 import { ProizvodOdobrenje } from '../_components/ProizvodOdobrenje';
 
 type AdminProizvodPageProps = {
@@ -218,6 +219,13 @@ export default async function AdminProizvodPage({ params }: AdminProizvodPagePro
               {poruke.vecObradjeno}
             </p>
           )}
+
+          <IsticanjeProizvoda
+            productId={proizvod.id}
+            istaknutZahtjev={proizvod.istaknutZahtjev}
+            istaknut={proizvod.istaknut}
+            odobren={proizvod.status === 'odobren'}
+          />
         </div>
       </div>
     </div>

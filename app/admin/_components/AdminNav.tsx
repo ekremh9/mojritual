@@ -1,4 +1,4 @@
-import { Building2, Compass, LayoutDashboard, Package } from 'lucide-react';
+import { Building2, Compass, LayoutDashboard, Package, ShoppingBag } from 'lucide-react';
 import { bs } from '@/lib/i18n/bs';
 import { AdminNavLink } from './AdminNavLink';
 
@@ -22,6 +22,9 @@ export function AdminNav() {
       </AdminNavLink>
       <AdminNavLink href="/admin/brendovi" label={bs.admin.nav.brendovi}>
         <Building2 className={IKONA_KLASE} />
+      </AdminNavLink>
+      <AdminNavLink href="/admin/narudzbe" label={bs.admin.nav.narudzbe}>
+        <ShoppingBag className={IKONA_KLASE} />
       </AdminNavLink>
       <AdminNavLink href="/admin/vodic" label={bs.admin.nav.vodic}>
         <Compass className={IKONA_KLASE} />

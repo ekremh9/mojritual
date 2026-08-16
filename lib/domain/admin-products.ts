@@ -5,11 +5,16 @@ import { asc, count, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
+import { jeProizvodStatus, PRODUCT_STATUSI } from '@/lib/domain/portal-products';
+
+export { jeProizvodStatus, PRODUCT_STATUSI };
 
 export type AdminProizvodNaCekanju = {
   id: string;
   naziv: string;
   cijena: number;
+  status: Product['status'];
+  istaknutZahtjev: boolean;
   createdAt: Date;
   brend: { naziv: string; slug: string };
   slika: { url: string; alt: string | null } | null;
@@ -17,22 +22,30 @@ export type AdminProizvodNaCekanju = {
 };
 
 /**
- * Proizvodi na čekanju, svi brendovi, najstariji prvo — oni čekaju
- * najduže i trebaju biti obrađeni prvi.
+ * Proizvodi za admin listu, svi brendovi, opciono filtrirani po statusu,
+ * najstariji prvo — oni koji čekaju najduže trebaju biti obrađeni prvi.
  */
-export async function getPendingProducts(): Promise<AdminProizvodNaCekanju[]> {
+export async function getProductsByStatus(
+  statusFilter?: Product['status'],
+): Promise<AdminProizvodNaCekanju[]> {
+  const uslov = statusFilter
+    ? eq(products.status, statusFilter)
+    : undefined;
+
   const odabraniProizvodi = await db
     .select({
       id: products.id,
       naziv: products.naziv,
       cijena: products.cijena,
+      status: products.status,
+      istaknutZahtjev: products.istaknutZahtjev,
       createdAt: products.createdAt,
       brendNaziv: brands.naziv,
       brendSlug: brands.slug,
     })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
-    .where(eq(products.status, 'na_cekanju'))
+    .where(uslov)
     .orderBy(asc(products.createdAt));
 
   if (odabraniProizvodi.length === 0) {
@@ -81,11 +94,29 @@ export async function getPendingProducts(): Promise<AdminProizvodNaCekanju[]> {
     id: proizvod.id,
     naziv: proizvod.naziv,
     cijena: proizvod.cijena,
+    status: proizvod.status,
+    istaknutZahtjev: proizvod.istaknutZahtjev,
     createdAt: proizvod.createdAt,
     brend: { naziv: proizvod.brendNaziv, slug: proizvod.brendSlug },
     slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
     kategorija: prvaKategorijaPoProizvodu.get(proizvod.id) ?? null,
   }));
+}
+
+export type AdminProizvodBrojaci = Record<Product['status'], number>;
+
+/** Broj proizvoda po svakom statusu — za brojeve uz filter tabove. */
+export async function getProductStatusCounts(): Promise<AdminProizvodBrojaci> {
+  const redovi = await db
+    .select({ status: products.status, ukupno: count() })
+    .from(products)
+    .groupBy(products.status);
+
+  const brojaci: AdminProizvodBrojaci = { nacrt: 0, na_cekanju: 0, odobren: 0, odbijen: 0 };
+  for (const red of redovi) {
+    brojaci[red.status] = red.ukupno;
+  }
+  return brojaci;
 }
 
 export type AdminProizvodDetalj = {
@@ -103,6 +134,8 @@ export type AdminProizvodDetalj = {
   status: Product['status'];
   razlogOdbijanja: string | null;
   oznake: string[] | null;
+  istaknutZahtjev: boolean;
+  istaknut: boolean;
   createdAt: Date;
   updatedAt: Date;
   brend: { naziv: string; slug: string };
@@ -132,6 +165,8 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
       status: products.status,
       razlogOdbijanja: products.razlogOdbijanja,
       oznake: products.oznake,
+      istaknutZahtjev: products.istaknutZahtjev,
+      istaknut: products.istaknut,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt,
       brendNaziv: brands.naziv,
@@ -174,6 +209,8 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
     status: proizvod.status,
     razlogOdbijanja: proizvod.razlogOdbijanja,
     oznake: proizvod.oznake,
+    istaknutZahtjev: proizvod.istaknutZahtjev,
+    istaknut: proizvod.istaknut,
     createdAt: proizvod.createdAt,
     updatedAt: proizvod.updatedAt,
     brend: { naziv: proizvod.brendNaziv, slug: proizvod.brendSlug },

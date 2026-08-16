@@ -183,3 +183,52 @@ export async function approveBrandAction(brandId: string): Promise<AdminRezultat
     return { ok: false, error: bs.admin.greskaOpsta };
   }
 }
+
+/**
+ * Ručno postavlja `products.istaknut` — nezavisno od `istaknutZahtjev`
+ * (brendov zahtjev je samo namjera, ovo je ono što se stvarno primjenjuje,
+ * vidi komentar uz kolonu u lib/db/schema/products.ts). Radi bez obzira na
+ * status odobrenja proizvoda — homepage/katalog ionako filtriraju na
+ * `status = 'odobren'`, pa isticanje neodobrenog proizvoda nema efekta dok
+ * ne bude odobren.
+ */
+export async function toggleFeaturedAction(
+  productId: string,
+  novoStanje: boolean,
+): Promise<AdminRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof productId !== 'string' || productId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const [proizvod] = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.id, productId))
+      .limit(1);
+
+    if (!proizvod) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    await db
+      .update(products)
+      .set({ istaknut: novoStanje, updatedAt: new Date() })
+      .where(eq(products.id, productId));
+
+    revalidatePath('/admin/proizvodi');
+    revalidatePath(`/admin/proizvodi/${productId}`);
+    revalidatePath('/');
+
+    return { ok: true };
+  } catch {
+    console.error('toggleFeaturedAction: promjena isticanja nije uspjela');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
