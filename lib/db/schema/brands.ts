@@ -44,6 +44,10 @@ export const brands = pgTable('brands', {
   naknadaPrisustvoMjesecno: integer('naknada_prisustvo_mjesecno').notNull().default(0),
   naknadaStepenVelicina: integer('naknada_stepen_velicina').notNull().default(50),
   naknadaAktivnaOd: date('naknada_aktivna_od'),
+  // Fening, po ugovoru sa konkretnim brendom. Null = nije ugovoreno. Za sada
+  // referentno polje — ne ulazi u obračun dok commission_periods ne dobije
+  // podršku za istaknute proizvode.
+  istaknutoMjesecno: integer('istaknuto_mjesecno'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

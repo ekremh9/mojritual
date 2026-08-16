@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   pgEnum,
@@ -58,6 +59,12 @@ export const products = pgTable(
     odobrioUserId: uuid('odobrio_user_id').references(() => users.id, { onDelete: 'set null' }),
     odobrenoAt: timestamp('odobreno_at', { withTimezone: true }),
     oznake: text('oznake').array(),
+    // istaknutZahtjev je namjera brenda, istaknut je ono što admin stvarno
+    // primijeni. Razdvojeno jer admin mora moći isticati proizvode i bez
+    // formalnog zahtjeva (spec 13.3 — plaćeno izdvajanje nikad ne dira
+    // Ritual Vodič, ali smije uticati na homepage/katalog prikaz).
+    istaknutZahtjev: boolean('istaknut_zahtjev').notNull().default(false),
+    istaknut: boolean('istaknut').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
