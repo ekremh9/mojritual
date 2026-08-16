@@ -6,6 +6,7 @@ import { ChevronDown, User } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import type { Session } from 'next-auth';
 import { bs } from '@/lib/i18n/bs';
+import { useCart } from '@/lib/cart/CartContext';
 
 type KorisnickiMeniProps = {
   user: Session['user'];
@@ -14,6 +15,7 @@ type KorisnickiMeniProps = {
 export function KorisnickiMeni({ user }: KorisnickiMeniProps) {
   const [otvoren, setOtvoren] = useState(false);
   const kontejnerRef = useRef<HTMLDivElement>(null);
+  const { clearCart } = useCart();
 
   useEffect(() => {
     if (!otvoren) {
@@ -116,6 +118,7 @@ export function KorisnickiMeni({ user }: KorisnickiMeniProps) {
               role="menuitem"
               onClick={() => {
                 setOtvoren(false);
+                clearCart();
                 void signOut({ callbackUrl: '/' });
               }}
               className={`${stavkaKlase} w-full text-left`}
