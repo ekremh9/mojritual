@@ -118,6 +118,31 @@ describe('validirajProizvod', () => {
     const greske = validirajProizvod(unos({ naziv: `  ${NAZIV_PLACEHOLDER}  ` }), 'na_cekanju');
     expect(greske.naziv).toBeDefined();
   });
+
+  it('nacrt sa potpuno praznim poljima prolazi bez grešaka', () => {
+    const greske = validirajProizvod(
+      unos({
+        naziv: 'Bilo šta',
+        kratkiOpis: '',
+        opis: '',
+        forma: '',
+        kategorije: [],
+        sastojci: '',
+        doziranje: '',
+        upozorenja: '',
+        cijenaKm: '',
+        staraCijenaKm: '',
+        dostupnost: '',
+      }),
+      'nacrt',
+    );
+    expect(greske).toEqual({});
+  });
+
+  it('nacrt sa placeholder nazivom prolazi bez grešaka', () => {
+    const greske = validirajProizvod(unos({ naziv: NAZIV_PLACEHOLDER }), 'nacrt');
+    expect(greske).toEqual({});
+  });
 });
 
 describe('pripremiProizvod', () => {

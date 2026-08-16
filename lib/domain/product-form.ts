@@ -120,11 +120,16 @@ export function normalizujProizvod(data: unknown): ProizvodUnos {
 }
 
 /**
- * `ciljniStatus` određuje koliko je unos strog: nacrt smije ostati sa
- * placeholder nazivom (`NAZIV_PLACEHOLDER`), ali slanje na odobrenje
- * (`na_cekanju`) to tretira kao da naziv uopšte nije unesen.
+ * `ciljniStatus` određuje koliko je unos strog: nacrt se sprema bez ikakve
+ * validacije (djelimično popunjen ili potpuno prazan, uključujući placeholder
+ * naziv `NAZIV_PLACEHOLDER`), dok slanje na odobrenje (`na_cekanju`) zahtijeva
+ * sva obavezna polja i naziv različit od placeholdera.
  */
 export function validirajProizvod(unos: ProizvodUnos, ciljniStatus: CiljniStatus): GreskeProizvoda {
+  if (ciljniStatus === 'nacrt') {
+    return {};
+  }
+
   const greske: GreskeProizvoda = {};
   const poruke = bs.portal.proizvodi.forma.validacija;
 

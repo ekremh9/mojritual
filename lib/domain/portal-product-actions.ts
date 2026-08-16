@@ -19,7 +19,7 @@ import {
   pripremiProizvod,
   validirajProizvod,
 } from '@/lib/domain/product-form';
-import { generisiSlug } from '@/lib/domain/slug';
+import { izvediSlugBazu, nasumicniNiz } from '@/lib/domain/slug';
 import { bs } from '@/lib/i18n/bs';
 import { obrisiSaR2 } from '@/lib/storage/r2-client';
 
@@ -53,11 +53,6 @@ async function osiguraJedinstvenSlug(baza: string): Promise<string> {
     broj += 1;
   }
   return `${baza}-${broj}`;
-}
-
-/** Kratak nasumičan niz (baza-36) za privremeni slug nacrta. */
-function nasumicniNiz(): string {
-  return Math.random().toString(36).slice(2, 10);
 }
 
 /**
@@ -110,7 +105,7 @@ export async function createDraftProductAction(brandId: string): Promise<PortalP
         slug,
         naziv: NAZIV_PLACEHOLDER,
         forma: 'kapsula',
-        cijena: 1,
+        cijena: 100,
         status: 'nacrt',
       })
       .returning({ id: products.id });
@@ -218,7 +213,7 @@ export async function saveProductAction(
         // — nakon toga slug ostaje zamrznut kao i za svaki drugi proizvod
         // (stabilan javni URL).
         const noviSlug = postojeciProizvod.slug.startsWith('nacrt-')
-          ? await osiguraJedinstvenSlug(generisiSlug(poljaProizvoda.naziv))
+          ? await osiguraJedinstvenSlug(izvediSlugBazu(poljaProizvoda.naziv))
           : null;
 
         await tx
@@ -235,7 +230,7 @@ export async function saveProductAction(
 
         await tx.delete(productCategories).where(eq(productCategories.productId, idProizvoda));
       } else {
-        const slug = await osiguraJedinstvenSlug(generisiSlug(poljaProizvoda.naziv));
+        const slug = await osiguraJedinstvenSlug(izvediSlugBazu(poljaProizvoda.naziv));
 
         const [noviProizvod] = await tx
           .insert(products)
