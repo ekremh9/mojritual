@@ -178,6 +178,7 @@ export async function getPortalProductForEdit(
       cijenaKm: feningToKm(proizvod.cijena).toFixed(2),
       staraCijenaKm: proizvod.staraCijena === null ? '' : feningToKm(proizvod.staraCijena).toFixed(2),
       dostupnost: proizvod.dostupnost,
+      istaknutZahtjev: proizvod.istaknutZahtjev,
     },
   };
 }

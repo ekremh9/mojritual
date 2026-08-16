@@ -59,6 +59,7 @@ export type ProizvodUnos = {
   cijenaKm: string;
   staraCijenaKm: string;
   dostupnost: string;
+  istaknutZahtjev: boolean;
 };
 
 export type PoljeProizvoda = keyof ProizvodUnos;
@@ -77,6 +78,7 @@ export type ProizvodVrijednosti = {
   staraCijena: number | null;
   dostupnost: Product['dostupnost'];
   kategorije: string[];
+  istaknutZahtjev: boolean;
 };
 
 function tekst(vrijednost: unknown): string {
@@ -92,6 +94,10 @@ function nizTekstova(vrijednost: unknown): string[] {
     return [];
   }
   return vrijednost.filter((stavka): stavka is string => typeof stavka === 'string');
+}
+
+function tacnoNetacno(vrijednost: unknown): boolean {
+  return vrijednost === true;
 }
 
 /**
@@ -116,6 +122,7 @@ export function normalizujProizvod(data: unknown): ProizvodUnos {
     cijenaKm: tekst(izvor.cijenaKm),
     staraCijenaKm: tekst(izvor.staraCijenaKm),
     dostupnost: jeDostupnost(tekst(izvor.dostupnost)) ? tekst(izvor.dostupnost) : 'dostupno',
+    istaknutZahtjev: tacnoNetacno(izvor.istaknutZahtjev),
   };
 }
 
@@ -200,5 +207,6 @@ export function pripremiProizvod(unos: ProizvodUnos): ProizvodVrijednosti {
     staraCijena: unos.staraCijenaKm.trim() === '' ? null : kmToFening(unos.staraCijenaKm),
     dostupnost: unos.dostupnost as Product['dostupnost'],
     kategorije: unos.kategorije,
+    istaknutZahtjev: unos.istaknutZahtjev,
   };
 }

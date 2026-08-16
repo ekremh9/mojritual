@@ -452,6 +452,9 @@ export const bs = {
           staraCijena: 'Stara cijena (KM)',
           staraCijenaPomoc: 'Opciono — prikazuje se precrtano, za isticanje sniženja.',
           dostupnost: 'Dostupnost',
+          istaknutZahtjev: 'Želim da ovaj proizvod bude istaknut na početnoj stranici',
+          istaknutZahtjevPomoc:
+            'Istaknuti proizvodi se dogovaraju posebno s administracijom (može uključivati naknadu). Označavanjem šaljete zahtjev, ne garantuje automatsko isticanje.',
         },
         dostupnostOpcije: {
           dostupno: 'Dostupno',

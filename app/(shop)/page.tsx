@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { and, asc, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, productImages, products } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
@@ -7,22 +7,60 @@ import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
 import { ProizvodKartica } from './_components/ProizvodKartica';
 
+const BROJ_ISTAKNUTIH = 10;
+
+const KOLONE_PROIZVODA = {
+  id: products.id,
+  slug: products.slug,
+  naziv: products.naziv,
+  kratkiOpis: products.kratkiOpis,
+  cijena: products.cijena,
+};
+
+/**
+ * Prvo proizvodi koje je admin stvarno istakao (`products.istaknut`,
+ * odvojeno od zahtjeva brenda — vidi lib/db/schema/products.ts). Ako ih
+ * ima manje od BROJ_ISTAKNUTIH, popuni razliku najnovijim odobrenim
+ * proizvodima koji već nisu u prvoj listi, da homepage nikad ne izgleda
+ * prazno dok admin ne istakne dovoljno proizvoda.
+ */
 async function getIstaknutiProizvodi() {
-  const odobreniProizvodi = await db
-    .select({
-      id: products.id,
-      slug: products.slug,
-      naziv: products.naziv,
-      kratkiOpis: products.kratkiOpis,
-      cijena: products.cijena,
-    })
+  const istaknuti = await db
+    .select(KOLONE_PROIZVODA)
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
-    .where(and(eq(products.status, 'odobren'), eq(brands.status, 'odobren')))
+    .where(
+      and(eq(products.istaknut, true), eq(products.status, 'odobren'), eq(brands.status, 'odobren')),
+    )
     .orderBy(desc(products.createdAt))
-    .limit(5);
+    .limit(BROJ_ISTAKNUTIH);
 
-  if (odobreniProizvodi.length === 0) {
+  let odabraniProizvodi = istaknuti;
+
+  if (odabraniProizvodi.length < BROJ_ISTAKNUTIH) {
+    const preostalo = BROJ_ISTAKNUTIH - odabraniProizvodi.length;
+    const uslovi = [eq(products.status, 'odobren'), eq(brands.status, 'odobren')];
+    if (odabraniProizvodi.length > 0) {
+      uslovi.push(
+        notInArray(
+          products.id,
+          odabraniProizvodi.map((proizvod) => proizvod.id),
+        ),
+      );
+    }
+
+    const najnoviji = await db
+      .select(KOLONE_PROIZVODA)
+      .from(products)
+      .innerJoin(brands, eq(products.brandId, brands.id))
+      .where(and(...uslovi))
+      .orderBy(desc(products.createdAt))
+      .limit(preostalo);
+
+    odabraniProizvodi = [...odabraniProizvodi, ...najnoviji];
+  }
+
+  if (odabraniProizvodi.length === 0) {
     return [];
   }
 
@@ -37,7 +75,7 @@ async function getIstaknutiProizvodi() {
     .where(
       inArray(
         productImages.productId,
-        odobreniProizvodi.map((proizvod) => proizvod.id),
+        odabraniProizvodi.map((proizvod) => proizvod.id),
       ),
     )
     .orderBy(asc(productImages.redoslijed));
@@ -49,7 +87,7 @@ async function getIstaknutiProizvodi() {
     }
   }
 
-  return odobreniProizvodi.map((proizvod) => ({
+  return odabraniProizvodi.map((proizvod) => ({
     ...proizvod,
     slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
   }));

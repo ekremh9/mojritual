@@ -21,6 +21,7 @@ function unos(izmjene: Partial<ProizvodUnos> = {}): ProizvodUnos {
     cijenaKm: '24.90',
     staraCijenaKm: '',
     dostupnost: 'dostupno',
+    istaknutZahtjev: false,
     ...izmjene,
   };
 }
@@ -44,6 +45,13 @@ describe('normalizujProizvod', () => {
   it('nepoznatu dostupnost svodi na default "dostupno"', () => {
     expect(normalizujProizvod({ dostupnost: 'nepostojece' }).dostupnost).toBe('dostupno');
     expect(normalizujProizvod({ dostupnost: 'uskoro' }).dostupnost).toBe('uskoro');
+  });
+
+  it('istaknutZahtjev je true samo kad je poslano tačno boolean true', () => {
+    expect(normalizujProizvod({ istaknutZahtjev: true }).istaknutZahtjev).toBe(true);
+    expect(normalizujProizvod({ istaknutZahtjev: false }).istaknutZahtjev).toBe(false);
+    expect(normalizujProizvod({ istaknutZahtjev: 'true' }).istaknutZahtjev).toBe(false);
+    expect(normalizujProizvod({}).istaknutZahtjev).toBe(false);
   });
 });
 
@@ -168,5 +176,10 @@ describe('pripremiProizvod', () => {
   it('prenosi odabrane kategorije', () => {
     const vrijednosti = pripremiProizvod(unos({ kategorije: ['a', 'b'] }));
     expect(vrijednosti.kategorije).toEqual(['a', 'b']);
+  });
+
+  it('prenosi istaknutZahtjev bez izmjene', () => {
+    expect(pripremiProizvod(unos({ istaknutZahtjev: true })).istaknutZahtjev).toBe(true);
+    expect(pripremiProizvod(unos({ istaknutZahtjev: false })).istaknutZahtjev).toBe(false);
   });
 });

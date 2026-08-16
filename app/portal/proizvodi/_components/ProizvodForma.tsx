@@ -441,6 +441,19 @@ export function ProizvodForma({
               )}
             </Polje>
           </section>
+
+          <section className={KLASE_KARTICE}>
+            <label className="flex items-start gap-3 text-sm text-[#1C2B22]">
+              <input
+                type="checkbox"
+                checked={vrijednosti.istaknutZahtjev}
+                onChange={(event) => postavi('istaknutZahtjev', event.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-[#1C2B22]/30 text-[#16332A] accent-[#16332A]"
+              />
+              <span className="font-medium">{poruke.polja.istaknutZahtjev}</span>
+            </label>
+            <p className="text-xs text-[#1C2B22]/60">{poruke.polja.istaknutZahtjevPomoc}</p>
+          </section>
         </fieldset>
 
         {ponovnoOdobrenje ? (
