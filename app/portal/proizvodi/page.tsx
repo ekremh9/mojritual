@@ -13,6 +13,7 @@ import {
 } from '@/lib/domain/portal-products';
 import type { Product } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
+import { ProizvodAkcije } from './_components/ProizvodAkcije';
 
 export const metadata: Metadata = {
   title: bs.portal.proizvodi.naslov,
@@ -132,6 +133,7 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.kategorija}</th>
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.cijena}</th>
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.status}</th>
+                    <th className="px-4 py-3 text-right">{bs.portal.proizvodi.tabela.akcije}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -173,6 +175,13 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
                         >
                           {bs.portal.proizvodi.status[proizvod.status]}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <ProizvodAkcije
+                          productId={proizvod.id}
+                          status={proizvod.status}
+                          onemoguceno={pristup.brand.status === 'suspendovan'}
+                        />
                       </td>
                     </tr>
                   ))}

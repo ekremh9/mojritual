@@ -385,6 +385,23 @@ export const bs = {
         kategorija: 'Kategorija',
         cijena: 'Cijena',
         status: 'Status',
+        akcije: 'Akcije',
+      },
+      akcije: {
+        otvoriMeni: 'Akcije za proizvod',
+        uredi: 'Uredi',
+        povuci: 'Povuci iz prodaje',
+        povuciPotvrda:
+          'Povucite ovaj proizvod iz prodaje? Kupci ga više neće vidjeti dok ga ponovo ne objavite.',
+        obrisi: 'Obriši',
+        obrisiPotvrda: 'Obrišite ovaj proizvod? Ova akcija je nepovratna.',
+        uspjehPovuceno: 'Proizvod je povučen iz prodaje.',
+        greskaNijeObjavljen: 'Ovaj proizvod nije trenutno objavljen.',
+        greskaImaNarudzbe:
+          'Ovaj proizvod ima istoriju narudžbi i ne može se obrisati. Umjesto toga, povucite ga da nestane iz prodaje.',
+        greskaPristup: 'Nemate pristup ovom proizvodu.',
+        greskaSuspendovan: 'Vaš brend je suspendovan. Ova akcija nije moguća.',
+        greskaOpsta: 'Akcija nije uspjela. Pokušajte ponovo.',
       },
       novi: {
         naslov: 'Dodaj proizvod',

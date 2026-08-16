@@ -2,13 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { and, asc, eq } from 'drizzle-orm';
-import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { brandUsers, brands, productImages, products } from '@/lib/db/schema';
 import { ALLOWED_IMAGE_TYPES, MAX_PRODUCT_IMAGES, MAX_UPLOAD_SIZE_BYTES } from '@/lib/storage/image-constants';
 import { processBrandCover, processBrandLogo, processProductImage } from '@/lib/storage/image-processing';
-import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2Client } from '@/lib/storage/r2-client';
+import { R2_BUCKET_NAME, R2_PUBLIC_URL, obrisiSaR2, r2Client } from '@/lib/storage/r2-client';
 import { bs } from '@/lib/i18n/bs';
 
 export type UploadRezultat = { ok: true; url: string } | { ok: false; error: string };
@@ -83,12 +83,6 @@ async function uploadNaR2(key: string, buffer: Buffer): Promise<string> {
   );
 
   return `${R2_PUBLIC_URL}/${key}`;
-}
-
-/** Izvlači R2 key iz javnog URL-a — obrnuto od `uploadNaR2`. */
-function kljucIzUrl(url: string): string | null {
-  const prefiks = `${R2_PUBLIC_URL}/`;
-  return url.startsWith(prefiks) ? url.slice(prefiks.length) : null;
 }
 
 /**
@@ -295,10 +289,7 @@ export async function deleteProductImageAction(
       return { ok: false, error: poruke.greskaSuspendovan };
     }
 
-    const kljuc = kljucIzUrl(pristup.url);
-    if (kljuc) {
-      await r2Client.send(new DeleteObjectCommand({ Bucket: R2_BUCKET_NAME, Key: kljuc }));
-    }
+    await obrisiSaR2(pristup.url);
 
     await db.delete(productImages).where(eq(productImages.id, imageId));
 

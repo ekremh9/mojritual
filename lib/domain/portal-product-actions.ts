@@ -4,7 +4,15 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, like, or } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { brandUsers, brands, productCategories, products } from '@/lib/db/schema';
+import {
+  brandUsers,
+  brands,
+  orderItems,
+  productCategories,
+  productGoals,
+  productImages,
+  products,
+} from '@/lib/db/schema';
 import {
   NAZIV_PLACEHOLDER,
   normalizujProizvod,
@@ -13,10 +21,13 @@ import {
 } from '@/lib/domain/product-form';
 import { generisiSlug } from '@/lib/domain/slug';
 import { bs } from '@/lib/i18n/bs';
+import { obrisiSaR2 } from '@/lib/storage/r2-client';
 
 export type PortalProizvodRezultat =
   | { ok: true; productId: string }
   | { ok: false; error: string };
+
+export type PortalProizvodAkcijaRezultat = { ok: true } | { ok: false; error: string };
 
 const CILJNI_STATUSI = ['nacrt', 'na_cekanju'] as const;
 type CiljniStatus = (typeof CILJNI_STATUSI)[number];
@@ -103,8 +114,6 @@ export async function createDraftProductAction(brandId: string): Promise<PortalP
         status: 'nacrt',
       })
       .returning({ id: products.id });
-
-    revalidatePath('/portal/proizvodi');
 
     return { ok: true, productId: noviProizvod!.id };
   } catch {
@@ -263,5 +272,147 @@ export async function saveProductAction(
     // Bez detalja unosa u logu.
     console.error('saveProductAction: snimanje proizvoda nije uspjelo');
     return { ok: false, error: bs.portal.proizvodi.forma.greskaOpsta };
+  }
+}
+
+/**
+ * Provjerava da li korisnik ima pristup datom proizvodu (vlasnik/urednik
+ * brenda kojem proizvod pripada) i da brend nije suspendovan. Isti obrazac
+ * kao `saveProductAction`, dijeli ga `unpublishProductAction` i
+ * `deleteProductAction`.
+ */
+async function ucitajPristupProizvodu(userId: string, productId: string) {
+  const [pristup] = await db
+    .select({
+      uloga: brandUsers.uloga,
+      brandStatus: brands.status,
+      productStatus: products.status,
+      slug: products.slug,
+    })
+    .from(products)
+    .innerJoin(brandUsers, eq(brandUsers.brandId, products.brandId))
+    .innerJoin(brands, eq(brands.id, products.brandId))
+    .where(and(eq(products.id, productId), eq(brandUsers.userId, userId)))
+    .limit(1);
+
+  return pristup ?? null;
+}
+
+/**
+ * Povlači odobren proizvod iz prodaje — vraća ga na `nacrt` da nestane sa
+ * storefronta bez brisanja. Dozvoljeno samo dok je proizvod `odobren`;
+ * nacrt/na_cekanju/odbijen nemaju šta da se povuku (spec 10.4).
+ */
+export async function unpublishProductAction(productId: string): Promise<PortalProizvodAkcijaRezultat> {
+  try {
+    const poruke = bs.portal.proizvodi.akcije;
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    if (typeof productId !== 'string' || productId.trim() === '') {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    const pristup = await ucitajPristupProizvodu(session.user.id, productId);
+
+    if (!pristup || (pristup.uloga !== 'vlasnik' && pristup.uloga !== 'urednik')) {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    if (pristup.brandStatus === 'suspendovan') {
+      return { ok: false, error: poruke.greskaSuspendovan };
+    }
+
+    if (pristup.productStatus !== 'odobren') {
+      return { ok: false, error: poruke.greskaNijeObjavljen };
+    }
+
+    await db
+      .update(products)
+      .set({ status: 'nacrt', razlogOdbijanja: null, updatedAt: new Date() })
+      .where(eq(products.id, productId));
+
+    revalidatePath('/portal/proizvodi');
+    revalidatePath(`/portal/proizvodi/${productId}`);
+    revalidatePath('/shop');
+    if (pristup.slug) {
+      revalidatePath(`/proizvod/${pristup.slug}`);
+    }
+
+    return { ok: true };
+  } catch {
+    console.error('unpublishProductAction: povlačenje proizvoda nije uspjelo');
+    return { ok: false, error: bs.portal.proizvodi.akcije.greskaOpsta };
+  }
+}
+
+/**
+ * Trajno briše proizvod — samo ako nikad nije bio dio narudžbe. Proizvod sa
+ * istorijom narudžbi se ne smije obrisati (spec 6/16: `order_items` čuva
+ * snapshot cijene i provizije za obračun i historiju kupca); brend ga
+ * umjesto toga povlači iz prodaje.
+ *
+ * Slike se prvo brišu sa R2 (`obrisiSaR2`) da ne ostanu orphan fajlovi,
+ * zatim se u transakciji brišu svi zavisni redovi pa sam proizvod.
+ */
+export async function deleteProductAction(productId: string): Promise<PortalProizvodAkcijaRezultat> {
+  try {
+    const poruke = bs.portal.proizvodi.akcije;
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    if (typeof productId !== 'string' || productId.trim() === '') {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    const pristup = await ucitajPristupProizvodu(session.user.id, productId);
+
+    if (!pristup || (pristup.uloga !== 'vlasnik' && pristup.uloga !== 'urednik')) {
+      return { ok: false, error: poruke.greskaPristup };
+    }
+
+    if (pristup.brandStatus === 'suspendovan') {
+      return { ok: false, error: poruke.greskaSuspendovan };
+    }
+
+    const [postojecaNarudzba] = await db
+      .select({ id: orderItems.id })
+      .from(orderItems)
+      .where(eq(orderItems.productId, productId))
+      .limit(1);
+
+    if (postojecaNarudzba) {
+      return { ok: false, error: poruke.greskaImaNarudzbe };
+    }
+
+    const slike = await db
+      .select({ url: productImages.url })
+      .from(productImages)
+      .where(eq(productImages.productId, productId));
+
+    for (const slika of slike) {
+      await obrisiSaR2(slika.url);
+    }
+
+    await db.transaction(async (tx) => {
+      await tx.delete(productImages).where(eq(productImages.productId, productId));
+      await tx.delete(productCategories).where(eq(productCategories.productId, productId));
+      await tx.delete(productGoals).where(eq(productGoals.productId, productId));
+      await tx.delete(products).where(eq(products.id, productId));
+    });
+
+    revalidatePath('/portal/proizvodi');
+    revalidatePath('/shop');
+
+    return { ok: true };
+  } catch {
+    console.error('deleteProductAction: brisanje proizvoda nije uspjelo');
+    return { ok: false, error: bs.portal.proizvodi.akcije.greskaOpsta };
   }
 }

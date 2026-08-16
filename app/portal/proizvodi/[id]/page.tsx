@@ -6,6 +6,7 @@ import { getFullCategoryTree } from '@/lib/domain/categories';
 import { getPortalProductForEdit } from '@/lib/domain/portal-products';
 import { bs } from '@/lib/i18n/bs';
 import { ProductImageUpload } from '../_components/ProductImageUpload';
+import { ProizvodAkcije } from '../_components/ProizvodAkcije';
 import { ProizvodForma } from '../_components/ProizvodForma';
 
 export const metadata: Metadata = {
@@ -45,8 +46,15 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
+      <div className="flex items-start justify-between gap-4">
         <h1 className="text-2xl font-semibold text-[#1C2B22]">{bs.portal.proizvodi.uredi.naslov}</h1>
+        <ProizvodAkcije
+          productId={proizvod.id}
+          status={proizvod.status}
+          onemoguceno={pristup.brand.status === 'suspendovan'}
+          naBrisanje="nazadNaListu"
+          sakrijUredi
+        />
       </div>
 
       <section className="flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5">
