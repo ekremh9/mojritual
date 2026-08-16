@@ -62,12 +62,39 @@ procjena koja daje personaliziranu preporuku.
    čija je pošiljka. Admin ima uvid i eskalaciju nakon 48h bez odgovora.
 8. **Ne dirati `guide_*` tabele bez konsultacije** — tu je zdravstvena logika.
 
+## Migracija šeme — dev I produkcija, u istom koraku
+
+Repo ima dvije baze: `postgres-dev` (lokalni razvoj, tunel na
+`localhost:5433`) i `postgres` (produkcija, koristi je Railway servis
+`mojritual`). Svaka nova migracija (`npm run db:generate`) mora biti
+primijenjena na **obje** baze prije nego se smatra završenom — ne samo
+na dev radi lokalnog testiranja.
+
+Redoslijed koji se ne preskače:
+1. `npm run db:generate` (lokalno, ne pokreće se `db:migrate`)
+2. Pregled generisanog SQL-a
+3. Primjena na `postgres-dev` (`railway connect postgres-dev`, pa `\i put/do/fajla.sql`)
+4. **Odmah zatim**, primjena na `postgres` (produkcija) — isti fajl, isti
+   `\i` postupak, samo drugi servis (`railway service` → izabrati
+   `postgres`, potvrditi sa `railway status` prije `railway connect postgres`)
+5. Tek nakon što OBJE baze imaju kolonu/tabelu, kod koji je koristi ide
+   na `main` i deployuje se
+
+Kod je jednom stigao na produkciju (build prošao, deploy uspio) prije
+nego što je migracija primijenjena na produkcijsku bazu — aplikacija je
+pukla na runtime sa "column does not exist", iako je sve izgledalo
+zeleno na Railwayu. Build koji prolazi ne znači da je baza spremna.
+
 ## Self-review prije commita
 
 Nakon svake izmjene koda, prije nego predložiš commit:
 
 1. Pokreni `git diff --stat` pa `git diff` da vidiš tačno šta je promijenjeno
-2. Pokreni `npm run lint` (ESLint + tsc --noEmit)
+2. Pokreni `npm run lint` (ESLint + tsc --noEmit) **i** `npm run build`.
+   Lint i build su provjereno prošli različito na istom kodu — build
+   jednom nije prošao dok je lint bio čist, i ta greška je danima tiho
+   padala na Railwayu jer se lint tretirao kao dovoljna potvrda. Build
+   je obavezan prije svakog "spreman za commit", ne opcionalan dodatak.
 3. Provjeri da je kod konzistentan s postojećom konvencijom u projektu
    (imenovanje, stil komponenti, gdje relacije žive, gdje validacija žive —
    vidi obrasce u postojećem kodu prije nego uvodiš novi pattern)
