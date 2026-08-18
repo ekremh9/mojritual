@@ -54,6 +54,33 @@ export const bs = {
     portalBrenda: 'Portal za brend',
     odjava: 'Odjava',
   },
+  nalog: {
+    naslov: 'Moj nalog',
+    podaci: {
+      naslov: 'Podaci naloga',
+      email: 'Email',
+      emailNapomena: 'Email adresa se ne može mijenjati.',
+    },
+    forma: {
+      ime: 'Ime i prezime',
+      imePlaceholder: 'Vaše ime i prezime',
+      sacuvaj: 'Sačuvaj',
+      sacuvajUcitavanje: 'Snimanje…',
+      uspjeh: 'Ime je ažurirano.',
+      greskaOpsta: 'Snimanje nije uspjelo. Pokušajte ponovo.',
+      greskaPristup: 'Niste prijavljeni.',
+      validacija: {
+        imeObavezno: 'Unesite ime i prezime.',
+        imePredugacko: 'Ime je predugačko.',
+      },
+    },
+    narudzbe: {
+      naslov: (broj: number) => `Moje narudžbe (${broj})`,
+    },
+    vodic: {
+      naslov: (broj: number) => `Moji rezultati Vodiča (${broj})`,
+    },
+  },
   homepage: {
     hero: {
       naslov: 'Tvoj ritual zdravijeg života.',
