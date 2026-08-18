@@ -87,6 +87,13 @@ export const bs = {
       pregledajPonudu: 'Pogledajte ponudu',
       datum: 'Datum',
     },
+    vodicLista: {
+      naslov: 'Moji rezultati Vodiča',
+      nazad: 'Nazad na Moj nalog',
+      prazno: 'Još nemate sačuvan nijedan rezultat Ritual Vodiča.',
+      pokreniVodic: 'Pokreni Ritual Vodič',
+      datum: 'Datum',
+    },
   },
   homepage: {
     hero: {
