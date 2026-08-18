@@ -4,6 +4,7 @@ import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { commissionPeriods } from './commission';
 import { medicalReviewers, posts } from './content';
+import { emailVerificationTokens } from './email-verification';
 import { goals, guideExplanationTemplates, guideSessions, productGoals } from './guide';
 import { ingredients, productIngredients } from './ingredients';
 import { orderItems, orderShipments, orders } from './orders';
@@ -18,6 +19,7 @@ export * from './bundles';
 export * from './categories';
 export * from './commission';
 export * from './content';
+export * from './email-verification';
 export * from './guide';
 export * from './ingredients';
 export * from './leads';
@@ -39,6 +41,14 @@ export const usersRelations = relations(users, ({ many }) => ({
   orders: many(orders),
   guideSessions: many(guideSessions),
   ticketMessages: many(ticketMessages),
+  emailVerificationTokens: many(emailVerificationTokens),
+}));
+
+export const emailVerificationTokensRelations = relations(emailVerificationTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [emailVerificationTokens.userId],
+    references: [users.id],
+  }),
 }));
 
 export const brandUsersRelations = relations(brandUsers, ({ one }) => ({
