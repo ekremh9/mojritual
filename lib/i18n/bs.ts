@@ -217,7 +217,6 @@ export const bs = {
       otvori: 'Filteri',
       kategorija: 'Kategorija',
       sveKategorije: 'Sve kategorije',
-      sveIzKategorije: (naziv: string) => `Sve — ${naziv}`,
       forma: 'Oblik proizvoda',
       sveForme: 'Svi oblici',
       sort: 'Sortiranje',
