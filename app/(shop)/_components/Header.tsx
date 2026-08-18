@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Menu, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { auth } from '@/auth';
 import { bs } from '@/lib/i18n/bs';
 import { KorisnickiMeni } from './KorisnickiMeni';
@@ -45,7 +45,7 @@ export async function Header() {
         <div className="flex items-center gap-3">
           <Link
             href="/korpa"
-            className="relative flex items-center justify-center rounded-full p-2 text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+            className="relative hidden items-center justify-center rounded-full p-2 text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] sm:flex"
             aria-label={bs.header.korpa}
           >
             <ShoppingBag className="h-5 w-5" />
@@ -62,15 +62,6 @@ export async function Header() {
               {bs.header.prijava}
             </Link>
           )}
-
-          <button
-            type="button"
-            disabled
-            aria-label={bs.header.otvoriMeni}
-            className="flex items-center justify-center rounded-full p-2 text-[#1C2B22] sm:hidden"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
         </div>
       </div>
     </header>

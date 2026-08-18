@@ -15,7 +15,13 @@ export const bs = {
     blog: 'Blog',
     korpa: 'Korpa',
     prijava: 'Prijava',
-    otvoriMeni: 'Otvori meni',
+    mobilnaTraka: {
+      naslov: 'Mobilna navigacija',
+      pocetna: 'Početna',
+      shop: 'Shop',
+      vodic: 'Vodič',
+      korpa: 'Korpa',
+    },
   },
   korisnickiMeni: {
     otvoriMeni: 'Otvori korisnički meni',
