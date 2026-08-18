@@ -80,6 +80,13 @@ export const bs = {
     vodic: {
       naslov: (broj: number) => `Moji rezultati Vodiča (${broj})`,
     },
+    narudzbeLista: {
+      naslov: 'Moje narudžbe',
+      nazad: 'Nazad na Moj nalog',
+      prazno: 'Još nemate nijednu narudžbu.',
+      pregledajPonudu: 'Pogledajte ponudu',
+      datum: 'Datum',
+    },
   },
   homepage: {
     hero: {

@@ -1,6 +1,7 @@
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { guideSessions, orders } from '@/lib/db/schema';
+import type { Order } from '@/lib/db/schema';
 
 export type NalogPregled = {
   brojNarudzbi: number;
@@ -27,4 +28,30 @@ export async function getNalogPregled(userId: string): Promise<NalogPregled> {
     brojNarudzbi: narudzbe?.ukupno ?? 0,
     brojSacuvanihVodica: vodic?.ukupno ?? 0,
   };
+}
+
+export type MojaNarudzba = {
+  broj: string;
+  createdAt: Date;
+  status: Order['status'];
+  ukupno: number;
+};
+
+/**
+ * Sve narudžbe prijavljenog korisnika, najnovije prvo.
+ *
+ * `userId` MORA doći iz `auth()` sesije pozivaoca — isto pravilo kao
+ * `getNalogPregled`. Nikad je ne pozivati sa vrijednošću sa klijenta.
+ */
+export async function getMojeNarudzbe(userId: string): Promise<MojaNarudzba[]> {
+  return db
+    .select({
+      broj: orders.broj,
+      createdAt: orders.createdAt,
+      status: orders.status,
+      ukupno: orders.ukupno,
+    })
+    .from(orders)
+    .where(eq(orders.userId, userId))
+    .orderBy(desc(orders.createdAt));
 }
