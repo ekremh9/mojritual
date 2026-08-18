@@ -35,6 +35,13 @@ type CheckoutFormaProps = {
   /** productId + kolicina iz korpe — cijene se nikad ne šalju sa klijenta. */
   stavke: KorpaStavka[];
   onNarudzbaPoslata?: () => void;
+  /**
+   * Početne vrijednosti za prijavljenog korisnika (iz sesije) — polja
+   * ostaju editabilna, ovo nije placeholder. Gost ne prosljeđuje ništa,
+   * forma ostaje prazna.
+   */
+  initialIme?: string;
+  initialEmail?: string;
 };
 
 type PoljeProps = {
@@ -69,10 +76,19 @@ function Polje({ id, label, obavezno, greska, children }: PoljeProps) {
   );
 }
 
-export function CheckoutForma({ stavke, onNarudzbaPoslata }: CheckoutFormaProps) {
+export function CheckoutForma({
+  stavke,
+  onNarudzbaPoslata,
+  initialIme,
+  initialEmail,
+}: CheckoutFormaProps) {
   const router = useRouter();
   const { clearCart } = useCart();
-  const [vrijednosti, setVrijednosti] = useState<CheckoutUnos>(PRAZAN_UNOS);
+  const [vrijednosti, setVrijednosti] = useState<CheckoutUnos>({
+    ...PRAZAN_UNOS,
+    ime: initialIme ?? '',
+    email: initialEmail ?? '',
+  });
   const [greskePolja, setGreskePolja] = useState<GreskeCheckouta>({});
   const [greska, setGreska] = useState<string | null>(null);
   const [saljeSe, setSaljeSe] = useState(false);

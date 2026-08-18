@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useCart } from '@/lib/cart/CartContext';
 import { getCartProductsData } from '@/lib/domain/cart-data';
 import { izracunajKorpu, nedostajuciIds, type KorpaProizvod } from '@/lib/domain/cart';
@@ -12,6 +13,7 @@ import { CheckoutForma } from './_components/CheckoutForma';
 export default function CheckoutPage() {
   const router = useRouter();
   const { stavke, ukloniStavku } = useCart();
+  const { data: session, status: statusSesije } = useSession();
   const [proizvodi, setProizvodi] = useState<KorpaProizvod[]>([]);
   const [ucitano, setUcitano] = useState(false);
   const [narudzbaPoslata, setNarudzbaPoslata] = useState(false);
@@ -56,7 +58,7 @@ export default function CheckoutPage() {
     }
   }, [ucitano, stavke.length, narudzbaPoslata, router]);
 
-  if (!ucitano || stavke.length === 0) {
+  if (!ucitano || stavke.length === 0 || statusSesije === 'loading') {
     return (
       <div className="mx-auto max-w-4xl px-4 py-24 text-center text-sm text-[#1C2B22]/70">
         {bs.checkout.ucitavanje}
@@ -70,7 +72,12 @@ export default function CheckoutPage() {
 
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="lg:w-1/2">
-          <CheckoutForma stavke={stavke} onNarudzbaPoslata={() => setNarudzbaPoslata(true)} />
+          <CheckoutForma
+            stavke={stavke}
+            onNarudzbaPoslata={() => setNarudzbaPoslata(true)}
+            initialIme={session?.user?.name ?? ''}
+            initialEmail={session?.user?.email ?? ''}
+          />
         </div>
 
         <div className="flex flex-col gap-6 lg:w-1/2">
