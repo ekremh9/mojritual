@@ -156,7 +156,8 @@ export const bs = {
   },
   verifikacija: {
     naslovUspjeh: 'Email adresa potvrđena.',
-    greska: 'Link je istekao ili je nevažeći.',
+    greskaNevazeci: 'Link je nevažeći.',
+    greskaIstekao: 'Link je istekao.',
     nazadNaPocetnu: 'Nazad na početnu',
   },
   kategorija: {

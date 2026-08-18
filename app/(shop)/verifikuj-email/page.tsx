@@ -17,7 +17,7 @@ export default async function VerifikujEmailPage({ searchParams }: VerifikujEmai
 
   const rezultat = tokenVrijednost
     ? await verifyEmailToken(tokenVrijednost)
-    : { ok: false as const, error: bs.verifikacija.greska };
+    : { ok: false as const, error: bs.verifikacija.greskaNevazeci };
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12 sm:py-16">
