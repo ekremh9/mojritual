@@ -16,13 +16,20 @@ import { products } from './products';
 import { businessAccounts, users } from './users';
 
 /**
- * Izvor broja narudžbe (`MR-2026-00421`). `nextval()` je atoman na nivou
- * baze — dvije istovremene narudžbe nikad ne mogu dobiti isti broj, bez
- * eksplicitnog zaključavanja (za razliku od SELECT FOR UPDATE nad brojačem
- * u `settings`, koje bi pod konkurentnim narudžbama moglo dovesti do
- * čekanja ili deadlock-a). Cijena: broj nije bez rupa — narudžba čija
- * transakcija padne u rollback ostavlja preskočen broj. To je prihvatljivo,
- * jedinstvenost je jedino što je bitno.
+ * Broj narudžbe je javno vidljiv bez prijave (stranica potvrde narudžbe),
+ * pa NE smije otkrivati koliko je narudžbi ukupno napravljeno — zato format
+ * (`MR-2026-K7X2P9`) više ne prikazuje sekvencu direktno kao zero-padded
+ * brojač (stariji format `MR-2026-00421` je ostao nepromijenjen na
+ * postojećim narudžbama, bez retroaktivne migracije).
+ *
+ * `nextval()` se i dalje poziva pri svakoj narudžbi — atoman na nivou baze,
+ * bez eksplicitnog zaključavanja (za razliku od SELECT FOR UPDATE nad
+ * brojačem u `settings`, koje bi pod konkurentnim narudžbama moglo dovesti
+ * do čekanja ili deadlock-a) — ali njegova vrijednost ulazi samo kao dio
+ * ulaza (uz kriptografski siguran nasumičan izvor) u derivaciju prikazanog
+ * stringa u `lib/domain/order-actions.ts`. Stvarnu jedinstvenost prikazanog
+ * broja garantuje provjera protiv `orders.broj` (unique) uz retry pri
+ * sudaru, ne sama sekvenca.
  *
  * Sekvenca se nikad ne resetuje po godini — godina u broju je snapshot
  * trenutka narudžbe, ne dio brojača.
