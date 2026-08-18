@@ -3,6 +3,9 @@ import { generateVerificationToken } from '@/lib/domain/email-verification';
 import { EMAIL_FROM, resendClient } from '@/lib/email/resend-client';
 import { PotvrdaNarudzbeEmail } from '@/lib/email/templates/PotvrdaNarudzbeEmail';
 import { PotvrdaRegistracijeEmail } from '@/lib/email/templates/PotvrdaRegistracijeEmail';
+import { bs } from '@/lib/i18n/bs';
+
+const SUPPORT_EMAIL = bs.footer.kontakt.email;
 
 /**
  * Slanje emaila nikad ne smije oboriti glavnu radnju (registraciju,
@@ -22,6 +25,7 @@ export async function sendRegistrationEmail(
     await resendClient.emails.send({
       from: EMAIL_FROM,
       to: email,
+      replyTo: SUPPORT_EMAIL,
       subject: 'Dobrodošli na Ritual',
       react: createElement(PotvrdaRegistracijeEmail, { ime, linkZaVerifikaciju }),
     });
@@ -41,6 +45,7 @@ export async function sendOrderConfirmationEmail(
     await resendClient.emails.send({
       from: EMAIL_FROM,
       to: email,
+      replyTo: SUPPORT_EMAIL,
       subject: `Potvrda narudžbe ${brojNarudzbe}`,
       react: createElement(PotvrdaNarudzbeEmail, { kupacIme, brojNarudzbe, stavke, ukupno }),
     });

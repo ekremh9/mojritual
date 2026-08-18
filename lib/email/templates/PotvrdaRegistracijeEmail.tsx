@@ -6,6 +6,7 @@ import {
   Heading,
   Hr,
   Html,
+  Link,
   Preview,
   Text,
 } from '@react-email/components';
@@ -58,7 +59,13 @@ export function PotvrdaRegistracijeEmail({ ime, linkZaVerifikaciju }: PotvrdaReg
             {poruke.dugme}
           </Button>
           <Hr style={{ borderColor: '#1C2B22', opacity: 0.1, margin: '24px 0 16px' }} />
-          <Text style={{ color: '#8A9086', fontSize: '12px', margin: 0 }}>{poruke.footer}</Text>
+          <Text style={{ color: '#8A9086', fontSize: '12px', margin: '0 0 4px' }}>{poruke.footer}</Text>
+          <Text style={{ color: '#8A9086', fontSize: '12px', margin: 0 }}>
+            {poruke.kontaktPrefiks}{' '}
+            <Link href={`mailto:${bs.footer.kontakt.email}`} style={{ color: '#8A9086' }}>
+              {bs.footer.kontakt.email}
+            </Link>
+          </Text>
         </Container>
       </Body>
     </Html>

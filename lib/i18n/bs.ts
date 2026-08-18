@@ -178,6 +178,7 @@ export const bs = {
         'Kad vam bude zgodno, potvrdite svoju email adresu — nije obavezno, ali nam pomaže da vas lakše kontaktiramo oko narudžbi.',
       dugme: 'Potvrdite email adresu',
       footer: 'Ritual · mojritual.ba',
+      kontaktPrefiks: 'Pitanja? Pišite nam na',
     },
     narudzba: {
       preview: (broj: string) => `Hvala na narudžbi — broj ${broj}`,
@@ -186,6 +187,7 @@ export const bs = {
       ukupno: 'Ukupno',
       napomenaPlacanje: 'Plaćanje pouzećem prilikom preuzimanja. Kontaktirat ćemo vas radi dostave.',
       footer: 'Ritual · mojritual.ba',
+      kontaktPrefiks: 'Pitanja? Pišite nam na',
     },
   },
   verifikacija: {
