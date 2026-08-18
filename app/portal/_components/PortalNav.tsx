@@ -1,14 +1,18 @@
-import { LayoutDashboard, MessageCircle, Package, ShoppingBag, User } from 'lucide-react';
+import { Bell, LayoutDashboard, MessageCircle, Package, ShoppingBag, User } from 'lucide-react';
 import { bs } from '@/lib/i18n/bs';
 import { PortalNavLink } from './PortalNavLink';
 
 const IKONA_KLASE = 'h-4 w-4 shrink-0';
 
+type PortalNavProps = {
+  unreadCount: number;
+};
+
 /**
  * Navigacija portala. Na mobitelu horizontalna traka koja se skroluje,
  * na `sm+` uspravni sidebar.
  */
-export function PortalNav() {
+export function PortalNav({ unreadCount }: PortalNavProps) {
   return (
     <nav
       aria-label={bs.portal.nav.naslov}
@@ -16,6 +20,9 @@ export function PortalNav() {
     >
       <PortalNavLink href="/portal" label={bs.portal.nav.pregled}>
         <LayoutDashboard className={IKONA_KLASE} />
+      </PortalNavLink>
+      <PortalNavLink href="/portal/obavjestenja" label={bs.portal.nav.obavjestenja(unreadCount)}>
+        <Bell className={IKONA_KLASE} />
       </PortalNavLink>
       <PortalNavLink href="/portal/profil" label={bs.portal.nav.profil}>
         <User className={IKONA_KLASE} />

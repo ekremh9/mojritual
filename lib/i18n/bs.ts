@@ -48,6 +48,7 @@ export const bs = {
   },
   korisnickiMeni: {
     otvoriMeni: 'Otvori korisnički meni',
+    obavjestenja: (broj: number) => (broj > 0 ? `Obavještenja (${broj})` : 'Obavještenja'),
     mojNalog: 'Moj nalog',
     mojeNarudzbe: 'Moje narudžbe',
     adminPanel: 'Admin panel',
@@ -93,6 +94,11 @@ export const bs = {
       prazno: 'Još nemate sačuvan nijedan rezultat Ritual Vodiča.',
       pokreniVodic: 'Pokreni Ritual Vodič',
       datum: 'Datum',
+    },
+    obavjestenja: {
+      naslov: 'Obavještenja',
+      nazad: 'Nazad na Moj nalog',
+      prazno: 'Nemate obavještenja.',
     },
   },
   notifikacije: {
@@ -388,10 +394,16 @@ export const bs = {
     nav: {
       naslov: 'Navigacija portala',
       pregled: 'Pregled',
+      obavjestenja: (broj: number) => (broj > 0 ? `Obavještenja (${broj})` : 'Obavještenja'),
       profil: 'Profil brenda',
       proizvodi: 'Proizvodi',
       narudzbe: 'Narudžbe',
       reklamacije: 'Reklamacije',
+    },
+    obavjestenja: {
+      naslov: 'Obavještenja',
+      nazad: 'Nazad na Portal',
+      prazno: 'Nemate obavještenja.',
     },
     dashboard: {
       naslov: 'Pregled',

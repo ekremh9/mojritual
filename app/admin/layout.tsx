@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
+import { getUnreadCount } from '@/lib/domain/notifications';
 import { bs } from '@/lib/i18n/bs';
 import { KorisnickiMeni } from '@/app/(shop)/_components/KorisnickiMeni';
 import { AdminNav } from './_components/AdminNav';
@@ -25,6 +26,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect('/');
   }
 
+  // Admin obavještenja nisu u obimu za sada (nikad se ne kreiraju za admin
+  // ulogu) — i dalje dohvatamo stvarni broj umjesto da tvrdimo 0, radi
+  // ispravnosti u rijetkom slučaju da je nalog ranije bio brand/customer.
+  const brojNeprocitanih = await getUnreadCount(session.user.id);
+
   return (
     <div className="flex min-h-full flex-1 flex-col bg-[#F2F5ED]">
       <header className="border-b border-[#1C2B22]/10 bg-white">
@@ -40,7 +46,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             >
               {bs.admin.nazadNaSajt}
             </Link>
-            <KorisnickiMeni user={session.user} />
+            <KorisnickiMeni user={session.user} unreadCount={brojNeprocitanih} />
           </div>
         </div>
       </header>

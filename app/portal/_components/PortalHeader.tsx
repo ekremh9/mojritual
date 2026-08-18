@@ -6,6 +6,7 @@ import { KorisnickiMeni } from '@/app/(shop)/_components/KorisnickiMeni';
 
 type PortalHeaderProps = {
   user: Session['user'];
+  unreadCount: number;
   brand?: { naziv: string; status: Brand['status'] };
 };
 
@@ -19,7 +20,7 @@ const STATUS_KLASE: Record<Brand['status'], string> = {
  * Mini-header portala. Portal je unutrašnji alat, ne javni sajt — nema
  * korpe, kategorija ni Ritual Vodiča iz shop headera.
  */
-export function PortalHeader({ user, brand }: PortalHeaderProps) {
+export function PortalHeader({ user, unreadCount, brand }: PortalHeaderProps) {
   return (
     <header className="border-b border-[#1C2B22]/10 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
@@ -50,7 +51,7 @@ export function PortalHeader({ user, brand }: PortalHeaderProps) {
           >
             {bs.portal.nazadNaSajt}
           </Link>
-          <KorisnickiMeni user={user} />
+          <KorisnickiMeni user={user} unreadCount={unreadCount} />
         </div>
       </div>
     </header>

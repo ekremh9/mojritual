@@ -1,12 +1,17 @@
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 import { auth } from '@/auth';
+import { getUnreadCount } from '@/lib/domain/notifications';
 import { bs } from '@/lib/i18n/bs';
 import { KorisnickiMeni } from './KorisnickiMeni';
 import { KorpaBroj } from './KorpaBroj';
 
 export async function Header() {
   const session = await auth();
+  // Header je već server component koji zna sesiju — broj nepročitanih se
+  // dohvata ovdje i prosljeđuje kao prop, isti obrazac kao prosljeđivanje
+  // `user`-a u KorisnickiMeni. Nema potrebe za dodatnim klijentskim pozivom.
+  const brojNeprocitanih = session?.user?.id ? await getUnreadCount(session.user.id) : 0;
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#1C2B22]/10 bg-white">
@@ -53,7 +58,7 @@ export async function Header() {
           </Link>
 
           {session?.user ? (
-            <KorisnickiMeni user={session.user} />
+            <KorisnickiMeni user={session.user} unreadCount={brojNeprocitanih} />
           ) : (
             <Link
               href="/prijava"

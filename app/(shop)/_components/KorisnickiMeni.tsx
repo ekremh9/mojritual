@@ -10,9 +10,10 @@ import { useCart } from '@/lib/cart/CartContext';
 
 type KorisnickiMeniProps = {
   user: Session['user'];
+  unreadCount: number;
 };
 
-export function KorisnickiMeni({ user }: KorisnickiMeniProps) {
+export function KorisnickiMeni({ user, unreadCount }: KorisnickiMeniProps) {
   const [otvoren, setOtvoren] = useState(false);
   const kontejnerRef = useRef<HTMLDivElement>(null);
   const { clearCart } = useCart();
@@ -44,6 +45,9 @@ export function KorisnickiMeni({ user }: KorisnickiMeniProps) {
   }, [otvoren]);
 
   const prikazanoIme = user.name ?? user.email ?? '';
+  // Admin obavještenja nisu u obimu za sada — stavka se izostavlja.
+  const obavjestenjaHref =
+    user.role === 'customer' ? '/nalog/obavjestenja' : user.role === 'brand' ? '/portal/obavjestenja' : null;
   const stavkaKlase =
     'block rounded-lg px-3 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]';
 
@@ -57,7 +61,14 @@ export function KorisnickiMeni({ user }: KorisnickiMeniProps) {
         aria-label={bs.korisnickiMeni.otvoriMeni}
         className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
       >
-        <User className="h-5 w-5" />
+        <span className="relative inline-flex">
+          <User className="h-5 w-5" />
+          {unreadCount > 0 ? (
+            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#B3261E] text-[10px] font-medium text-white">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          ) : null}
+        </span>
         <span className="hidden max-w-[10rem] truncate sm:inline">{prikazanoIme}</span>
         <ChevronDown className="hidden h-4 w-4 sm:inline" />
       </button>
@@ -77,6 +88,16 @@ export function KorisnickiMeni({ user }: KorisnickiMeniProps) {
           </div>
 
           <div className="pt-2">
+            {obavjestenjaHref ? (
+              <Link
+                href={obavjestenjaHref}
+                role="menuitem"
+                className={stavkaKlase}
+                onClick={() => setOtvoren(false)}
+              >
+                {bs.korisnickiMeni.obavjestenja(unreadCount)}
+              </Link>
+            ) : null}
             <Link href="/nalog" role="menuitem" className={stavkaKlase} onClick={() => setOtvoren(false)}>
               {bs.korisnickiMeni.mojNalog}
             </Link>
