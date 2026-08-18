@@ -23,6 +23,28 @@ export const bs = {
       korpa: 'Korpa',
     },
   },
+  footer: {
+    brend: {
+      slogan: 'Tvoj ritual zdravijeg života.',
+      opis:
+        'Najveća ponuda dodataka prehrani i wellness proizvoda na jednom mjestu, uz personalizovane preporuke kroz Ritual Vodič.',
+    },
+    kupcima: {
+      naslov: 'Kupcima',
+      shop: 'Shop',
+      kategorije: 'Kategorije',
+      ritualVodic: 'Ritual Vodič',
+    },
+    brendovi: {
+      naslov: 'Za brendove',
+      registracija: 'Registrujte svoj brend',
+    },
+    kontakt: {
+      naslov: 'Kontakt',
+      email: 'pomoc@mojritual.ba',
+    },
+    copyright: '© 2026 Ritual · mojritual.ba',
+  },
   korisnickiMeni: {
     otvoriMeni: 'Otvori korisnički meni',
     mojNalog: 'Moj nalog',
