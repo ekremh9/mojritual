@@ -50,6 +50,7 @@ export const bs = {
     sastojciIDoziranje: 'Sastojci i doziranje',
     upozorenja: 'Upozorenja',
     kategorije: 'Kategorije',
+    prikaziSliku: (n: number) => `Prikaži sliku ${n}`,
   },
   korpa: {
     naslov: 'Korpa',

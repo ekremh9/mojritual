@@ -1,6 +1,5 @@
 import { cache } from 'react';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { and, asc, eq } from 'drizzle-orm';
@@ -9,6 +8,7 @@ import { brands, categories, productCategories, productImages, products } from '
 import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 import { DodajUKorpuDugme } from './_components/DodajUKorpuDugme';
+import { ProizvodGalerija } from './_components/ProizvodGalerija';
 
 type ProizvodPageProps = {
   params: Promise<{ slug: string }>;
@@ -82,43 +82,12 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
     notFound();
   }
 
-  const glavnaSlika = proizvod.slike[0] ?? null;
-  const ostaleSlike = proizvod.slike.slice(1);
   const pasusiOpisa = proizvod.opis?.split('\n\n').filter((pasus) => pasus.trim().length > 0) ?? [];
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:gap-12 lg:py-12">
       <div className="lg:w-1/2">
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[#F2F5ED]">
-          {glavnaSlika ? (
-            <Image
-              src={glavnaSlika.url}
-              alt={glavnaSlika.alt ?? proizvod.naziv}
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
-              priority
-            />
-          ) : null}
-        </div>
-        {ostaleSlike.length > 0 ? (
-          <div className="mt-3 flex gap-3">
-            {ostaleSlike.map((slika) => (
-              <div
-                key={slika.url}
-                className="relative aspect-square w-20 overflow-hidden rounded-xl bg-[#F2F5ED]"
-              >
-                <Image
-                  src={slika.url}
-                  alt={slika.alt ?? proizvod.naziv}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        ) : null}
+        <ProizvodGalerija slike={proizvod.slike} naziv={proizvod.naziv} />
       </div>
 
       <div className="flex flex-col gap-6 lg:w-1/2">
