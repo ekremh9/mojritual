@@ -17,13 +17,6 @@ export async function proxy(request: NextRequest) {
     secureCookie: jeHttps,
   });
 
-  console.log('[proxy debug]', {
-    pathname,
-    hasToken: !!token,
-    protocol: request.nextUrl.protocol,
-    cookieNames: request.cookies.getAll().map(c => c.name),
-  });
-
   if (!token) {
     const prijavaUrl = new URL('/prijava', request.url);
     prijavaUrl.searchParams.set('callbackUrl', pathname);

@@ -85,12 +85,12 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
   const pasusiOpisa = proizvod.opis?.split('\n\n').filter((pasus) => pasus.trim().length > 0) ?? [];
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:gap-12 lg:py-12">
-      <div className="lg:w-1/2">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:gap-12 lg:py-12">
+      <div className="lg:w-1/2 lg:min-w-0">
         <ProizvodGalerija slike={proizvod.slike} naziv={proizvod.naziv} />
       </div>
 
-      <div className="flex flex-col gap-6 lg:w-1/2">
+      <div className="flex flex-col gap-6 lg:w-1/2 lg:min-w-0">
         <div className="flex flex-col gap-4">
           {proizvod.kategorijeProizvoda.length > 0 ? (
             <div className="flex flex-wrap gap-2">

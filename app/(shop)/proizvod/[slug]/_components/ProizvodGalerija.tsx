@@ -17,7 +17,7 @@ export function ProizvodGalerija({ slike, naziv }: ProizvodGalerijaProps) {
 
   return (
     <div>
-      <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-2xl bg-[#F2F5ED]">
+      <div className="relative aspect-square w-full max-w-sm mx-auto lg:max-w-none overflow-hidden rounded-2xl bg-[#F2F5ED]">
         {glavnaSlika ? (
           <Image
             src={glavnaSlika.url}

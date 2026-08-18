@@ -62,6 +62,48 @@ procjena koja daje personaliziranu preporuku.
    čija je pošiljka. Admin ima uvid i eskalaciju nakon 48h bez odgovora.
 8. **Ne dirati `guide_*` tabele bez konsultacije** — tu je zdravstvena logika.
 
+## PowerShell i putanje s uglastim zagradama
+
+Next.js dinamičke rute (`[slug]`, `[...nextauth]`, `[id]`) imaju uglaste
+zagrade u imenu foldera. PowerShell-ove komande za čitanje fajlova
+(`type`, `Get-Content` bez `-LiteralPath`) tretiraju `[` i `]` kao
+wildcard pattern, ne kao doslovan dio putanje — rezultat je lažna greška
+("does not exist, or has been filtered by the -Include or -Exclude
+parameter") čak i kad fajl postoji. Ovo je nekoliko puta dovelo do
+pogrešnog zaključka da je fajl obrisan.
+
+Uvijek koristi `-LiteralPath` za bilo koju putanju koja sadrži `[` ili `]`:
+
+```powershell
+Get-Content -LiteralPath "app\(shop)\proizvod\[slug]\page.tsx"
+Get-ChildItem -LiteralPath "app\api\auth\[...nextauth]"
+```
+
+Isto važi za `dir`/`type` alias-e — zamijeni ih sa `Get-ChildItem
+-LiteralPath` / `Get-Content -LiteralPath` čim putanja sadrži uglastu
+zagradu.
+
+## Flexbox + aspect-ratio dijete — uvijek eksplicitan w-full i min-w-0
+
+Kad flex kontejner (`flex-row` ili `flex-col`) ima dijete koje sadrži
+element s `aspect-square`/`aspect-ratio`, dvije stvari se ne smiju
+izostaviti na tom djetetu, čak i kad se čini da bi `align-items: stretch`
+default trebao biti dovoljan:
+
+- `w-full` (ili eksplicitna širina) — bez toga smo izmjerili da kontejner
+  može kolabirati na djelić očekivane širine (398px umjesto ~1041px u
+  stvarnom slučaju), suprotno onome što flexbox teorija predviđa
+- `min-w-0` na `lg:w-1/2` (ili sličnim) flex-item kolonama — sprječava
+  da `aspect-square` dijete forsira flex item na min-content širinu
+  umjesto na dodijeljeni udio
+
+Kad se slika/kartica u flex layoutu prikazuje manja nego što kontejner
+sugeriše, prvo izmjeri stvarnu DOM širinu (`getBoundingClientRect()`
+kroz konzolu, penjajući se `parentElement` po `parentElement` dok se ne
+nađe nivo gdje širina naglo pada) prije nego se mijenja `sizes`/`max-w`
+na samoj slici — problem je češće u roditeljskom flex kontejneru nego u
+komponenti slike same.
+
 ## Migracija šeme — dev I produkcija, u istom koraku
 
 Repo ima dvije baze: `postgres-dev` (lokalni razvoj, tunel na
