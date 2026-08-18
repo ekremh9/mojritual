@@ -21,6 +21,10 @@ describe('parsePartneriParams', () => {
   it('prihvata poznat sort', () => {
     expect(parsePartneriParams({ sort: 'naziv' }).sort).toBe('naziv');
   });
+
+  it('prihvata preporuceno eksplicitno u URL-u iako nije ponuđen u dropdownu', () => {
+    expect(parsePartneriParams({ sort: 'preporuceno' }).sort).toBe('preporuceno');
+  });
 });
 
 describe('sortPartnere', () => {
@@ -36,6 +40,14 @@ describe('sortPartnere', () => {
 
   it('novo sortira po createdAt opadajuće', () => {
     expect(sortPartnere(partneri, 'novo').map((p) => p.naziv)).toEqual(['Alfa', 'Beta', 'Zeta']);
+  });
+
+  it('naziv_desc sortira obrnuto alfabetski', () => {
+    expect(sortPartnere(partneri, 'naziv_desc').map((p) => p.naziv)).toEqual([
+      'Zeta',
+      'Beta',
+      'Alfa',
+    ]);
   });
 
   it('preporuceno stavlja verifikovane prvo, pa najviše proizvoda', () => {

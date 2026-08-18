@@ -577,9 +577,9 @@ export const bs = {
       sort: 'Sortiranje',
     },
     sort: {
-      preporuceno: 'Preporučeno',
-      novo: 'Najnovije',
-      naziv: 'Naziv (A-Š)',
+      novo: 'Najnoviji',
+      naziv: 'Naziv (A-Ž)',
+      naziv_desc: 'Naziv (Ž-A)',
     },
     verifikovan: 'Verifikovan',
     brojProizvoda,

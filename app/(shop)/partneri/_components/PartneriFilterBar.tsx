@@ -3,7 +3,11 @@
 import { useState, useTransition, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, Search } from 'lucide-react';
-import { PARTNERI_SORTOVI, type PartneriFilteri, type PartneriSort } from '@/lib/domain/partners-query';
+import {
+  PARTNERI_SORTOVI_VIDLJIVI,
+  type PartneriFilteri,
+  type PartneriSort,
+} from '@/lib/domain/partners-query';
 import { bs } from '@/lib/i18n/bs';
 
 /**
@@ -82,11 +86,14 @@ export function PartneriFilterBar({ filteri }: { filteri: PartneriFilteri }) {
         <div className="relative">
           <select
             id="partneri-sort"
-            value={filteri.sort}
+            // "preporuceno" (tihi default kad ?sort= nije zadan) namjerno nije
+            // među opcijama — select se prikazuje prazan dok korisnik svjesno
+            // ne odabere jedan od tri ponuđena sortiranja.
+            value={filteri.sort === 'preporuceno' ? '' : filteri.sort}
             onChange={(event) => promijeniSort(event.target.value as PartneriSort)}
             className="w-full appearance-none rounded-xl border border-[#1C2B22]/15 bg-white py-2.5 pl-3 pr-9 text-sm text-[#1C2B22] focus:border-[#16332A] focus:outline-none focus:ring-2 focus:ring-[#16332A]/20"
           >
-            {PARTNERI_SORTOVI.map((sort) => (
+            {PARTNERI_SORTOVI_VIDLJIVI.map((sort) => (
               <option key={sort} value={sort}>
                 {bs.partneri.sort[sort]}
               </option>

@@ -1,11 +1,21 @@
 import { and, eq, ilike, type SQL } from 'drizzle-orm';
 import { brands } from '@/lib/db/schema';
 
-export const PARTNERI_SORTOVI = ['preporuceno', 'novo', 'naziv'] as const;
+export const PARTNERI_SORTOVI = ['preporuceno', 'novo', 'naziv', 'naziv_desc'] as const;
 
 export type PartneriSort = (typeof PARTNERI_SORTOVI)[number];
 
 export const PARTNERI_SORT_PODRAZUMIJEVANI: PartneriSort = 'preporuceno';
+
+/**
+ * Opcije koje se stvarno nude korisniku u dropdownu. "preporuceno" NIJE
+ * ovdje — to je tihi default kad `?sort=` nije zadan u URL-u (vidi
+ * `PARTNERI_SORT_PODRAZUMIJEVANI`), namjerno neizabirljiv jer korisnik ne bi
+ * razumio šta znači niti kako da ga svjesno odabere. `jeSort` i dalje
+ * prihvata `preporuceno` kroz `PARTNERI_SORTOVI` — ako se ikad pojavi u URL-u
+ * (ručno ili iz starog linka), tretira se kao validan, samo se ne nudi.
+ */
+export const PARTNERI_SORTOVI_VIDLJIVI = ['novo', 'naziv', 'naziv_desc'] as const satisfies readonly PartneriSort[];
 
 export type PartneriSearchParams = Record<string, string | string[] | undefined>;
 
@@ -84,6 +94,8 @@ export function sortPartnere<T extends PartnerZaSortiranje>(
   switch (sort) {
     case 'naziv':
       return kopija.sort((a, b) => a.naziv.localeCompare(b.naziv, 'bs'));
+    case 'naziv_desc':
+      return kopija.sort((a, b) => b.naziv.localeCompare(a.naziv, 'bs'));
     case 'novo':
       return kopija.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     case 'preporuceno':
