@@ -10,8 +10,8 @@ export const bs = {
   header: {
     logo: 'Ritual',
     shop: 'Shop',
-    kategorije: 'Kategorije',
     ritualVodic: 'Ritual Vodič',
+    partneri: 'Partneri',
     blog: 'Blog',
     korpa: 'Korpa',
     prijava: 'Prijava',
@@ -20,6 +20,7 @@ export const bs = {
       pocetna: 'Početna',
       shop: 'Shop',
       vodic: 'Vodič',
+      partneri: 'Partneri',
       korpa: 'Korpa',
     },
   },
@@ -32,8 +33,8 @@ export const bs = {
     kupcima: {
       naslov: 'Kupcima',
       shop: 'Shop',
-      kategorije: 'Kategorije',
       ritualVodic: 'Ritual Vodič',
+      partneri: 'Partneri',
     },
     brendovi: {
       naslov: 'Za brendove',
@@ -66,6 +67,11 @@ export const bs = {
     },
     istaknutiProizvodi: {
       naslov: 'Istaknuti proizvodi',
+      vidiSve: 'Pogledajte sav asortiman',
+    },
+    istaknutiPartneri: {
+      naslov: 'Istaknuti partneri',
+      vidiSve: 'Vidi sve partnere',
     },
   },
   proizvod: {
@@ -545,14 +551,36 @@ export const bs = {
       },
     },
   },
-  brend: {
-    metaNaslov: (naziv: string) => `Brend – ${naziv}`,
-    verifikovan: 'Verifikovan brend',
-    oBrendu: 'O brendu',
+  partner: {
+    metaNaslov: (naziv: string) => `Partner – ${naziv}`,
+    verifikovan: 'Verifikovan partner',
+    oPartneru: 'O partneru',
     certifikati: 'Certifikati',
     pogledajDokument: 'Pogledaj dokument',
-    ponudaBrenda: 'Ponuda brenda',
-    prazno: 'Ovaj brend trenutno nema dostupnih proizvoda.',
+    ponudaPartnera: 'Ponuda partnera',
+    prazno: 'Ovaj partner trenutno nema dostupnih proizvoda.',
+  },
+  partneri: {
+    naslov: 'Partneri',
+    metaOpis:
+      'Pregledajte sve partnere na Ritualu — brendove čiji proizvodi čine ponudu platforme.',
+    rezultati: (broj: number) => `${broj} ${jeJednina(broj) ? 'partner' : 'partnera'}`,
+    prazno: 'Nema partnera koji odgovaraju pretrazi.',
+    pretraga: {
+      labela: 'Pretraga partnera',
+      placeholder: 'Pretražite po nazivu…',
+      dugme: 'Traži',
+    },
+    filteri: {
+      sort: 'Sortiranje',
+    },
+    sort: {
+      preporuceno: 'Preporučeno',
+      novo: 'Najnovije',
+      naziv: 'Naziv (A-Š)',
+    },
+    verifikovan: 'Verifikovan',
+    brojProizvoda,
   },
   vodic: {
     naslov: 'Ritual Vodič',
@@ -763,6 +791,18 @@ export const bs = {
         uspjehOdobreno: 'Brend je odobren i sada ima pristup portalu.',
         odbijanjeNedostupno:
           'Odbijanje brenda još nije podržano — status brendova trenutno ima samo na_cekanju/odobren/suspendovan. Za sada kontaktirajte brend direktno ako prijava nije odgovarajuća.',
+        isticanje: {
+          naslov: 'Isticanje na početnoj',
+          trenutno: 'Trenutno istaknut',
+          trenutnoDa: 'Da',
+          trenutnoNe: 'Ne',
+          aktiviraj: 'Aktiviraj isticanje',
+          ukloni: 'Ukloni isticanje',
+          ucitavanje: 'Snimanje…',
+          napomenaNijeOdobren: 'Isticanje će biti vidljivo tek kad partner bude odobren.',
+          uspjehAktivirano: 'Partner je istaknut na početnoj stranici.',
+          uspjehUklonjeno: 'Isticanje je uklonjeno.',
+        },
       },
     },
     narudzbe: {

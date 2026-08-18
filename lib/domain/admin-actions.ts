@@ -175,7 +175,7 @@ export async function approveBrandAction(brandId: string): Promise<AdminRezultat
 
     revalidatePath('/admin/brendovi');
     revalidatePath(`/admin/brendovi/${brandId}`);
-    revalidatePath(`/brend/${brend.slug}`);
+    revalidatePath(`/partner/${brend.slug}`);
 
     return { ok: true };
   } catch {
@@ -229,6 +229,49 @@ export async function toggleFeaturedAction(
     return { ok: true };
   } catch {
     console.error('toggleFeaturedAction: promjena isticanja nije uspjela');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
+ * Ručno postavlja `brands.istaknut` — isti pattern kao `toggleFeaturedAction`
+ * za proizvode, ali bez "zahtjev" varijante: brend ovdje ne šalje namjeru,
+ * admin direktno uključuje/isključuje isticanje partnera na početnoj.
+ */
+export async function toggleBrandFeaturedAction(
+  brandId: string,
+  novoStanje: boolean,
+): Promise<AdminRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof brandId !== 'string' || brandId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const [brend] = await db
+      .select({ id: brands.id })
+      .from(brands)
+      .where(eq(brands.id, brandId))
+      .limit(1);
+
+    if (!brend) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    await db.update(brands).set({ istaknut: novoStanje }).where(eq(brands.id, brandId));
+
+    revalidatePath('/admin/brendovi');
+    revalidatePath(`/admin/brendovi/${brandId}`);
+    revalidatePath('/');
+
+    return { ok: true };
+  } catch {
+    console.error('toggleBrandFeaturedAction: promjena isticanja nije uspjela');
     return { ok: false, error: bs.admin.greskaOpsta };
   }
 }

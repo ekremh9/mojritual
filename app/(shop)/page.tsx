@@ -1,13 +1,15 @@
 import Link from 'next/link';
-import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, productImages, products } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
 import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
+import { PartnerKartica } from './_components/PartnerKartica';
 import { ProizvodKartica } from './_components/ProizvodKartica';
 
 const BROJ_ISTAKNUTIH = 10;
+const BROJ_ISTAKNUTIH_PARTNERA = 4;
 
 const KOLONE_PROIZVODA = {
   id: products.id,
@@ -15,6 +17,16 @@ const KOLONE_PROIZVODA = {
   naziv: products.naziv,
   kratkiOpis: products.kratkiOpis,
   cijena: products.cijena,
+};
+
+const KOLONE_PARTNERA = {
+  id: brands.id,
+  slug: brands.slug,
+  naziv: brands.naziv,
+  kratkiOpis: brands.kratkiOpis,
+  logoUrl: brands.logoUrl,
+  verifikovan: brands.verifikovan,
+  createdAt: brands.createdAt,
 };
 
 /**
@@ -93,10 +105,74 @@ async function getIstaknutiProizvodi() {
   }));
 }
 
+/**
+ * Isti fallback pattern kao `getIstaknutiProizvodi`: prvo partneri koje je
+ * admin stvarno istakao (`brands.istaknut`), pa popuni razliku najnovijim
+ * odobrenim partnerima koji već nisu u prvoj listi.
+ */
+async function getIstaknutiPartneri() {
+  const istaknuti = await db
+    .select(KOLONE_PARTNERA)
+    .from(brands)
+    .where(and(eq(brands.istaknut, true), eq(brands.status, 'odobren')))
+    .orderBy(desc(brands.createdAt))
+    .limit(BROJ_ISTAKNUTIH_PARTNERA);
+
+  let odabraniPartneri = istaknuti;
+
+  if (odabraniPartneri.length < BROJ_ISTAKNUTIH_PARTNERA) {
+    const preostalo = BROJ_ISTAKNUTIH_PARTNERA - odabraniPartneri.length;
+    const uslovi = [eq(brands.status, 'odobren')];
+    if (odabraniPartneri.length > 0) {
+      uslovi.push(
+        notInArray(
+          brands.id,
+          odabraniPartneri.map((partner) => partner.id),
+        ),
+      );
+    }
+
+    const najnoviji = await db
+      .select(KOLONE_PARTNERA)
+      .from(brands)
+      .where(and(...uslovi))
+      .orderBy(desc(brands.createdAt))
+      .limit(preostalo);
+
+    odabraniPartneri = [...odabraniPartneri, ...najnoviji];
+  }
+
+  if (odabraniPartneri.length === 0) {
+    return [];
+  }
+
+  const brojevi = await db
+    .select({ brandId: products.brandId, ukupno: count() })
+    .from(products)
+    .where(
+      and(
+        inArray(
+          products.brandId,
+          odabraniPartneri.map((partner) => partner.id),
+        ),
+        eq(products.status, 'odobren'),
+      ),
+    )
+    .groupBy(products.brandId);
+
+  const brojPoBrendu = new Map(brojevi.map((red) => [red.brandId, red.ukupno]));
+
+  return odabraniPartneri.map((partner) => ({
+    ...partner,
+    brojProizvoda: brojPoBrendu.get(partner.id) ?? 0,
+  }));
+}
+
 export default async function HomePage() {
-  const [kategorije, istaknutiProizvodi] = await Promise.all([
+  const [kategorije, istaknutiProizvodi, istaknutiPartneri] = await Promise.all([
     getTopLevelCategoriesWithProducts(),
     getIstaknutiProizvodi(),
+    getIstaknutiPartneri(),
   ]);
 
   return (
@@ -161,8 +237,39 @@ export default async function HomePage() {
               <ProizvodKartica key={proizvod.id} proizvod={proizvod} />
             ))}
           </div>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/shop"
+              className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-2.5 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+            >
+              {bs.homepage.istaknutiProizvodi.vidiSve}
+            </Link>
+          </div>
         </div>
       </section>
+
+      {istaknutiPartneri.length > 0 ? (
+        <section className="px-4 py-14 sm:px-6">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">
+              {bs.homepage.istaknutiPartneri.naslov}
+            </h2>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {istaknutiPartneri.map((partner) => (
+                <PartnerKartica key={partner.id} partner={partner} />
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <Link
+                href="/partneri"
+                className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-2.5 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+              >
+                {bs.homepage.istaknutiPartneri.vidiSve}
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

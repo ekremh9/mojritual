@@ -152,7 +152,7 @@ export default async function AdminNarudzbaPage({ params }: AdminNarudzbaPagePro
             >
               <div className="flex items-center justify-between gap-3 border-b border-[#1C2B22]/10 px-5 py-3">
                 <Link
-                  href={`/brend/${posiljka.brend.slug}`}
+                  href={`/partner/${posiljka.brend.slug}`}
                   className="text-sm font-semibold text-[#1C2B22] underline underline-offset-2"
                 >
                   {poruke.posiljkaOd(posiljka.brend.naziv)}

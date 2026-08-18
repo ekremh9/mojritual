@@ -1,0 +1,1 @@
+ALTER TABLE "brands" ADD COLUMN "istaknut" boolean DEFAULT false NOT NULL;

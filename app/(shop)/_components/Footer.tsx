@@ -21,11 +21,11 @@ export function Footer() {
           <Link href="/shop" className={KLASE_LINKA}>
             {poruke.kupcima.shop}
           </Link>
-          <Link href="/shop" className={KLASE_LINKA}>
-            {poruke.kupcima.kategorije}
-          </Link>
           <Link href="/vodic" className={KLASE_LINKA}>
             {poruke.kupcima.ritualVodic}
+          </Link>
+          <Link href="/partneri" className={KLASE_LINKA}>
+            {poruke.kupcima.partneri}
           </Link>
         </div>
 

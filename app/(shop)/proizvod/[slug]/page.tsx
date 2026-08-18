@@ -121,7 +121,7 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
           <span className="text-sm text-[#1C2B22]/70">
             {bs.proizvod.prodaje}:{' '}
             <Link
-              href={`/brend/${proizvod.brandSlug}`}
+              href={`/partner/${proizvod.brandSlug}`}
               className="font-medium text-[#1C2B22] underline underline-offset-2"
             >
               {proizvod.brandNaziv}

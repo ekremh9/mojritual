@@ -136,7 +136,7 @@ export default async function AdminProizvodPage({ params }: AdminProizvodPagePro
             <div className="flex justify-between gap-4">
               <span className="text-[#1C2B22]/60">{poruke.polja.brend}</span>
               <Link
-                href={`/brend/${proizvod.brend.slug}`}
+                href={`/partner/${proizvod.brend.slug}`}
                 className="font-medium text-[#1C2B22] underline underline-offset-2"
               >
                 {proizvod.brend.naziv}

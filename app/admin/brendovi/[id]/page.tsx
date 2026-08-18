@@ -7,6 +7,7 @@ import { getBrandForAdmin } from '@/lib/domain/admin-brands';
 import type { Brand } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 import { BrendOdobrenje } from '../_components/BrendOdobrenje';
+import { IsticanjePartnera } from '../_components/IsticanjePartnera';
 
 type AdminBrendPageProps = {
   params: Promise<{ id: string }>;
@@ -67,7 +68,7 @@ export default async function AdminBrendPage({ params }: AdminBrendPageProps) {
             {brend.verifikovan ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-[#C7D6BA]/50 px-2.5 py-1 text-xs font-medium text-[#1C2B22]">
                 <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                {bs.brend.verifikovan}
+                {bs.partner.verifikovan}
               </span>
             ) : null}
           </div>
@@ -140,6 +141,12 @@ export default async function AdminBrendPage({ params }: AdminBrendPageProps) {
           )}
 
           <p className="text-xs text-[#8A9086]">{poruke.odbijanjeNedostupno}</p>
+
+          <IsticanjePartnera
+            brandId={brend.id}
+            istaknut={brend.istaknut}
+            odobren={brend.status === 'odobren'}
+          />
         </div>
       </div>
     </div>

@@ -23,16 +23,16 @@ export async function Header() {
             {bs.header.shop}
           </Link>
           <Link
-            href="/kategorije"
-            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
-          >
-            {bs.header.kategorije}
-          </Link>
-          <Link
             href="/vodic"
             className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
           >
             {bs.header.ritualVodic}
+          </Link>
+          <Link
+            href="/partneri"
+            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
+          >
+            {bs.header.partneri}
           </Link>
           <Link
             href="/blog"

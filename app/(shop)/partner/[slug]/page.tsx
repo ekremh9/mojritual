@@ -100,7 +100,7 @@ export async function generateMetadata({ params }: BrendPageProps): Promise<Meta
   }
 
   return {
-    title: bs.brend.metaNaslov(brend.naziv),
+    title: bs.partner.metaNaslov(brend.naziv),
     description: brend.kratkiOpis ?? undefined,
   };
 }
@@ -149,7 +149,7 @@ export default async function BrendPage({ params }: BrendPageProps) {
             {brend.verifikovan ? (
               <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#F2F5ED] px-2.5 py-1 text-xs font-medium text-[#16332A]">
                 <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                {bs.brend.verifikovan}
+                {bs.partner.verifikovan}
               </span>
             ) : null}
             <h1 className="text-2xl font-semibold uppercase tracking-wide text-[#F2F5ED] sm:text-4xl">
@@ -162,7 +162,7 @@ export default async function BrendPage({ params }: BrendPageProps) {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12">
         {pasusiPrice.length > 0 ? (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.brend.oBrendu}</h2>
+            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.partner.oPartneru}</h2>
             <div className="flex flex-col gap-3 text-sm leading-relaxed text-[#1C2B22]/80">
               {pasusiPrice.map((pasus, indeks) => (
                 <p key={indeks}>{pasus}</p>
@@ -173,7 +173,7 @@ export default async function BrendPage({ params }: BrendPageProps) {
 
         {certifikati.length > 0 ? (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.brend.certifikati}</h2>
+            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.partner.certifikati}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {certifikati.map((certifikat) => (
                 <div
@@ -194,7 +194,7 @@ export default async function BrendPage({ params }: BrendPageProps) {
                       rel="noopener noreferrer"
                       className="mt-auto text-sm font-medium text-[#16332A] underline underline-offset-2"
                     >
-                      {bs.brend.pogledajDokument}
+                      {bs.partner.pogledajDokument}
                     </a>
                   ) : null}
                 </div>
@@ -204,10 +204,10 @@ export default async function BrendPage({ params }: BrendPageProps) {
         ) : null}
 
         <div className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.brend.ponudaBrenda}</h2>
+          <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.partner.ponudaPartnera}</h2>
           {proizvodi.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl bg-[#C7D6BA]/30 px-6 py-16 text-center">
-              <p className="text-base text-[#1C2B22]/70">{bs.brend.prazno}</p>
+              <p className="text-base text-[#1C2B22]/70">{bs.partner.prazno}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

@@ -1,4 +1,4 @@
-import { Home, LayoutGrid, ShoppingBag, Sparkles } from 'lucide-react';
+import { Building2, Home, LayoutGrid, ShoppingBag, Sparkles } from 'lucide-react';
 import { bs } from '@/lib/i18n/bs';
 import { KorpaBroj } from './KorpaBroj';
 import { MobilnaTrakaStavka } from './MobilnaTrakaStavka';
@@ -26,6 +26,9 @@ export function MobilnaTraka() {
       </MobilnaTrakaStavka>
       <MobilnaTrakaStavka href="/vodic" label={poruke.vodic}>
         <Sparkles className={IKONA_KLASE} />
+      </MobilnaTrakaStavka>
+      <MobilnaTrakaStavka href="/partneri" label={poruke.partneri}>
+        <Building2 className={IKONA_KLASE} />
       </MobilnaTrakaStavka>
       <MobilnaTrakaStavka href="/korpa" label={poruke.korpa} badge={<KorpaBroj />}>
         <ShoppingBag className={IKONA_KLASE} />

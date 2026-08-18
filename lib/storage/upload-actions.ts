@@ -143,7 +143,7 @@ export async function uploadBrandImageAction(
       .where(eq(brands.id, brandId));
 
     revalidatePath('/portal/profil');
-    revalidatePath(`/brend/${pristup.slug}`);
+    revalidatePath(`/partner/${pristup.slug}`);
 
     return { ok: true, url };
   } catch {

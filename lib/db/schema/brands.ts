@@ -33,6 +33,9 @@ export const brands = pgTable('brands', {
   adresa: text('adresa'),
   status: brandStatusEnum('status').notNull().default('na_cekanju'),
   verifikovan: boolean('verifikovan').notNull().default(false),
+  // Ručno uključuje admin — isti koncept kao products.istaknut, nema
+  // "zahtjev" varijantu (brend ovdje ne šalje namjeru, admin sam bira).
+  istaknut: boolean('istaknut').notNull().default(false),
   provizijaMpPosto: numeric('provizija_mp_posto', { precision: 5, scale: 2 })
     .notNull()
     .default('20.00'),

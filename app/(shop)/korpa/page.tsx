@@ -101,7 +101,7 @@ export default function KorpaPage() {
           >
             <div className="border-b border-[#1C2B22]/10 px-5 py-3">
               <Link
-                href={`/brend/${grupa.brend.slug}`}
+                href={`/partner/${grupa.brend.slug}`}
                 className="text-sm font-semibold text-[#1C2B22] hover:underline"
               >
                 {grupa.brend.naziv}
