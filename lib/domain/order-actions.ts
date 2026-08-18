@@ -6,7 +6,9 @@ import { db } from '@/lib/db';
 import { brands, orderItems, orderShipments, orders } from '@/lib/db/schema';
 import { izracunajKorpu, parsirajStavke, type KorpaStavka } from '@/lib/domain/cart';
 import { getCartProductsData } from '@/lib/domain/cart-data';
+import { formatCijena } from '@/lib/domain/format';
 import { normalizujCheckoutUnos, validirajCheckoutUnos } from '@/lib/domain/order-form';
+import { sendOrderConfirmationEmail } from '@/lib/email/send';
 import { bs } from '@/lib/i18n/bs';
 
 export type CreateOrderRezultat = { ok: true; orderBroj: string } | { ok: false; error: string };
@@ -135,6 +137,21 @@ export async function createOrderAction(
 
       return broj;
     });
+
+    const stavkeZaEmail = korpa.grupe.flatMap((grupa) =>
+      grupa.linije.map((linija) => ({
+        naziv: linija.proizvod.naziv,
+        kolicina: linija.kolicina,
+        cijena: formatCijena(linija.medjuzbir),
+      })),
+    );
+    await sendOrderConfirmationEmail(
+      unos.email,
+      unos.ime,
+      orderBroj,
+      stavkeZaEmail,
+      formatCijena(korpa.ukupno),
+    );
 
     return { ok: true, orderBroj };
   } catch {

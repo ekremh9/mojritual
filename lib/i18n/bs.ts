@@ -134,6 +134,31 @@ export const bs = {
     nastaviKupovinu: 'Nastavi kupovinu',
     nijePronadjena: 'Narudžba nije pronađena.',
   },
+  email: {
+    registracija: {
+      preview: 'Dobrodošli na Ritual — potvrdite email kad vam bude zgodno',
+      pozdrav: (ime: string) => `Zdravo, ${ime}!`,
+      tekstNalog:
+        'Vaš Ritual nalog je kreiran i već možete njime koristiti — kupovati, spremati rezultate Ritual Vodiča i pratiti narudžbe.',
+      tekstPotvrda:
+        'Kad vam bude zgodno, potvrdite svoju email adresu — nije obavezno, ali nam pomaže da vas lakše kontaktiramo oko narudžbi.',
+      dugme: 'Potvrdite email adresu',
+      footer: 'Ritual · mojritual.ba',
+    },
+    narudzba: {
+      preview: (broj: string) => `Hvala na narudžbi — broj ${broj}`,
+      pozdrav: (ime: string) => `Hvala na narudžbi, ${ime}!`,
+      tekstBroj: 'Broj vaše narudžbe je',
+      ukupno: 'Ukupno',
+      napomenaPlacanje: 'Plaćanje pouzećem prilikom preuzimanja. Kontaktirat ćemo vas radi dostave.',
+      footer: 'Ritual · mojritual.ba',
+    },
+  },
+  verifikacija: {
+    naslovUspjeh: 'Email adresa potvrđena.',
+    greska: 'Link je istekao ili je nevažeći.',
+    nazadNaPocetnu: 'Nazad na početnu',
+  },
   kategorija: {
     brojProizvoda,
   },

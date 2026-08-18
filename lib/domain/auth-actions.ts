@@ -1,6 +1,7 @@
 'use server';
 
 import { registerUser, RegisterUserError } from '@/lib/domain/auth';
+import { sendRegistrationEmail } from '@/lib/email/send';
 import { bs } from '@/lib/i18n/bs';
 
 export type RegistracijaRezultat = { ok: true } | { ok: false; error: string };
@@ -46,7 +47,8 @@ export async function registerCustomerAction(formData: FormData): Promise<Regist
   }
 
   try {
-    await registerUser({ ime, email, password: lozinka, role: 'customer' });
+    const noviKorisnik = await registerUser({ ime, email, password: lozinka, role: 'customer' });
+    await sendRegistrationEmail(noviKorisnik.id, email, ime);
     return { ok: true };
   } catch (greska) {
     if (greska instanceof RegisterUserError && greska.code === 'email_zauzet') {
