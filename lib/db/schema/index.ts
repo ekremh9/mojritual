@@ -7,6 +7,7 @@ import { medicalReviewers, posts } from './content';
 import { emailVerificationTokens } from './email-verification';
 import { goals, guideExplanationTemplates, guideSessions, productGoals } from './guide';
 import { ingredients, productIngredients } from './ingredients';
+import { notifications } from './notifications';
 import { orderItems, orderShipments, orders } from './orders';
 import { productCategories, productImages, products } from './products';
 import { productReviews } from './reviews';
@@ -23,6 +24,7 @@ export * from './email-verification';
 export * from './guide';
 export * from './ingredients';
 export * from './leads';
+export * from './notifications';
 export * from './orders';
 export * from './products';
 export * from './reviews';
@@ -42,6 +44,14 @@ export const usersRelations = relations(users, ({ many }) => ({
   guideSessions: many(guideSessions),
   ticketMessages: many(ticketMessages),
   emailVerificationTokens: many(emailVerificationTokens),
+  notifications: many(notifications),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
 }));
 
 export const emailVerificationTokensRelations = relations(emailVerificationTokens, ({ one }) => ({
