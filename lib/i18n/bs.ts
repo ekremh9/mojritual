@@ -95,6 +95,21 @@ export const bs = {
       datum: 'Datum',
     },
   },
+  notifikacije: {
+    proizvodOdobren: {
+      naslov: 'Proizvod odobren',
+      sadrzaj: (naziv: string) => `Vaš proizvod "${naziv}" je odobren i sada je vidljiv u prodaji.`,
+    },
+    proizvodOdbijen: {
+      naslov: 'Proizvod odbijen',
+      sadrzaj: (naziv: string, razlog: string) =>
+        `Vaš proizvod "${naziv}" je odbijen. Razlog: ${razlog}`,
+    },
+    brendOdobren: {
+      naslov: 'Brend odobren',
+      sadrzaj: 'Vaš brend je odobren i sada je vidljiv na platformi.',
+    },
+  },
   homepage: {
     hero: {
       naslov: 'Tvoj ritual zdravijeg života.',

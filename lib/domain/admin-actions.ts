@@ -1,10 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { brands, products } from '@/lib/db/schema';
+import { brandUsers, brands, products } from '@/lib/db/schema';
+import { createNotification } from '@/lib/domain/notifications';
 import { bs } from '@/lib/i18n/bs';
 
 export type AdminRezultat = { ok: true } | { ok: false; error: string };
@@ -25,6 +26,28 @@ async function zahtijevajAdmina(): Promise<{ id: string } | null> {
 }
 
 /**
+ * Svi vlasnici brenda (uloga='vlasnik') — ne samo prvi. Obavještenje poput
+ * "vaš proizvod je odobren" treba stići svakom ko stvarno ima vlasništvo
+ * nad brendom, ne proizvoljno izabranom jednom čovjeku (spec 10.2: jedan
+ * brend može imati više ljudi). Greška se guta, vraća praznu listu —
+ * traženje primaoca obavještenja ne smije oboriti glavnu admin akciju,
+ * isto pravilo kao `createNotification` samo.
+ */
+async function getBrandVlasniciIds(brandId: string): Promise<string[]> {
+  try {
+    const vlasnici = await db
+      .select({ userId: brandUsers.userId })
+      .from(brandUsers)
+      .where(and(eq(brandUsers.brandId, brandId), eq(brandUsers.uloga, 'vlasnik')));
+
+    return vlasnici.map((vlasnik) => vlasnik.userId);
+  } catch {
+    console.error('getBrandVlasniciIds: dohvat vlasnika brenda nije uspio');
+    return [];
+  }
+}
+
+/**
  * Odobrava proizvod na čekanju — postaje javno vidljiv.
  * Ne mijenja proizvode koji nisu (više) na čekanju, da dva admina koja
  * rade istovremeno ne prepišu jedan drugog.
@@ -42,7 +65,12 @@ export async function approveProductAction(productId: string): Promise<AdminRezu
     }
 
     const [proizvod] = await db
-      .select({ status: products.status, slug: products.slug })
+      .select({
+        status: products.status,
+        slug: products.slug,
+        naziv: products.naziv,
+        brandId: products.brandId,
+      })
       .from(products)
       .where(eq(products.id, productId))
       .limit(1);
@@ -70,6 +98,19 @@ export async function approveProductAction(productId: string): Promise<AdminRezu
     revalidatePath(`/admin/proizvodi/${productId}`);
     revalidatePath('/shop');
     revalidatePath(`/proizvod/${proizvod.slug}`);
+
+    const vlasniciIds = await getBrandVlasniciIds(proizvod.brandId);
+    await Promise.all(
+      vlasniciIds.map((userId) =>
+        createNotification(
+          userId,
+          'proizvod_odobren',
+          bs.notifikacije.proizvodOdobren.naslov,
+          bs.notifikacije.proizvodOdobren.sadrzaj(proizvod.naziv),
+          `/portal/proizvodi/${productId}`,
+        ),
+      ),
+    );
 
     return { ok: true };
   } catch {
@@ -102,7 +143,7 @@ export async function rejectProductAction(
     }
 
     const [proizvod] = await db
-      .select({ status: products.status })
+      .select({ status: products.status, naziv: products.naziv, brandId: products.brandId })
       .from(products)
       .where(eq(products.id, productId))
       .limit(1);
@@ -115,11 +156,13 @@ export async function rejectProductAction(
       return { ok: false, error: bs.admin.greskaVecObradjeno };
     }
 
+    const razlogOcisceno = razlog.trim();
+
     await db
       .update(products)
       .set({
         status: 'odbijen',
-        razlogOdbijanja: razlog.trim(),
+        razlogOdbijanja: razlogOcisceno,
         odobrioUserId: admin.id,
         odobrenoAt: new Date(),
         updatedAt: new Date(),
@@ -128,6 +171,19 @@ export async function rejectProductAction(
 
     revalidatePath('/admin/proizvodi');
     revalidatePath(`/admin/proizvodi/${productId}`);
+
+    const vlasniciIds = await getBrandVlasniciIds(proizvod.brandId);
+    await Promise.all(
+      vlasniciIds.map((userId) =>
+        createNotification(
+          userId,
+          'proizvod_odbijen',
+          bs.notifikacije.proizvodOdbijen.naslov,
+          bs.notifikacije.proizvodOdbijen.sadrzaj(proizvod.naziv, razlogOcisceno),
+          `/portal/proizvodi/${productId}`,
+        ),
+      ),
+    );
 
     return { ok: true };
   } catch {
@@ -176,6 +232,19 @@ export async function approveBrandAction(brandId: string): Promise<AdminRezultat
     revalidatePath('/admin/brendovi');
     revalidatePath(`/admin/brendovi/${brandId}`);
     revalidatePath(`/partner/${brend.slug}`);
+
+    const vlasniciIds = await getBrandVlasniciIds(brandId);
+    await Promise.all(
+      vlasniciIds.map((userId) =>
+        createNotification(
+          userId,
+          'brend_odobren',
+          bs.notifikacije.brendOdobren.naslov,
+          bs.notifikacije.brendOdobren.sadrzaj,
+          '/portal',
+        ),
+      ),
+    );
 
     return { ok: true };
   } catch {
