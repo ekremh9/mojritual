@@ -16,6 +16,14 @@ type IsticanjeProizvodaProps = {
 const KLASE_POLJA =
   'w-full resize-y rounded-xl border border-[#1C2B22]/15 bg-white px-4 py-2.5 text-sm text-[#1C2B22] outline-none transition placeholder:text-[#1C2B22]/40 focus:border-[#16332A] focus:ring-2 focus:ring-[#16332A]/20 disabled:cursor-not-allowed disabled:bg-[#F2F5ED] disabled:text-[#1C2B22]/60';
 
+// 'nema_zahtjeva' namjerno izostavljen — prikazuje se kao obični tekst, ne
+// badge (nije aktivan/pozitivan ni negativan status, nema šta da se istakne).
+const ISTAKNUT_STATUS_KLASE: Record<Exclude<Product['istaknutStatus'], 'nema_zahtjeva'>, string> = {
+  na_cekanju: 'bg-amber-100 text-amber-800',
+  odobreno: 'bg-[#16332A] text-[#F2F5ED]',
+  odbijeno: 'bg-[#B3261E]/10 text-[#B3261E]',
+};
+
 /**
  * Odobrava/odbija isticanje na početnoj — `products.istaknutStatus`,
  * odvojeno od odobrenja proizvoda samog (radi na svakom statusu proizvoda;
@@ -103,7 +111,15 @@ export function IsticanjeProizvoda({
 
       <div className="flex justify-between gap-4 text-sm">
         <span className="text-[#1C2B22]/60">{poruke.trenutno}</span>
-        <span className="font-medium text-[#1C2B22]">{poruke.statusi[istaknutStatus]}</span>
+        {istaknutStatus === 'nema_zahtjeva' ? (
+          <span className="font-medium text-[#1C2B22]">{poruke.statusi[istaknutStatus]}</span>
+        ) : (
+          <span
+            className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${ISTAKNUT_STATUS_KLASE[istaknutStatus]}`}
+          >
+            {poruke.statusi[istaknutStatus]}
+          </span>
+        )}
       </div>
 
       {istaknutStatus === 'odbijeno' && istaknutRazlog ? (
@@ -182,7 +198,7 @@ export function IsticanjeProizvoda({
           <button
             type="button"
             onClick={odobri}
-            disabled={ucitavanje !== null}
+            disabled={ucitavanje !== null || istaknutStatus === 'odobreno'}
             className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-2.5 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {ucitavanje === 'odobri' ? poruke.ucitavanje : poruke.aktiviraj}
@@ -190,7 +206,7 @@ export function IsticanjeProizvoda({
           <button
             type="button"
             onClick={() => setPrikaziOdbijanje(true)}
-            disabled={ucitavanje !== null}
+            disabled={ucitavanje !== null || istaknutStatus === 'odbijeno'}
             className="inline-flex items-center justify-center rounded-full border border-[#B3261E]/40 px-6 py-2.5 text-sm font-medium text-[#B3261E] transition-colors hover:bg-[#B3261E]/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {poruke.odbij}
