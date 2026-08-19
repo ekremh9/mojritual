@@ -34,7 +34,7 @@ export type PortalProizvodRezultat =
 
 export type PortalProizvodAkcijaRezultat = { ok: true } | { ok: false; error: string };
 
-const CILJNI_STATUSI = ['nacrt', 'na_cekanju'] as const;
+const CILJNI_STATUSI = ['nacrt', 'na_cekanju', 'zadrzi'] as const;
 type CiljniStatus = (typeof CILJNI_STATUSI)[number];
 
 function jeCiljniStatus(vrijednost: unknown): vrijednost is CiljniStatus {
@@ -176,6 +176,7 @@ export async function saveProductAction(
     let postojeciProizvod: {
       id: string;
       slug: string;
+      status: Product['status'];
       istaknutStatus: Product['istaknutStatus'];
     } | null = null;
 
@@ -185,7 +186,12 @@ export async function saveProductAction(
       }
 
       const [red] = await db
-        .select({ id: products.id, slug: products.slug, istaknutStatus: products.istaknutStatus })
+        .select({
+          id: products.id,
+          slug: products.slug,
+          status: products.status,
+          istaknutStatus: products.istaknutStatus,
+        })
         .from(products)
         .where(and(eq(products.id, productId), eq(products.brandId, brandId)))
         .limit(1);
@@ -195,6 +201,14 @@ export async function saveProductAction(
       }
 
       postojeciProizvod = red;
+    }
+
+    // 'zadrzi' (Sačuvaj izmjene bez ponovnog odobrenja) je dozvoljen SAMO
+    // kad je proizvod u bazi TRENUTNO 'odobren' — ne oslanjamo se na ono što
+    // klijent tvrdi da vidi na ekranu (moglo je zastarjeti, ili je poziv
+    // sastavljen ručno). Ako ne, tiho odbijamo, ne prihvatamo drugačiji ishod.
+    if (ciljniStatus === 'zadrzi' && postojeciProizvod?.status !== 'odobren') {
+      return { ok: false, error: poruke.greskaZadrziStatus };
     }
 
     const unos = normalizujProizvod(data);
@@ -222,7 +236,11 @@ export async function saveProductAction(
     // klijentski poziv koji bi se mogao zaobići. Ne dira 'nacrt' putanju niti
     // postojeće proizvode koji već čekaju (samo buduće slanje).
     const autoOdobreno = ciljniStatus === 'na_cekanju' && pristup.verifikovan;
-    const finalniStatus = autoOdobreno ? 'odobren' : ciljniStatus;
+    // 'zadrzi' NIKAD ne mijenja status kolonu — provjereno gore da je već
+    // 'odobren', pa ovdje samo zadržava tu istu vrijednost eksplicitno
+    // (ne prolazi kroz autoOdobreno/odobrenje ponovo, ne dira odobrenoAt).
+    const finalniStatus: Product['status'] =
+      ciljniStatus === 'zadrzi' ? 'odobren' : autoOdobreno ? 'odobren' : ciljniStatus;
     const poljaOdobrenja = autoOdobreno
       ? { odobrenoAt: new Date(), odobrioUserId: null }
       : {};

@@ -31,7 +31,7 @@ const KLASE_LABELE = 'text-sm font-medium text-[#1C2B22]';
 
 const KLASE_KARTICE = 'flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5';
 
-type CiljniStatus = 'nacrt' | 'na_cekanju';
+type CiljniStatus = 'nacrt' | 'na_cekanju' | 'zadrzi';
 
 type ProizvodFormaProps = {
   brandId: string;
@@ -40,8 +40,6 @@ type ProizvodFormaProps = {
   pocetneVrijednosti: ProizvodUnos;
   kategorije: KategorijaOpcija[];
   ciljevi: GuideCilj[];
-  /** Proizvod koji se uređuje je trenutno `odobren` — izmjena ga vraća na pregled. */
-  ponovnoOdobrenje: boolean;
   /** Brend je suspendovan — forma se prikazuje, ali se ne može mijenjati. */
   onemoguceno: boolean;
   /** `null` = novi proizvod, još nema statusa. */
@@ -102,7 +100,6 @@ export function ProizvodForma({
   pocetneVrijednosti,
   kategorije,
   ciljevi,
-  ponovnoOdobrenje,
   onemoguceno,
   status,
   razlogOdbijanja,
@@ -118,6 +115,8 @@ export function ProizvodForma({
   const saljeSe = ciljUToku !== null;
   const zakljucano = onemoguceno || saljeSe;
   const poruke = bs.portal.proizvodi.forma;
+  /** Proizvod je već objavljen — treće dugme ("Sačuvaj izmjene") zamjenjuje tok odobrenja. */
+  const jeVecOdobren = status === 'odobren';
 
   function postavi<K extends PoljeProizvoda>(polje: K, vrijednost: ProizvodUnos[K]) {
     setVrijednosti((prethodne) => ({ ...prethodne, [polje]: vrijednost }));
@@ -142,6 +141,20 @@ export function ProizvodForma({
         : prethodne.predlozeniCiljevi.filter((postojeciId) => postojeciId !== id),
     }));
     setUspjeh(null);
+  }
+
+  /**
+   * "Sačuvaj kao nacrt" za VEĆ ODOBREN proizvod povlači ga iz prodaje —
+   * nenamjerno povlačenje (klik pored, ili navika sa forme koja je do sad
+   * uvijek imala samo dva dugmeta) mora biti spriječeno potvrdom. Za sve
+   * ostale statuse "nacrt" je bezopasan (proizvod već nije javno vidljiv),
+   * pa se šalje direktno.
+   */
+  function sacuvajKaoNacrt() {
+    if (jeVecOdobren && !window.confirm(poruke.povlacenjePotvrda)) {
+      return;
+    }
+    posalji('nacrt');
   }
 
   async function posalji(ciljniStatus: CiljniStatus, event?: FormEvent<HTMLFormElement>) {
@@ -177,8 +190,9 @@ export function ProizvodForma({
 
       // Slanje na odobrenje (ili direktno objavljivanje za verifikovane
       // brendove — vidi napomenaVerifikovan) postojećeg proizvoda vraća
-      // brend na listu da prati status. "Sačuvaj kao nacrt" MORA ostati na
-      // formi — brend često nastavlja uređivati odmah nakon snimanja.
+      // brend na listu da prati status. "Sačuvaj kao nacrt" i "Sačuvaj
+      // izmjene" (zadrzi) MORAJU ostati na formi — brend često nastavlja
+      // uređivati odmah nakon snimanja.
       if (ciljniStatus === 'na_cekanju') {
         router.push('/portal/proizvodi');
         return;
@@ -213,7 +227,11 @@ export function ProizvodForma({
         </div>
       ) : null}
 
-      <form onSubmit={(event) => posalji('na_cekanju', event)} className="flex flex-col gap-6" noValidate>
+      <form
+        onSubmit={(event) => posalji(jeVecOdobren ? 'zadrzi' : 'na_cekanju', event)}
+        className="flex flex-col gap-6"
+        noValidate
+      >
         <fieldset disabled={zakljucano} className="flex flex-col gap-6 border-0 p-0">
           <section className={KLASE_KARTICE}>
             <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.sekcije.osnovno}</h2>
@@ -512,13 +530,7 @@ export function ProizvodForma({
           </section>
         </fieldset>
 
-        {ponovnoOdobrenje ? (
-          <p className="rounded-xl bg-[#C7D6BA]/40 px-4 py-3 text-sm text-[#1C2B22]/80">
-            {poruke.napomenaPonovnoOdobrenje}
-          </p>
-        ) : null}
-
-        {brandVerifikovan ? (
+        {brandVerifikovan && !jeVecOdobren ? (
           <p className="rounded-xl bg-[#C7D6BA]/40 px-4 py-3 text-sm text-[#1C2B22]/80">
             {poruke.napomenaVerifikovan}
           </p>
@@ -526,7 +538,11 @@ export function ProizvodForma({
 
         {uspjeh ? (
           <p role="status" className="rounded-xl bg-[#C7D6BA]/50 px-4 py-3 text-sm font-medium text-[#16332A]">
-            {uspjeh === 'nacrt' ? poruke.uspjehNacrt : poruke.uspjehPoslano}
+            {uspjeh === 'nacrt'
+              ? poruke.uspjehNacrt
+              : uspjeh === 'zadrzi'
+                ? poruke.uspjehSacuvano
+                : poruke.uspjehPoslano}
           </p>
         ) : null}
 
@@ -536,27 +552,50 @@ export function ProizvodForma({
           </p>
         ) : null}
 
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => posalji('nacrt')}
-            disabled={zakljucano}
-            className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-3 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {ciljUToku === 'nacrt' ? poruke.sacuvajUcitavanje : poruke.sacuvajNacrt}
-          </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {jeVecOdobren ? (
+            <>
+              <button
+                type="submit"
+                disabled={zakljucano}
+                className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {ciljUToku === 'zadrzi' ? poruke.sacuvajUcitavanje : poruke.sacuvajIzmjene}
+              </button>
 
-          <button
-            type="submit"
-            disabled={zakljucano}
-            className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {ciljUToku === 'na_cekanju'
-              ? poruke.sacuvajUcitavanje
-              : brandVerifikovan
-                ? poruke.objavi
-                : poruke.posaljiNaOdobrenje}
-          </button>
+              <button
+                type="button"
+                onClick={sacuvajKaoNacrt}
+                disabled={zakljucano}
+                className="text-sm font-medium text-[#1C2B22]/60 underline-offset-2 hover:text-[#1C2B22] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {ciljUToku === 'nacrt' ? poruke.sacuvajUcitavanje : poruke.sacuvajNacrt}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={sacuvajKaoNacrt}
+                disabled={zakljucano}
+                className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-3 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {ciljUToku === 'nacrt' ? poruke.sacuvajUcitavanje : poruke.sacuvajNacrt}
+              </button>
+
+              <button
+                type="submit"
+                disabled={zakljucano}
+                className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {ciljUToku === 'na_cekanju'
+                  ? poruke.sacuvajUcitavanje
+                  : brandVerifikovan
+                    ? poruke.objavi
+                    : poruke.posaljiNaOdobrenje}
+              </button>
+            </>
+          )}
         </div>
       </form>
     </div>

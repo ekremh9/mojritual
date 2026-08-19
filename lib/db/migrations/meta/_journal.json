@@ -134,6 +134,13 @@
       "when": 1787154336112,
       "tag": "0018_fearless_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1787169802207,
+      "tag": "0019_steady_meggan",
+      "breakpoints": true
     }
   ]
 }

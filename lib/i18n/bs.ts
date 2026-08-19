@@ -621,12 +621,13 @@ export const bs = {
         sacuvajNacrt: 'Sačuvaj kao nacrt',
         posaljiNaOdobrenje: 'Pošalji na odobrenje',
         objavi: 'Objavi proizvod',
+        sacuvajIzmjene: 'Sačuvaj izmjene',
         napomenaVerifikovan: 'Vaš brend je verifikovan — proizvod će biti odmah objavljen.',
         sacuvajUcitavanje: 'Snimanje…',
         uspjehNacrt: 'Proizvod je sačuvan kao nacrt.',
         uspjehPoslano: 'Proizvod je poslan na odobrenje.',
-        napomenaPonovnoOdobrenje:
-          'Izmjena odobrenog proizvoda šalje ga ponovo na pregled. Do odobrenja, kupci vide prethodnu verziju.',
+        uspjehSacuvano: 'Izmjene su sačuvane.',
+        povlacenjePotvrda: 'Ovo će povući proizvod iz prodaje. Nastaviti?',
         validacija: {
           nazivObavezan: 'Unesite naziv proizvoda.',
           nazivPlaceholder: 'Unesite pravi naziv proizvoda.',
@@ -642,6 +643,7 @@ export const bs = {
         },
         greskaPristup: 'Nemate pristup ovom proizvodu.',
         greskaSuspendovan: 'Vaš brend je suspendovan. Izmjene proizvoda nisu moguće.',
+        greskaZadrziStatus: 'Ovo je moguće samo za proizvod koji je trenutno odobren.',
         greskaOpsta: 'Snimanje nije uspjelo. Pokušajte ponovo.',
       },
     },
@@ -1028,7 +1030,8 @@ export const bs = {
           oznakaLabela: 'Oznaka',
           greskaRelevantnost: 'Relevantnost mora biti cijeli broj od 1 do 100.',
           sacuvano: 'Sačuvano ✓',
-          predlozenoOdPartnera: 'Predloženo od partnera',
+          noviPrijedlogOdPartnera: 'Novi prijedlog od partnera',
+          prijedlogObradjenTooltip: 'Partner je predložio ovaj cilj',
           istaknutBadge: 'Istaknuto',
         },
         opcije: {

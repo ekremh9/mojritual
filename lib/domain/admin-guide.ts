@@ -77,8 +77,12 @@ export type AdminCiljProizvod = {
   vezan: boolean;
   relevantnost: number | null;
   oznaka: 'primarni' | 'sekundarni' | null;
-  /** Partner je predložio TAČNO ovaj cilj za proizvod, recenzent ga još nije preuzeo. */
-  predlozioPartner: boolean;
+  /**
+   * `null` = partner nije predložio ovaj cilj za proizvod. Inače
+   * `obradjenoAt: null` = nov prijedlog, još ga niko nije pregledao;
+   * `obradjenoAt: Date` = recenzent je već postavio vezu za ovaj prijedlog.
+   */
+  prijedlogPartnera: { obradjenoAt: Date | null } | null;
   istaknutStatus: Product['istaknutStatus'];
 };
 
@@ -195,14 +199,17 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
   const vezaPoProizvodu = new Map(vezeZaOvajCilj.map((veza) => [veza.productId, veza]));
 
   const prijedloziZaOvajCilj = await db
-    .select({ productId: productGoalProposals.productId })
+    .select({ productId: productGoalProposals.productId, obradjenoAt: productGoalProposals.obradjenoAt })
     .from(productGoalProposals)
     .where(and(eq(productGoalProposals.goalId, goalId), inArray(productGoalProposals.productId, ids)));
 
-  const predlozeniProizvodiSkup = new Set(prijedloziZaOvajCilj.map((red) => red.productId));
+  const prijedlogPoProizvodu = new Map(
+    prijedloziZaOvajCilj.map((red) => [red.productId, red.obradjenoAt]),
+  );
 
   const proizvodi: AdminCiljProizvod[] = odobreniProizvodi.map((proizvod) => {
     const veza = vezaPoProizvodu.get(proizvod.id);
+    const imaPrijedlog = prijedlogPoProizvodu.has(proizvod.id);
 
     return {
       id: proizvod.id,
@@ -212,7 +219,9 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
       vezan: veza !== undefined,
       relevantnost: veza?.relevantnost ?? null,
       oznaka: veza?.oznaka ?? null,
-      predlozioPartner: predlozeniProizvodiSkup.has(proizvod.id),
+      prijedlogPartnera: imaPrijedlog
+        ? { obradjenoAt: prijedlogPoProizvodu.get(proizvod.id) ?? null }
+        : null,
       istaknutStatus: proizvod.istaknutStatus,
     };
   });

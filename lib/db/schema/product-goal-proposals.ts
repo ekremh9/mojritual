@@ -16,8 +16,11 @@ import { products } from './products';
  * (admin-guide-actions.ts).
  *
  * Kad recenzent kroz `setProductGoalAction` kreira stvarnu vezu za ovaj
- * (productId, goalId) par, odgovarajući red ovdje se briše — to je
- * "preuzimanje" prijedloga, signal adminu u UI da nestane.
+ * (productId, goalId) par, red ovdje OSTAJE — samo se `obradjenoAt`
+ * popunjava. Prijedlog se ranije brisao na tom koraku, ali to je gubilo
+ * istorijski trag da je partner nešto predložio; sad red trajno svjedoči
+ * da je prijedlog postojao, dok `obradjenoAt` razlikuje nov (traži pažnju)
+ * od već pregledanog prijedloga.
  */
 export const productGoalProposals = pgTable(
   'product_goal_proposals',
@@ -29,6 +32,8 @@ export const productGoalProposals = pgTable(
       .notNull()
       .references(() => goals.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    /** NULL = neobrađen prijedlog (nov, čeka pažnju). Popunjeno = recenzent je postavio vezu. */
+    obradjenoAt: timestamp('obradjeno_at', { withTimezone: true }),
   },
   (table) => [
     primaryKey({ columns: [table.productId, table.goalId] }),

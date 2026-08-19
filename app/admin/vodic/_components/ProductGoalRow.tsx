@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Info } from 'lucide-react';
 import { removeProductGoalAction, setProductGoalAction } from '@/lib/domain/admin-guide-actions';
 import type { Product } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
@@ -18,8 +19,13 @@ type ProductGoalRowProps = {
   pocetnoVezan: boolean;
   pocetnaRelevantnost: number | null;
   pocetnaOznaka: Oznaka | null;
-  /** Partner je predložio ovaj cilj za proizvod — nestaje čim recenzent postavi vezu. */
-  predlozioPartner: boolean;
+  /**
+   * `null` = partner nije predložio ovaj cilj. `'novi'` = prijedlog čeka
+   * pažnju recenzenta (upadljiv badge). `'obradjen'` = recenzent je već
+   * postavio vezu za ovaj prijedlog (tih, informativan signal — trajno
+   * ostaje vidljiv, vidi product_goal_proposals.obradjenoAt).
+   */
+  prijedlogPartnera: 'novi' | 'obradjen' | null;
   istaknutStatus: Product['istaknutStatus'];
 };
 
@@ -43,7 +49,7 @@ export function ProductGoalRow({
   pocetnoVezan,
   pocetnaRelevantnost,
   pocetnaOznaka,
-  predlozioPartner,
+  prijedlogPartnera,
   istaknutStatus,
 }: ProductGoalRowProps) {
   const router = useRouter();
@@ -150,9 +156,14 @@ export function ProductGoalRow({
               {poruke.istaknutBadge}
             </span>
           ) : null}
-          {predlozioPartner ? (
+          {prijedlogPartnera === 'novi' ? (
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
-              {poruke.predlozenoOdPartnera}
+              {poruke.noviPrijedlogOdPartnera}
+            </span>
+          ) : prijedlogPartnera === 'obradjen' ? (
+            <span title={poruke.prijedlogObradjenTooltip} className="inline-flex text-[#8A9086]">
+              <Info className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="sr-only">{poruke.prijedlogObradjenTooltip}</span>
             </span>
           ) : null}
         </div>

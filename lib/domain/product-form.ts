@@ -19,8 +19,17 @@ export const MAX_KRATKI_OPIS = 200;
  */
 export const NAZIV_PLACEHOLDER = 'Novi proizvod';
 
-/** Ciljni status forme — jedino ova dva mogu proći kroz `saveProductAction`. */
-export type CiljniStatus = 'nacrt' | 'na_cekanju';
+/**
+ * Ciljni status forme — jedino ova tri mogu proći kroz `saveProductAction`.
+ *
+ * `zadrzi` je za uređivanje VEĆ ODOBRENOG proizvoda: snima sva polja, ali
+ * `products.status` ostaje netaknut (ne prolazi ponovo kroz odobrenje, ne
+ * povlači se iz prodaje). Server dodatno provjerava da je proizvod zaista
+ * trenutno `odobren` prije nego dozvoli ovu putanju (vidi
+ * `saveProductAction`) — status u bazi je izvor istine, ne ono što klijent
+ * tvrdi da vidi.
+ */
+export type CiljniStatus = 'nacrt' | 'na_cekanju' | 'zadrzi';
 
 export const PRODUCT_FORME = [
   'kapsula',
@@ -131,8 +140,10 @@ export function normalizujProizvod(data: unknown): ProizvodUnos {
 /**
  * `ciljniStatus` određuje koliko je unos strog: nacrt se sprema bez ikakve
  * validacije (djelimično popunjen ili potpuno prazan, uključujući placeholder
- * naziv `NAZIV_PLACEHOLDER`), dok slanje na odobrenje (`na_cekanju`) zahtijeva
- * sva obavezna polja i naziv različit od placeholdera.
+ * naziv `NAZIV_PLACEHOLDER`), dok slanje na odobrenje (`na_cekanju`) i
+ * snimanje izmjena već odobrenog proizvoda (`zadrzi`) zahtijevaju sva
+ * obavezna polja i naziv različit od placeholdera — isto strogo, jer oba
+ * rezultiraju sadržajem koji je (ili ostaje) javno vidljiv.
  */
 export function validirajProizvod(unos: ProizvodUnos, ciljniStatus: CiljniStatus): GreskeProizvoda {
   if (ciljniStatus === 'nacrt') {
@@ -144,7 +155,7 @@ export function validirajProizvod(unos: ProizvodUnos, ciljniStatus: CiljniStatus
 
   if (unos.naziv.trim() === '') {
     greske.naziv = poruke.nazivObavezan;
-  } else if (ciljniStatus === 'na_cekanju' && unos.naziv.trim() === NAZIV_PLACEHOLDER) {
+  } else if (unos.naziv.trim() === NAZIV_PLACEHOLDER) {
     greske.naziv = poruke.nazivPlaceholder;
   }
 

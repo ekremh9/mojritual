@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import {
@@ -105,8 +105,9 @@ export async function saveExplanationTemplateAction(
  * eksplicitnu akciju admina/recenzenta (CLAUDE.md pravilo 2).
  *
  * Ako je partner prethodno predložio isti (productId, goalId) par
- * (`product_goal_proposals`), taj prijedlog se ovdje briše — recenzent je
- * upravo donio svoju odluku, prijedlog je iskorišten.
+ * (`product_goal_proposals`), taj prijedlog se ovdje označava kao obrađen
+ * (`obradjenoAt`), NE briše — trajan trag da je partner nešto predlagao i
+ * da je recenzent donio odluku, umjesto da prijedlog nestane bez traga.
  */
 export async function setProductGoalAction(
   productId: string,
@@ -162,13 +163,18 @@ export async function setProductGoalAction(
       });
 
     // Recenzent je upravo postavio stvarnu vezu za ovaj (productId, goalId)
-    // par — partnerov prijedlog (ako postoji) je time "preuzet", briše se da
-    // badge "Predloženo od partnera" nestane iz admin prikaza (vidi
-    // ProductGoalRow.tsx).
+    // par — partnerov prijedlog (ako postoji i ako već nije obrađen) se
+    // označava kao obrađen. Red OSTAJE (trajan trag), samo prelazi iz
+    // "Novi prijedlog" u tiši, informativni signal (vidi ProductGoalRow.tsx).
     await db
-      .delete(productGoalProposals)
+      .update(productGoalProposals)
+      .set({ obradjenoAt: new Date() })
       .where(
-        and(eq(productGoalProposals.productId, productId), eq(productGoalProposals.goalId, goalId)),
+        and(
+          eq(productGoalProposals.productId, productId),
+          eq(productGoalProposals.goalId, goalId),
+          isNull(productGoalProposals.obradjenoAt),
+        ),
       );
 
     revalidateGuidePaths(goalId);

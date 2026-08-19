@@ -77,7 +77,6 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
         pocetneVrijednosti={proizvod.pocetneVrijednosti}
         kategorije={kategorije}
         ciljevi={ciljevi}
-        ponovnoOdobrenje={proizvod.status === 'odobren'}
         onemoguceno={pristup.brand.status === 'suspendovan'}
         status={proizvod.status}
         razlogOdbijanja={proizvod.razlogOdbijanja}

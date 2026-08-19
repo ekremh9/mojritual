@@ -1,0 +1,1 @@
+ALTER TABLE "product_goal_proposals" ADD COLUMN "obradjeno_at" timestamp with time zone;
