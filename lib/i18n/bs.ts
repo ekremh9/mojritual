@@ -135,10 +135,12 @@ export const bs = {
     istaknutiProizvodi: {
       naslov: 'Istaknuti proizvodi',
       vidiSve: 'Pogledajte sav asortiman',
+      badge: 'Istaknuto',
     },
     istaknutiPartneri: {
       naslov: 'Istaknuti partneri',
       vidiSve: 'Vidi sve partnere',
+      badge: 'Istaknuti partner',
     },
   },
   proizvod: {

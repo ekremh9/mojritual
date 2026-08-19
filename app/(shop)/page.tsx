@@ -9,7 +9,7 @@ import { PartnerKartica } from './_components/PartnerKartica';
 import { ProizvodKartica } from './_components/ProizvodKartica';
 
 const BROJ_ISTAKNUTIH = 10;
-const BROJ_ISTAKNUTIH_PARTNERA = 4;
+const BROJ_ISTAKNUTIH_PARTNERA = 6;
 
 const KOLONE_PROIZVODA = {
   id: products.id,
@@ -35,6 +35,10 @@ const KOLONE_PARTNERA = {
  * lib/db/schema/products.ts). Ako ih ima manje od BROJ_ISTAKNUTIH, popuni
  * razliku najnovijim odobrenim proizvodima koji već nisu u prvoj listi, da
  * homepage nikad ne izgleda prazno dok admin ne istakne dovoljno proizvoda.
+ *
+ * Svaki proizvod nosi `jePravoIstaknuto` — `true` samo za onaj iz prvog
+ * upita (stvarno istaknut), `false` za fallback popunu — da UI (badge na
+ * kartici) može vizuelno razlikovati stvarno istaknuto od popune.
  */
 async function getIstaknutiProizvodi() {
   const istaknuti = await db
@@ -51,7 +55,7 @@ async function getIstaknutiProizvodi() {
     .orderBy(desc(products.createdAt))
     .limit(BROJ_ISTAKNUTIH);
 
-  let odabraniProizvodi = istaknuti;
+  let odabraniProizvodi = istaknuti.map((proizvod) => ({ ...proizvod, jePravoIstaknuto: true }));
 
   if (odabraniProizvodi.length < BROJ_ISTAKNUTIH) {
     const preostalo = BROJ_ISTAKNUTIH - odabraniProizvodi.length;
@@ -73,7 +77,10 @@ async function getIstaknutiProizvodi() {
       .orderBy(desc(products.createdAt))
       .limit(preostalo);
 
-    odabraniProizvodi = [...odabraniProizvodi, ...najnoviji];
+    odabraniProizvodi = [
+      ...odabraniProizvodi,
+      ...najnoviji.map((proizvod) => ({ ...proizvod, jePravoIstaknuto: false })),
+    ];
   }
 
   if (odabraniProizvodi.length === 0) {
@@ -112,7 +119,8 @@ async function getIstaknutiProizvodi() {
 /**
  * Isti fallback pattern kao `getIstaknutiProizvodi`: prvo partneri koje je
  * admin stvarno istakao (`brands.istaknut`), pa popuni razliku najnovijim
- * odobrenim partnerima koji već nisu u prvoj listi.
+ * odobrenim partnerima koji već nisu u prvoj listi. Isti `jePravoIstaknuto`
+ * marker, iz istog razloga (vidi komentar gore).
  */
 async function getIstaknutiPartneri() {
   const istaknuti = await db
@@ -122,7 +130,7 @@ async function getIstaknutiPartneri() {
     .orderBy(desc(brands.createdAt))
     .limit(BROJ_ISTAKNUTIH_PARTNERA);
 
-  let odabraniPartneri = istaknuti;
+  let odabraniPartneri = istaknuti.map((partner) => ({ ...partner, jePravoIstaknuto: true }));
 
   if (odabraniPartneri.length < BROJ_ISTAKNUTIH_PARTNERA) {
     const preostalo = BROJ_ISTAKNUTIH_PARTNERA - odabraniPartneri.length;
@@ -143,7 +151,10 @@ async function getIstaknutiPartneri() {
       .orderBy(desc(brands.createdAt))
       .limit(preostalo);
 
-    odabraniPartneri = [...odabraniPartneri, ...najnoviji];
+    odabraniPartneri = [
+      ...odabraniPartneri,
+      ...najnoviji.map((partner) => ({ ...partner, jePravoIstaknuto: false })),
+    ];
   }
 
   if (odabraniPartneri.length === 0) {
@@ -238,7 +249,11 @@ export default async function HomePage() {
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {istaknutiProizvodi.map((proizvod) => (
-              <ProizvodKartica key={proizvod.id} proizvod={proizvod} />
+              <ProizvodKartica
+                key={proizvod.id}
+                proizvod={proizvod}
+                istaknuto={proizvod.jePravoIstaknuto}
+              />
             ))}
           </div>
           <div className="mt-8 flex justify-center">
@@ -258,9 +273,13 @@ export default async function HomePage() {
             <h2 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">
               {bs.homepage.istaknutiPartneri.naslov}
             </h2>
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
               {istaknutiPartneri.map((partner) => (
-                <PartnerKartica key={partner.id} partner={partner} />
+                <PartnerKartica
+                  key={partner.id}
+                  partner={partner}
+                  istaknuto={partner.jePravoIstaknuto}
+                />
               ))}
             </div>
             <div className="mt-8 flex justify-center">
