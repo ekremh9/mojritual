@@ -1,7 +1,7 @@
 /**
  * Proizvodi za admin pregled i odobravanje — svi brendovi, ne samo jedan.
  */
-import { asc, count, eq, inArray } from 'drizzle-orm';
+import { asc, count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
@@ -22,8 +22,12 @@ export type AdminProizvodNaCekanju = {
 };
 
 /**
- * Proizvodi za admin listu, svi brendovi, opciono filtrirani po statusu,
- * najstariji prvo — oni koji čekaju najduže trebaju biti obrađeni prvi.
+ * Proizvodi za admin listu, svi brendovi, opciono filtrirani po statusu.
+ *
+ * Sortiranje zavisi od taba: "Na čekanju" sortira najstariji prvo — oni koji
+ * čekaju najduže trebaju biti obrađeni prvi. Svaki drugi tab (Svi, Odobreni,
+ * Odbijeni, Nacrti) sortira najnoviji prvo — tamo je "šta se nedavno desilo"
+ * relevantnije od reda čekanja.
  */
 export async function getProductsByStatus(
   statusFilter?: Product['status'],
@@ -31,6 +35,9 @@ export async function getProductsByStatus(
   const uslov = statusFilter
     ? eq(products.status, statusFilter)
     : undefined;
+
+  const redoslijed =
+    statusFilter === 'na_cekanju' ? asc(products.createdAt) : desc(products.createdAt);
 
   const odabraniProizvodi = await db
     .select({
@@ -46,7 +53,7 @@ export async function getProductsByStatus(
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
     .where(uslov)
-    .orderBy(asc(products.createdAt));
+    .orderBy(redoslijed);
 
   if (odabraniProizvodi.length === 0) {
     return [];
