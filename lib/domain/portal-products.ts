@@ -127,6 +127,8 @@ export type PortalProizvodZaUredjivanje = {
   id: string;
   status: Product['status'];
   razlogOdbijanja: string | null;
+  istaknutStatus: Product['istaknutStatus'];
+  istaknutRazlogOdbijanja: string | null;
   pocetneVrijednosti: ProizvodUnos;
   slike: { id: string; url: string; alt: string | null }[];
 };
@@ -165,6 +167,8 @@ export async function getPortalProductForEdit(
     id: proizvod.id,
     status: proizvod.status,
     razlogOdbijanja: proizvod.razlogOdbijanja,
+    istaknutStatus: proizvod.istaknutStatus,
+    istaknutRazlogOdbijanja: proizvod.istaknutRazlogOdbijanja,
     slike: slikeProizvoda,
     pocetneVrijednosti: {
       naziv: proizvod.naziv,
@@ -178,7 +182,10 @@ export async function getPortalProductForEdit(
       cijenaKm: feningToKm(proizvod.cijena).toFixed(2),
       staraCijenaKm: proizvod.staraCijena === null ? '' : feningToKm(proizvod.staraCijena).toFixed(2),
       dostupnost: proizvod.dostupnost,
-      istaknutZahtjev: proizvod.istaknutZahtjev,
+      // Checkbox je "označen" i dok se čeka odluka i dok je već odobreno —
+      // oba znače aktivan zahtjev/status sa brendove tačke gledišta.
+      istaknutZahtjev:
+        proizvod.istaknutStatus === 'na_cekanju' || proizvod.istaknutStatus === 'odobreno',
     },
   };
 }

@@ -78,7 +78,6 @@ export type ProizvodVrijednosti = {
   staraCijena: number | null;
   dostupnost: Product['dostupnost'];
   kategorije: string[];
-  istaknutZahtjev: boolean;
 };
 
 function tekst(vrijednost: unknown): string {
@@ -207,6 +206,34 @@ export function pripremiProizvod(unos: ProizvodUnos): ProizvodVrijednosti {
     staraCijena: unos.staraCijenaKm.trim() === '' ? null : kmToFening(unos.staraCijenaKm),
     dostupnost: unos.dostupnost as Product['dostupnost'],
     kategorije: unos.kategorije,
-    istaknutZahtjev: unos.istaknutZahtjev,
   };
+}
+
+/**
+ * Izračunava novi `istaknutStatus` iz checkbox namjere brenda (`zahtjev`) i
+ * TRENUTNOG stanja u bazi — status isticanja je namjerno odvojen od statusa
+ * proizvoda (odobrenje/odbijanje proizvoda ga ne dira), pa ovo NIJE čista
+ * funkcija samo od `zahtjev`-a, nego zavisi i od prethodnog stanja:
+ *
+ * - `zahtjev = false` → uvijek `nema_zahtjeva` (brend povlači zahtjev/isticanje,
+ *   bez obzira šta je admin ranije odlučio)
+ * - `zahtjev = true` i trenutni `na_cekanju`/`odobreno` → ostaje nepromijenjen
+ *   (već čeka odluku, ili je već odobreno — obično uređivanje proizvoda ne
+ *   smije poništiti postojeću odluku admina)
+ * - `zahtjev = true` i trenutni `nema_zahtjeva`/`odbijeno` → `na_cekanju`
+ *   (nov zahtjev, ili ponovni zahtjev nakon odbijanja)
+ */
+export function izracunajIstaknutStatus(
+  trenutni: Product['istaknutStatus'],
+  zahtjev: boolean,
+): Product['istaknutStatus'] {
+  if (!zahtjev) {
+    return 'nema_zahtjeva';
+  }
+
+  if (trenutni === 'na_cekanju' || trenutni === 'odobreno') {
+    return trenutni;
+  }
+
+  return 'na_cekanju';
 }

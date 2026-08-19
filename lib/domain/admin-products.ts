@@ -14,7 +14,7 @@ export type AdminProizvodNaCekanju = {
   naziv: string;
   cijena: number;
   status: Product['status'];
-  istaknutZahtjev: boolean;
+  istaknutStatus: Product['istaknutStatus'];
   createdAt: Date;
   brend: { naziv: string; slug: string };
   slika: { url: string; alt: string | null } | null;
@@ -38,7 +38,7 @@ export async function getProductsByStatus(
       naziv: products.naziv,
       cijena: products.cijena,
       status: products.status,
-      istaknutZahtjev: products.istaknutZahtjev,
+      istaknutStatus: products.istaknutStatus,
       createdAt: products.createdAt,
       brendNaziv: brands.naziv,
       brendSlug: brands.slug,
@@ -95,7 +95,7 @@ export async function getProductsByStatus(
     naziv: proizvod.naziv,
     cijena: proizvod.cijena,
     status: proizvod.status,
-    istaknutZahtjev: proizvod.istaknutZahtjev,
+    istaknutStatus: proizvod.istaknutStatus,
     createdAt: proizvod.createdAt,
     brend: { naziv: proizvod.brendNaziv, slug: proizvod.brendSlug },
     slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
@@ -134,8 +134,8 @@ export type AdminProizvodDetalj = {
   status: Product['status'];
   razlogOdbijanja: string | null;
   oznake: string[] | null;
-  istaknutZahtjev: boolean;
-  istaknut: boolean;
+  istaknutStatus: Product['istaknutStatus'];
+  istaknutRazlogOdbijanja: string | null;
   createdAt: Date;
   updatedAt: Date;
   brend: { naziv: string; slug: string };
@@ -165,8 +165,8 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
       status: products.status,
       razlogOdbijanja: products.razlogOdbijanja,
       oznake: products.oznake,
-      istaknutZahtjev: products.istaknutZahtjev,
-      istaknut: products.istaknut,
+      istaknutStatus: products.istaknutStatus,
+      istaknutRazlogOdbijanja: products.istaknutRazlogOdbijanja,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt,
       brendNaziv: brands.naziv,
@@ -209,8 +209,8 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
     status: proizvod.status,
     razlogOdbijanja: proizvod.razlogOdbijanja,
     oznake: proizvod.oznake,
-    istaknutZahtjev: proizvod.istaknutZahtjev,
-    istaknut: proizvod.istaknut,
+    istaknutStatus: proizvod.istaknutStatus,
+    istaknutRazlogOdbijanja: proizvod.istaknutRazlogOdbijanja,
     createdAt: proizvod.createdAt,
     updatedAt: proizvod.updatedAt,
     brend: { naziv: proizvod.brendNaziv, slug: proizvod.brendSlug },

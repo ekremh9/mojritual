@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  izracunajIstaknutStatus,
   MAX_KRATKI_OPIS,
   NAZIV_PLACEHOLDER,
   normalizujProizvod,
@@ -178,8 +179,23 @@ describe('pripremiProizvod', () => {
     expect(vrijednosti.kategorije).toEqual(['a', 'b']);
   });
 
-  it('prenosi istaknutZahtjev bez izmjene', () => {
-    expect(pripremiProizvod(unos({ istaknutZahtjev: true })).istaknutZahtjev).toBe(true);
-    expect(pripremiProizvod(unos({ istaknutZahtjev: false })).istaknutZahtjev).toBe(false);
+});
+
+describe('izracunajIstaknutStatus', () => {
+  it('zahtjev=false uvijek vraća nema_zahtjeva, bez obzira na trenutni status', () => {
+    expect(izracunajIstaknutStatus('nema_zahtjeva', false)).toBe('nema_zahtjeva');
+    expect(izracunajIstaknutStatus('na_cekanju', false)).toBe('nema_zahtjeva');
+    expect(izracunajIstaknutStatus('odobreno', false)).toBe('nema_zahtjeva');
+    expect(izracunajIstaknutStatus('odbijeno', false)).toBe('nema_zahtjeva');
+  });
+
+  it('zahtjev=true iz nema_zahtjeva ili odbijeno postaje na_cekanju (nov/ponovni zahtjev)', () => {
+    expect(izracunajIstaknutStatus('nema_zahtjeva', true)).toBe('na_cekanju');
+    expect(izracunajIstaknutStatus('odbijeno', true)).toBe('na_cekanju');
+  });
+
+  it('zahtjev=true ne mijenja već na_cekanju ili odobreno — izmjena proizvoda ne poništava odluku admina', () => {
+    expect(izracunajIstaknutStatus('na_cekanju', true)).toBe('na_cekanju');
+    expect(izracunajIstaknutStatus('odobreno', true)).toBe('odobreno');
   });
 });

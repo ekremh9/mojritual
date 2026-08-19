@@ -136,7 +136,7 @@ export default async function AdminProizvodiPage({ searchParams }: AdminProizvod
                           >
                             {proizvod.naziv}
                           </Link>
-                          {proizvod.istaknutZahtjev ? (
+                          {proizvod.istaknutStatus === 'na_cekanju' ? (
                             <span
                               title={bs.admin.proizvodi.trazIsticanje}
                               aria-label={bs.admin.proizvodi.trazIsticanje}

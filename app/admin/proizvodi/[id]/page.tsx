@@ -222,8 +222,8 @@ export default async function AdminProizvodPage({ params }: AdminProizvodPagePro
 
           <IsticanjeProizvoda
             productId={proizvod.id}
-            istaknutZahtjev={proizvod.istaknutZahtjev}
-            istaknut={proizvod.istaknut}
+            istaknutStatus={proizvod.istaknutStatus}
+            istaknutRazlogOdbijanja={proizvod.istaknutRazlogOdbijanja}
             odobren={proizvod.status === 'odobren'}
           />
         </div>

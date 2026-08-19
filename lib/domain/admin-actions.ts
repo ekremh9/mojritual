@@ -254,17 +254,14 @@ export async function approveBrandAction(brandId: string): Promise<AdminRezultat
 }
 
 /**
- * Ručno postavlja `products.istaknut` — nezavisno od `istaknutZahtjev`
- * (brendov zahtjev je samo namjera, ovo je ono što se stvarno primjenjuje,
- * vidi komentar uz kolonu u lib/db/schema/products.ts). Radi bez obzira na
+ * Odobrava isticanje proizvoda na početnoj — `products.istaknutStatus`,
+ * odvojeno od `products.status` (odobrenje proizvoda samog). Admin može
+ * odobriti proizvod ali odbiti isticanje, ili obrnuto. Radi bez obzira na
  * status odobrenja proizvoda — homepage/katalog ionako filtriraju na
  * `status = 'odobren'`, pa isticanje neodobrenog proizvoda nema efekta dok
  * ne bude odobren.
  */
-export async function toggleFeaturedAction(
-  productId: string,
-  novoStanje: boolean,
-): Promise<AdminRezultat> {
+export async function approveFeaturedAction(productId: string): Promise<AdminRezultat> {
   try {
     const admin = await zahtijevajAdmina();
 
@@ -288,7 +285,7 @@ export async function toggleFeaturedAction(
 
     await db
       .update(products)
-      .set({ istaknut: novoStanje, updatedAt: new Date() })
+      .set({ istaknutStatus: 'odobreno', istaknutRazlogOdbijanja: null, updatedAt: new Date() })
       .where(eq(products.id, productId));
 
     revalidatePath('/admin/proizvodi');
@@ -297,14 +294,69 @@ export async function toggleFeaturedAction(
 
     return { ok: true };
   } catch {
-    console.error('toggleFeaturedAction: promjena isticanja nije uspjela');
+    console.error('approveFeaturedAction: odobravanje isticanja nije uspjelo');
     return { ok: false, error: bs.admin.greskaOpsta };
   }
 }
 
 /**
- * Ručno postavlja `brands.istaknut` — isti pattern kao `toggleFeaturedAction`
- * za proizvode, ali bez "zahtjev" varijante: brend ovdje ne šalje namjeru,
+ * Odbija isticanje proizvoda uz obavezan razlog — isti obrazac kao
+ * `rejectProductAction`. Koristi se i za odbijanje novog zahtjeva i za
+ * povlačenje već odobrenog isticanja (nema posebne "ukloni" akcije).
+ */
+export async function rejectFeaturedAction(
+  productId: string,
+  razlog: string,
+): Promise<AdminRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof productId !== 'string' || productId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof razlog !== 'string' || razlog.trim().length < 10) {
+      return { ok: false, error: bs.admin.proizvodi.detalj.isticanje.greskaRazlog };
+    }
+
+    const [proizvod] = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.id, productId))
+      .limit(1);
+
+    if (!proizvod) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    await db
+      .update(products)
+      .set({
+        istaknutStatus: 'odbijeno',
+        istaknutRazlogOdbijanja: razlog.trim(),
+        updatedAt: new Date(),
+      })
+      .where(eq(products.id, productId));
+
+    revalidatePath('/admin/proizvodi');
+    revalidatePath(`/admin/proizvodi/${productId}`);
+    revalidatePath('/');
+
+    return { ok: true };
+  } catch {
+    console.error('rejectFeaturedAction: odbijanje isticanja nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
+ * Ručno postavlja `brands.istaknut` — jednostavan boolean toggle, za razliku
+ * od `approveFeaturedAction`/`rejectFeaturedAction` za proizvode (koji imaju
+ * tok odobravanja sa razlogom odbijanja): brend ovdje ne šalje namjeru,
  * admin direktno uključuje/isključuje isticanje partnera na početnoj.
  */
 export async function toggleBrandFeaturedAction(

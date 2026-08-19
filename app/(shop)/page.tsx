@@ -30,11 +30,11 @@ const KOLONE_PARTNERA = {
 };
 
 /**
- * Prvo proizvodi koje je admin stvarno istakao (`products.istaknut`,
- * odvojeno od zahtjeva brenda — vidi lib/db/schema/products.ts). Ako ih
- * ima manje od BROJ_ISTAKNUTIH, popuni razliku najnovijim odobrenim
- * proizvodima koji već nisu u prvoj listi, da homepage nikad ne izgleda
- * prazno dok admin ne istakne dovoljno proizvoda.
+ * Prvo proizvodi koje je admin stvarno istakao (`products.istaknutStatus =
+ * 'odobreno'`, odvojeno od statusa proizvoda samog — vidi
+ * lib/db/schema/products.ts). Ako ih ima manje od BROJ_ISTAKNUTIH, popuni
+ * razliku najnovijim odobrenim proizvodima koji već nisu u prvoj listi, da
+ * homepage nikad ne izgleda prazno dok admin ne istakne dovoljno proizvoda.
  */
 async function getIstaknutiProizvodi() {
   const istaknuti = await db
@@ -42,7 +42,11 @@ async function getIstaknutiProizvodi() {
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
     .where(
-      and(eq(products.istaknut, true), eq(products.status, 'odobren'), eq(brands.status, 'odobren')),
+      and(
+        eq(products.istaknutStatus, 'odobreno'),
+        eq(products.status, 'odobren'),
+        eq(brands.status, 'odobren'),
+      ),
     )
     .orderBy(desc(products.createdAt))
     .limit(BROJ_ISTAKNUTIH);

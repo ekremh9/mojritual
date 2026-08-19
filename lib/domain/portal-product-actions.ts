@@ -13,7 +13,9 @@ import {
   productImages,
   products,
 } from '@/lib/db/schema';
+import type { Product } from '@/lib/db/schema';
 import {
+  izracunajIstaknutStatus,
   NAZIV_PLACEHOLDER,
   normalizujProizvod,
   pripremiProizvod,
@@ -168,7 +170,11 @@ export async function saveProductAction(
       return { ok: false, error: poruke.greskaSuspendovan };
     }
 
-    let postojeciProizvod: { id: string; slug: string } | null = null;
+    let postojeciProizvod: {
+      id: string;
+      slug: string;
+      istaknutStatus: Product['istaknutStatus'];
+    } | null = null;
 
     if (productId !== null) {
       if (typeof productId !== 'string' || productId.trim() === '') {
@@ -176,7 +182,7 @@ export async function saveProductAction(
       }
 
       const [red] = await db
-        .select({ id: products.id, slug: products.slug })
+        .select({ id: products.id, slug: products.slug, istaknutStatus: products.istaknutStatus })
         .from(products)
         .where(and(eq(products.id, productId), eq(products.brandId, brandId)))
         .limit(1);
@@ -197,6 +203,15 @@ export async function saveProductAction(
     }
 
     const { kategorije, ...poljaProizvoda } = pripremiProizvod(unos);
+
+    // Status isticanja zavisi od PRETHODNOG stanja (na_cekanju/odobreno
+    // ostaju nepromijenjeni), ne samo od checkbox-a — vidi komentar uz
+    // izracunajIstaknutStatus. Za nov proizvod prethodno stanje je uvijek
+    // 'nema_zahtjeva' (isto što i default kolone).
+    const noviIstaknutStatus = izracunajIstaknutStatus(
+      postojeciProizvod?.istaknutStatus ?? 'nema_zahtjeva',
+      unos.istaknutZahtjev,
+    );
 
     // NAPOMENA ZA BUDUĆNOST: ako se ukine ručno odobravanje admina,
     // 'na_cekanju' ovdje treba postati odmah 'odobren' — do tada svaki novi
@@ -224,6 +239,8 @@ export async function saveProductAction(
             status: ciljniStatus,
             // Stari razlog odbijanja više ne opisuje stanje nakon izmjene.
             razlogOdbijanja: null,
+            istaknutStatus: noviIstaknutStatus,
+            istaknutRazlogOdbijanja: null,
             updatedAt: new Date(),
           })
           .where(eq(products.id, idProizvoda));
@@ -234,7 +251,13 @@ export async function saveProductAction(
 
         const [noviProizvod] = await tx
           .insert(products)
-          .values({ ...poljaProizvoda, brandId, slug, status: ciljniStatus })
+          .values({
+            ...poljaProizvoda,
+            brandId,
+            slug,
+            status: ciljniStatus,
+            istaknutStatus: noviIstaknutStatus,
+          })
           .returning({ id: products.id });
 
         idProizvoda = noviProizvod!.id;

@@ -1,5 +1,4 @@
 import {
-  boolean,
   index,
   integer,
   pgEnum,
@@ -36,6 +35,19 @@ export const productStatusEnum = pgEnum('product_status', [
   'odbijen',
 ]);
 
+// Odvojeno od products.status (odobrenje proizvoda samog) — admin može
+// odobriti proizvod ali odbiti isticanje, ili obrnuto. 'nema_zahtjeva' =
+// brend nikad nije tražio; 'na_cekanju' = brend je tražio (checkbox pri
+// slanju na odobrenje), admin još nije odlučio; 'odobreno' = admin je
+// aktivirao isticanje — uslov za prikaz na homepageu; 'odbijeno' = admin
+// je odbio, sa razlogom u istaknutRazlogOdbijanja.
+export const productIstaknutStatusEnum = pgEnum('istaknut_status', [
+  'nema_zahtjeva',
+  'na_cekanju',
+  'odobreno',
+  'odbijeno',
+]);
+
 export const products = pgTable(
   'products',
   {
@@ -59,12 +71,10 @@ export const products = pgTable(
     odobrioUserId: uuid('odobrio_user_id').references(() => users.id, { onDelete: 'set null' }),
     odobrenoAt: timestamp('odobreno_at', { withTimezone: true }),
     oznake: text('oznake').array(),
-    // istaknutZahtjev je namjera brenda, istaknut je ono što admin stvarno
-    // primijeni. Razdvojeno jer admin mora moći isticati proizvode i bez
-    // formalnog zahtjeva (spec 13.3 — plaćeno izdvajanje nikad ne dira
-    // Ritual Vodič, ali smije uticati na homepage/katalog prikaz).
-    istaknutZahtjev: boolean('istaknut_zahtjev').notNull().default(false),
-    istaknut: boolean('istaknut').notNull().default(false),
+    istaknutStatus: productIstaknutStatusEnum('istaknut_status')
+      .notNull()
+      .default('nema_zahtjeva'),
+    istaknutRazlogOdbijanja: text('istaknut_razlog_odbijanja'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
