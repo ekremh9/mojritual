@@ -505,14 +505,26 @@ export const bs = {
       prazno: 'Još nemate nijedan proizvod. Dodajte prvi da se pojavi u vašoj ponudi.',
       praznoFilter: 'Nema proizvoda sa ovim statusom.',
       bezKategorije: '—',
+      nemaPodatka: '—',
       status: {
         nacrt: 'Nacrt',
         na_cekanju: 'Na čekanju',
         odobren: 'Odobren',
         odbijen: 'Odbijen',
       },
+      // Isticanje na početnoj (products.istaknutStatus) — nezavisna osa od
+      // statusa proizvoda samog, koristi se za "Istaknuto" filter tab i
+      // kolonu u tabeli. 'nema_zahtjeva' se ne prikazuje kao badge, samo
+      // crtica (nema potrebe za vizuelnim šumom kad nije relevantno).
+      istaknutStatus: {
+        nema_zahtjeva: 'Nema zahtjeva',
+        na_cekanju: 'Na čekanju',
+        odobreno: 'Istaknuto',
+        odbijeno: 'Odbijeno',
+      },
       filteri: {
         svi: 'Svi',
+        istaknuto: 'Istaknuto',
       },
       tabela: {
         slika: 'Slika',
@@ -520,6 +532,7 @@ export const bs = {
         kategorija: 'Kategorija',
         cijena: 'Cijena',
         status: 'Status',
+        isticanje: 'Isticanje',
         akcije: 'Akcije',
       },
       akcije: {

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 type PortalProizvodiPageProps = {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; istaknuto?: string }>;
 };
 
 const STATUS_KLASE: Record<Product['status'], string> = {
@@ -30,9 +30,19 @@ const STATUS_KLASE: Record<Product['status'], string> = {
   odbijen: 'bg-[#B3261E]/10 text-[#B3261E]',
 };
 
+// 'nema_zahtjeva' namjerno izostavljen — ta ćelija se renderuje kao crtica,
+// bez badge-a (vidi tabelu ispod).
+const ISTAKNUT_KLASE: Record<Exclude<Product['istaknutStatus'], 'nema_zahtjeva'>, string> = {
+  na_cekanju: 'bg-amber-100 text-amber-800',
+  odobreno: 'bg-[#16332A] text-[#F2F5ED]',
+  odbijeno: 'bg-[#B3261E]/10 text-[#B3261E]',
+};
+
 function proizvodiHref(status: Product['status'] | null): string {
   return status ? `/portal/proizvodi?status=${status}` : '/portal/proizvodi';
 }
+
+const ISTAKNUTO_HREF = '/portal/proizvodi?istaknuto=1';
 
 function ukupnoBrojaca(brojaci: PortalProizvodBrojaci): number {
   return PRODUCT_STATUSI.reduce((zbir, status) => zbir + brojaci[status], 0);
@@ -52,23 +62,42 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
     return null;
   }
 
-  const { status: statusParam } = await searchParams;
-  const statusFilter = statusParam && jeProizvodStatus(statusParam) ? statusParam : undefined;
+  const { status: statusParam, istaknuto: istaknutoParam } = await searchParams;
+  // Dvije nezavisne ose filtera dijele isti "koji je tab aktivan" prostor u
+  // navigaciji, ali se ne kombinuju u jednom zahtjevu — klik na "Istaknuto"
+  // ide na ?istaknuto=1 (bez ?status), klik na status tab ide na ?status=X
+  // (bez ?istaknuto). Ako oba parametra nekako stignu istovremeno (ručno
+  // uređen URL), isticanje ima prednost i status filter se ignoriše.
+  const istaknutoFilter = istaknutoParam === '1';
+  const statusFilter =
+    !istaknutoFilter && statusParam && jeProizvodStatus(statusParam) ? statusParam : undefined;
 
   const [proizvodi, brojaci] = await Promise.all([
-    getBrandProducts(pristup.brand.id, statusFilter),
+    getBrandProducts(pristup.brand.id, statusFilter, istaknutoFilter),
     getBrandProductCounts(pristup.brand.id),
   ]);
 
   const ukupno = ukupnoBrojaca(brojaci);
 
   const tabovi = [
-    { status: null, label: bs.portal.proizvodi.filteri.svi, broj: ukupno },
+    {
+      href: proizvodiHref(null),
+      aktivan: !istaknutoFilter && statusFilter === undefined,
+      label: bs.portal.proizvodi.filteri.svi,
+      broj: ukupno,
+    },
     ...PRODUCT_STATUSI.map((status) => ({
-      status,
+      href: proizvodiHref(status),
+      aktivan: !istaknutoFilter && statusFilter === status,
       label: bs.portal.proizvodi.status[status],
       broj: brojaci[status],
     })),
+    {
+      href: ISTAKNUTO_HREF,
+      aktivan: istaknutoFilter,
+      label: bs.portal.proizvodi.filteri.istaknuto,
+      broj: brojaci.istaknuto,
+    },
   ];
 
   return (
@@ -101,22 +130,19 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
             aria-label={bs.portal.proizvodi.naslov}
             className="flex gap-1 overflow-x-auto pb-1"
           >
-            {tabovi.map((tab) => {
-              const aktivan = tab.status === (statusFilter ?? null);
-              return (
-                <Link
-                  key={tab.status ?? 'svi'}
-                  href={proizvodiHref(tab.status)}
-                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    aktivan
-                      ? 'bg-[#16332A] text-[#F2F5ED]'
-                      : 'bg-white text-[#1C2B22]/70 hover:bg-[#F2F5ED]'
-                  }`}
-                >
-                  {tab.label} ({tab.broj})
-                </Link>
-              );
-            })}
+            {tabovi.map((tab) => (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                  tab.aktivan
+                    ? 'bg-[#16332A] text-[#F2F5ED]'
+                    : 'bg-white text-[#1C2B22]/70 hover:bg-[#F2F5ED]'
+                }`}
+              >
+                {tab.label} ({tab.broj})
+              </Link>
+            ))}
           </nav>
 
           {proizvodi.length === 0 ? (
@@ -125,7 +151,7 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
             </div>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-[#1C2B22]/10 bg-white">
-              <table className="w-full min-w-[640px] text-left text-sm">
+              <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-[#1C2B22]/10 text-xs font-medium uppercase tracking-wide text-[#8A9086]">
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.slika}</th>
@@ -133,6 +159,7 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.kategorija}</th>
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.cijena}</th>
                     <th className="px-4 py-3">{bs.portal.proizvodi.tabela.status}</th>
+                    <th className="px-4 py-3">{bs.portal.proizvodi.tabela.isticanje}</th>
                     <th className="px-4 py-3 text-right">{bs.portal.proizvodi.tabela.akcije}</th>
                   </tr>
                 </thead>
@@ -175,6 +202,17 @@ export default async function PortalProizvodiPage({ searchParams }: PortalProizv
                         >
                           {bs.portal.proizvodi.status[proizvod.status]}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {proizvod.istaknutStatus === 'nema_zahtjeva' ? (
+                          <span className="text-[#1C2B22]/40">{bs.portal.proizvodi.nemaPodatka}</span>
+                        ) : (
+                          <span
+                            className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${ISTAKNUT_KLASE[proizvod.istaknutStatus]}`}
+                          >
+                            {bs.portal.proizvodi.istaknutStatus[proizvod.istaknutStatus]}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <ProizvodAkcije

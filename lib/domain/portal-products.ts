@@ -26,6 +26,7 @@ export type PortalProizvod = {
   naziv: string;
   cijena: number;
   status: Product['status'];
+  istaknutStatus: Product['istaknutStatus'];
   razlogOdbijanja: string | null;
   createdAt: Date;
   slika: { url: string; alt: string | null } | null;
@@ -33,16 +34,33 @@ export type PortalProizvod = {
 };
 
 /**
- * Dohvata proizvode brenda, opciono filtrirane po statusu, sortirane
- * najnovije prvo, sa prvom slikom i prvom kategorijom po proizvodu.
+ * Dohvata proizvode brenda, opciono filtrirane po statusu i/ili isticanju,
+ * sortirane najnovije prvo, sa prvom slikom i prvom kategorijom po
+ * proizvodu.
+ *
+ * `statusFilter` (status proizvoda) i `istaknutoFilter` (isticanje na
+ * početnoj) su NEZAVISNE ose — proizvod može istovremeno biti
+ * status='odobren' i istaknutStatus='odobreno'. Portal ih koristi kao dva
+ * odvojena filter taba, nikad kombinovano u istom zahtjevu (vidi
+ * app/portal/proizvodi/page.tsx), ali funkcija ih ovdje ne isključuje
+ * međusobno da poziv ostane ispravan i ako se to jednom promijeni.
  */
 export async function getBrandProducts(
   brandId: string,
   statusFilter?: Product['status'],
+  istaknutoFilter?: boolean,
 ): Promise<PortalProizvod[]> {
-  const uslov = statusFilter
-    ? and(eq(products.brandId, brandId), eq(products.status, statusFilter))
-    : eq(products.brandId, brandId);
+  const uslovi = [eq(products.brandId, brandId)];
+
+  if (statusFilter) {
+    uslovi.push(eq(products.status, statusFilter));
+  }
+
+  if (istaknutoFilter) {
+    uslovi.push(eq(products.istaknutStatus, 'odobreno'));
+  }
+
+  const uslov = uslovi.length > 1 ? and(...uslovi) : uslovi[0];
 
   const odabraniProizvodi = await db
     .select({
@@ -50,6 +68,7 @@ export async function getBrandProducts(
       naziv: products.naziv,
       cijena: products.cijena,
       status: products.status,
+      istaknutStatus: products.istaknutStatus,
       razlogOdbijanja: products.razlogOdbijanja,
       createdAt: products.createdAt,
     })
@@ -106,17 +125,34 @@ export async function getBrandProducts(
   }));
 }
 
-export type PortalProizvodBrojaci = Record<Product['status'], number>;
+export type PortalProizvodBrojaci = Record<Product['status'], number> & { istaknuto: number };
 
-/** Broj proizvoda brenda po svakom statusu — za brojeve uz filter tabove. */
+/**
+ * Broj proizvoda brenda po svakom statusu, plus zaseban brojač za
+ * "Istaknuto" (istaknutStatus='odobreno') — za brojeve uz filter tabove.
+ * `istaknuto` je nezavisan od statusnih brojača, ne zbraja se u njih (vidi
+ * `getBrandProducts`).
+ */
 export async function getBrandProductCounts(brandId: string): Promise<PortalProizvodBrojaci> {
-  const redovi = await db
-    .select({ status: products.status, ukupno: count() })
-    .from(products)
-    .where(eq(products.brandId, brandId))
-    .groupBy(products.status);
+  const [redovi, [istaknutoRed]] = await Promise.all([
+    db
+      .select({ status: products.status, ukupno: count() })
+      .from(products)
+      .where(eq(products.brandId, brandId))
+      .groupBy(products.status),
+    db
+      .select({ ukupno: count() })
+      .from(products)
+      .where(and(eq(products.brandId, brandId), eq(products.istaknutStatus, 'odobreno'))),
+  ]);
 
-  const brojaci: PortalProizvodBrojaci = { nacrt: 0, na_cekanju: 0, odobren: 0, odbijen: 0 };
+  const brojaci: PortalProizvodBrojaci = {
+    nacrt: 0,
+    na_cekanju: 0,
+    odobren: 0,
+    odbijen: 0,
+    istaknuto: istaknutoRed?.ukupno ?? 0,
+  };
   for (const red of redovi) {
     brojaci[red.status] = red.ukupno;
   }
