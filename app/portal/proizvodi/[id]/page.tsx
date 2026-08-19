@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { getUserBrand } from '@/lib/domain/brand-access';
 import { getFullCategoryTree } from '@/lib/domain/categories';
+import { getGoalsForVodic } from '@/lib/domain/guide-data';
 import { getPortalProductForEdit } from '@/lib/domain/portal-products';
 import { bs } from '@/lib/i18n/bs';
 import { ProductImageUpload } from '../_components/ProductImageUpload';
@@ -35,9 +36,10 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
 
   // Provjera vlasništva je unutar getPortalProductForEdit — proizvod koji
   // ne postoji ili pripada drugom brendu tretiramo isto, kao notFound.
-  const [proizvod, kategorije] = await Promise.all([
+  const [proizvod, kategorije, ciljevi] = await Promise.all([
     getPortalProductForEdit(pristup.brand.id, id),
     getFullCategoryTree(),
+    getGoalsForVodic(),
   ]);
 
   if (!proizvod) {
@@ -74,6 +76,7 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
         productId={proizvod.id}
         pocetneVrijednosti={proizvod.pocetneVrijednosti}
         kategorije={kategorije}
+        ciljevi={ciljevi}
         ponovnoOdobrenje={proizvod.status === 'odobren'}
         onemoguceno={pristup.brand.status === 'suspendovan'}
         status={proizvod.status}

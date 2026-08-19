@@ -10,10 +10,12 @@ import {
   goals,
   guideExplanationTemplates,
   guideOptionTemplates,
+  productGoalProposals,
   productGoals,
   productImages,
   products,
 } from '@/lib/db/schema';
+import type { Product } from '@/lib/db/schema';
 
 export type AdminCiljPregled = {
   id: string;
@@ -75,6 +77,9 @@ export type AdminCiljProizvod = {
   vezan: boolean;
   relevantnost: number | null;
   oznaka: 'primarni' | 'sekundarni' | null;
+  /** Partner je predložio TAČNO ovaj cilj za proizvod, recenzent ga još nije preuzeo. */
+  predlozioPartner: boolean;
+  istaknutStatus: Product['istaknutStatus'];
 };
 
 export type AdminCiljOpcija = {
@@ -139,6 +144,7 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
       id: products.id,
       naziv: products.naziv,
       brendNaziv: brands.naziv,
+      istaknutStatus: products.istaknutStatus,
     })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
@@ -188,6 +194,13 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
 
   const vezaPoProizvodu = new Map(vezeZaOvajCilj.map((veza) => [veza.productId, veza]));
 
+  const prijedloziZaOvajCilj = await db
+    .select({ productId: productGoalProposals.productId })
+    .from(productGoalProposals)
+    .where(and(eq(productGoalProposals.goalId, goalId), inArray(productGoalProposals.productId, ids)));
+
+  const predlozeniProizvodiSkup = new Set(prijedloziZaOvajCilj.map((red) => red.productId));
+
   const proizvodi: AdminCiljProizvod[] = odobreniProizvodi.map((proizvod) => {
     const veza = vezaPoProizvodu.get(proizvod.id);
 
@@ -199,6 +212,8 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
       vezan: veza !== undefined,
       relevantnost: veza?.relevantnost ?? null,
       oznaka: veza?.oznaka ?? null,
+      predlozioPartner: predlozeniProizvodiSkup.has(proizvod.id),
+      istaknutStatus: proizvod.istaknutStatus,
     };
   });
 

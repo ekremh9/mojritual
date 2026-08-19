@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import type { KategorijaOpcija } from '@/lib/domain/categories';
+import type { GuideCilj } from '@/lib/domain/guide-data';
 import {
   MAX_KRATKI_OPIS,
   PRODUCT_DOSTUPNOSTI,
@@ -38,6 +39,7 @@ type ProizvodFormaProps = {
   productId: string | null;
   pocetneVrijednosti: ProizvodUnos;
   kategorije: KategorijaOpcija[];
+  ciljevi: GuideCilj[];
   /** Proizvod koji se uređuje je trenutno `odobren` — izmjena ga vraća na pregled. */
   ponovnoOdobrenje: boolean;
   /** Brend je suspendovan — forma se prikazuje, ali se ne može mijenjati. */
@@ -99,6 +101,7 @@ export function ProizvodForma({
   productId,
   pocetneVrijednosti,
   kategorije,
+  ciljevi,
   ponovnoOdobrenje,
   onemoguceno,
   status,
@@ -127,6 +130,16 @@ export function ProizvodForma({
       kategorije: oznaceno
         ? [...prethodne.kategorije, id]
         : prethodne.kategorije.filter((postojeciId) => postojeciId !== id),
+    }));
+    setUspjeh(null);
+  }
+
+  function preklopiCilj(id: string, oznaceno: boolean) {
+    setVrijednosti((prethodne) => ({
+      ...prethodne,
+      predlozeniCiljevi: oznaceno
+        ? [...prethodne.predlozeniCiljevi, id]
+        : prethodne.predlozeniCiljevi.filter((postojeciId) => postojeciId !== id),
     }));
     setUspjeh(null);
   }
@@ -337,6 +350,33 @@ export function ProizvodForma({
               ) : (
                 <p className="text-xs text-[#1C2B22]/60">{poruke.polja.kategorijePomoc}</p>
               )}
+            </div>
+          </section>
+
+          <section className={KLASE_KARTICE}>
+            <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.sekcije.ciljevi}</h2>
+
+            <div className="flex flex-col gap-1.5">
+              <span className={KLASE_LABELE}>
+                {poruke.polja.predlozeniCiljevi}{' '}
+                <span className="text-xs font-normal text-[#8A9086]">({poruke.opciono})</span>
+              </span>
+
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
+                {ciljevi.map((cilj) => (
+                  <label key={cilj.id} className="flex items-center gap-2 text-sm text-[#1C2B22]">
+                    <input
+                      type="checkbox"
+                      checked={vrijednosti.predlozeniCiljevi.includes(cilj.id)}
+                      onChange={(event) => preklopiCilj(cilj.id, event.target.checked)}
+                      className="h-4 w-4 rounded border-[#1C2B22]/30 text-[#16332A] accent-[#16332A]"
+                    />
+                    {cilj.naziv}
+                  </label>
+                ))}
+              </div>
+
+              <p className="text-xs text-[#1C2B22]/60">{poruke.polja.predlozeniCiljeviPomoc}</p>
             </div>
           </section>
 

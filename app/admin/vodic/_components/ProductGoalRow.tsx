@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { removeProductGoalAction, setProductGoalAction } from '@/lib/domain/admin-guide-actions';
+import type { Product } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 
 type Oznaka = 'primarni' | 'sekundarni';
@@ -17,6 +18,9 @@ type ProductGoalRowProps = {
   pocetnoVezan: boolean;
   pocetnaRelevantnost: number | null;
   pocetnaOznaka: Oznaka | null;
+  /** Partner je predložio ovaj cilj za proizvod — nestaje čim recenzent postavi vezu. */
+  predlozioPartner: boolean;
+  istaknutStatus: Product['istaknutStatus'];
 };
 
 const KLASE_INPUT =
@@ -39,6 +43,8 @@ export function ProductGoalRow({
   pocetnoVezan,
   pocetnaRelevantnost,
   pocetnaOznaka,
+  predlozioPartner,
+  istaknutStatus,
 }: ProductGoalRowProps) {
   const router = useRouter();
   const poruke = bs.admin.vodic.detalj.proizvodi;
@@ -136,7 +142,21 @@ export function ProductGoalRow({
           ) : null}
         </div>
       </td>
-      <td className="px-4 py-3 font-medium text-[#1C2B22]">{naziv}</td>
+      <td className="px-4 py-3 font-medium text-[#1C2B22]">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span>{naziv}</span>
+          {istaknutStatus === 'odobreno' ? (
+            <span className="rounded-full bg-[#16332A] px-2 py-0.5 text-xs font-medium text-[#F2F5ED]">
+              {poruke.istaknutBadge}
+            </span>
+          ) : null}
+          {predlozioPartner ? (
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+              {poruke.predlozenoOdPartnera}
+            </span>
+          ) : null}
+        </div>
+      </td>
       <td className="px-4 py-3 text-[#1C2B22]/70">{brendNaziv}</td>
 
       {prikaziPolja ? (

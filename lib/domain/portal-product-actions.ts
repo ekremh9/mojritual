@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq, like, or } from 'drizzle-orm';
+import { and, eq, inArray, like, or } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import {
@@ -9,6 +9,7 @@ import {
   brands,
   orderItems,
   productCategories,
+  productGoalProposals,
   productGoals,
   productImages,
   products,
@@ -285,6 +286,37 @@ export async function saveProductAction(
           .values(kategorije.map((categoryId) => ({ productId: idProizvoda, categoryId })));
       }
 
+      // Sinhronizuje PRIJEDLOGE ciljeva (product_goal_proposals) sa checkbox
+      // izborom u formi. Ovo NIKAD ne dira `product_goals` — tu vezu, sa
+      // relevantnošću i oznakom, postavlja isključivo recenzent kroz
+      // setProductGoalAction (CLAUDE.md pravilo 2). Brisanje/dodavanje ovdje
+      // je bezopasno po recenzentovu odluku jer su tabele potpuno odvojene.
+      const postojeciPrijedloziRedovi = await tx
+        .select({ goalId: productGoalProposals.goalId })
+        .from(productGoalProposals)
+        .where(eq(productGoalProposals.productId, idProizvoda));
+      const postojeciPrijedlozi = new Set(postojeciPrijedloziRedovi.map((red) => red.goalId));
+      const noviPrijedlozi = new Set(unos.predlozeniCiljevi);
+
+      const zaUklanjanje = [...postojeciPrijedlozi].filter((goalId) => !noviPrijedlozi.has(goalId));
+      if (zaUklanjanje.length > 0) {
+        await tx
+          .delete(productGoalProposals)
+          .where(
+            and(
+              eq(productGoalProposals.productId, idProizvoda),
+              inArray(productGoalProposals.goalId, zaUklanjanje),
+            ),
+          );
+      }
+
+      const zaDodavanje = [...noviPrijedlozi].filter((goalId) => !postojeciPrijedlozi.has(goalId));
+      if (zaDodavanje.length > 0) {
+        await tx
+          .insert(productGoalProposals)
+          .values(zaDodavanje.map((goalId) => ({ productId: idProizvoda, goalId })));
+      }
+
       return idProizvoda;
     });
 
@@ -453,6 +485,7 @@ export async function deleteProductAction(productId: string): Promise<PortalProi
       await tx.delete(productImages).where(eq(productImages.productId, productId));
       await tx.delete(productCategories).where(eq(productCategories.productId, productId));
       await tx.delete(productGoals).where(eq(productGoals.productId, productId));
+      await tx.delete(productGoalProposals).where(eq(productGoalProposals.productId, productId));
       await tx.delete(products).where(eq(products.id, productId));
     });
 

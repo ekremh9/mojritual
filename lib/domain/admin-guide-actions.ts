@@ -8,6 +8,7 @@ import {
   goals,
   guideExplanationTemplates,
   guideOptionTemplates,
+  productGoalProposals,
   productGoals,
   products,
 } from '@/lib/db/schema';
@@ -102,6 +103,10 @@ export async function saveExplanationTemplateAction(
  * Postavlja (ili ažurira) vezu proizvod–cilj sa relevantnošću i oznakom.
  * Relevantnost i oznaka se NIKAD ne postavljaju automatski — samo kroz
  * eksplicitnu akciju admina/recenzenta (CLAUDE.md pravilo 2).
+ *
+ * Ako je partner prethodno predložio isti (productId, goalId) par
+ * (`product_goal_proposals`), taj prijedlog se ovdje briše — recenzent je
+ * upravo donio svoju odluku, prijedlog je iskorišten.
  */
 export async function setProductGoalAction(
   productId: string,
@@ -155,6 +160,16 @@ export async function setProductGoalAction(
         target: [productGoals.productId, productGoals.goalId],
         set: { relevantnost, oznaka },
       });
+
+    // Recenzent je upravo postavio stvarnu vezu za ovaj (productId, goalId)
+    // par — partnerov prijedlog (ako postoji) je time "preuzet", briše se da
+    // badge "Predloženo od partnera" nestane iz admin prikaza (vidi
+    // ProductGoalRow.tsx).
+    await db
+      .delete(productGoalProposals)
+      .where(
+        and(eq(productGoalProposals.productId, productId), eq(productGoalProposals.goalId, goalId)),
+      );
 
     revalidateGuidePaths(goalId);
 

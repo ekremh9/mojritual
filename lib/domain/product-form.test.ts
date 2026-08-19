@@ -23,6 +23,7 @@ function unos(izmjene: Partial<ProizvodUnos> = {}): ProizvodUnos {
     staraCijenaKm: '',
     dostupnost: 'dostupno',
     istaknutZahtjev: false,
+    predlozeniCiljevi: [],
     ...izmjene,
   };
 }

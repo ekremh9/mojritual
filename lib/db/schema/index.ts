@@ -11,6 +11,7 @@ import { ingredients, productIngredients } from './ingredients';
 import { notifications } from './notifications';
 import { orderItems, orderShipments, orders } from './orders';
 import { productCategories, productImages, products } from './products';
+import { productGoalProposals } from './product-goal-proposals';
 import { productReviews } from './reviews';
 import { supportTickets, ticketMessages } from './support';
 import { brandUsers, businessAccounts, users } from './users';
@@ -29,6 +30,7 @@ export * from './leads';
 export * from './notifications';
 export * from './orders';
 export * from './products';
+export * from './product-goal-proposals';
 export * from './reviews';
 export * from './settings';
 export * from './support';
@@ -131,6 +133,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   bundleItems: many(bundleItems),
   orderItems: many(orderItems),
   productGoals: many(productGoals),
+  goalProposals: many(productGoalProposals),
   reviews: many(productReviews),
 }));
 
@@ -248,6 +251,7 @@ export const commissionPeriodsRelations = relations(commissionPeriods, ({ one })
 
 export const goalsRelations = relations(goals, ({ many }) => ({
   productGoals: many(productGoals),
+  goalProposals: many(productGoalProposals),
   explanationTemplates: many(guideExplanationTemplates),
   optionTemplates: many(guideOptionTemplates),
 }));
@@ -259,6 +263,17 @@ export const productGoalsRelations = relations(productGoals, ({ one }) => ({
   }),
   goal: one(goals, {
     fields: [productGoals.goalId],
+    references: [goals.id],
+  }),
+}));
+
+export const productGoalProposalsRelations = relations(productGoalProposals, ({ one }) => ({
+  product: one(products, {
+    fields: [productGoalProposals.productId],
+    references: [products.id],
+  }),
+  goal: one(goals, {
+    fields: [productGoalProposals.goalId],
     references: [goals.id],
   }),
 }));

@@ -60,6 +60,8 @@ export type ProizvodUnos = {
   staraCijenaKm: string;
   dostupnost: string;
   istaknutZahtjev: boolean;
+  /** goalId-evi koje partner predlaže za ovaj proizvod — vidi product-goal-proposals.ts. */
+  predlozeniCiljevi: string[];
 };
 
 export type PoljeProizvoda = keyof ProizvodUnos;
@@ -122,6 +124,7 @@ export function normalizujProizvod(data: unknown): ProizvodUnos {
     staraCijenaKm: tekst(izvor.staraCijenaKm),
     dostupnost: jeDostupnost(tekst(izvor.dostupnost)) ? tekst(izvor.dostupnost) : 'dostupno',
     istaknutZahtjev: tacnoNetacno(izvor.istaknutZahtjev),
+    predlozeniCiljevi: nizTekstova(izvor.predlozeniCiljevi),
   };
 }
 

@@ -5,7 +5,13 @@
  */
 import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { categories, productCategories, productImages, products } from '@/lib/db/schema';
+import {
+  categories,
+  productCategories,
+  productGoalProposals,
+  productImages,
+  products,
+} from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
 import type { ProizvodUnos } from '@/lib/domain/product-form';
 import { feningToKm } from '@/lib/domain/format';
@@ -193,6 +199,11 @@ export async function getPortalProductForEdit(
     .from(productCategories)
     .where(eq(productCategories.productId, proizvod.id));
 
+  const prijedloziCiljevaProizvoda = await db
+    .select({ goalId: productGoalProposals.goalId })
+    .from(productGoalProposals)
+    .where(eq(productGoalProposals.productId, proizvod.id));
+
   const slikeProizvoda = await db
     .select({ id: productImages.id, url: productImages.url, alt: productImages.alt })
     .from(productImages)
@@ -222,6 +233,7 @@ export async function getPortalProductForEdit(
       // oba znače aktivan zahtjev/status sa brendove tačke gledišta.
       istaknutZahtjev:
         proizvod.istaknutStatus === 'na_cekanju' || proizvod.istaknutStatus === 'odobreno',
+      predlozeniCiljevi: prijedloziCiljevaProizvoda.map((red) => red.goalId),
     },
   };
 }

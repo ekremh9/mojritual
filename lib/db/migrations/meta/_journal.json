@@ -127,6 +127,13 @@
       "when": 1787130538778,
       "tag": "0017_cold_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1787154336112,
+      "tag": "0018_fearless_captain_cross",
+      "breakpoints": true
     }
   ]
 }

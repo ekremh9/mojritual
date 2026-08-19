@@ -83,6 +83,8 @@ export default async function AdminVodicCiljPage({ params }: AdminVodicCiljPageP
                     pocetnoVezan={proizvod.vezan}
                     pocetnaRelevantnost={proizvod.relevantnost}
                     pocetnaOznaka={proizvod.oznaka}
+                    predlozioPartner={proizvod.predlozioPartner}
+                    istaknutStatus={proizvod.istaknutStatus}
                   />
                 ))}
               </tbody>

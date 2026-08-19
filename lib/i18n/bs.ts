@@ -576,6 +576,7 @@ export const bs = {
         sekcije: {
           osnovno: 'Osnovno',
           kategorija: 'Kategorija',
+          ciljevi: 'Ciljevi',
           detalji: 'Detalji',
           cijena: 'Cijena',
           dostupnost: 'Dostupnost',
@@ -605,6 +606,9 @@ export const bs = {
           istaknutZahtjev: 'Želim da ovaj proizvod bude istaknut na početnoj stranici',
           istaknutZahtjevPomoc:
             'Istaknuti proizvodi se dogovaraju posebno s administracijom (može uključivati naknadu). Označavanjem šaljete zahtjev, ne garantuje automatsko isticanje.',
+          predlozeniCiljevi: 'Predložite ciljeve za ovaj proizvod',
+          predlozeniCiljeviPomoc:
+            'Ovo je prijedlog. Medicinski recenzent odlučuje o konačnoj kategorizaciji i preporukama u Ritual Vodiču.',
         },
         dostupnostOpcije: {
           dostupno: 'Dostupno',
@@ -1024,6 +1028,8 @@ export const bs = {
           oznakaLabela: 'Oznaka',
           greskaRelevantnost: 'Relevantnost mora biti cijeli broj od 1 do 100.',
           sacuvano: 'Sačuvano ✓',
+          predlozenoOdPartnera: 'Predloženo od partnera',
+          istaknutBadge: 'Istaknuto',
         },
         opcije: {
           naslov: 'Opcije za dodatno pitanje',
