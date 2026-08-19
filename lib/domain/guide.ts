@@ -26,8 +26,12 @@ export type GuideOdgovori = {
   osnovniPodaci: GuideOsnovniPodaci;
   /** goalId, redoslijed odabira iz koraka 2, 1–3 stavke. */
   ciljevi: string[];
-  /** goalId → indeks odabrane opcije iz guide-questions.ts. */
-  dodatnaPitanja: Record<string, number>;
+  /**
+   * goalId → tekst odabrane opcije (guide_option_templates.tekstOpcije), ne
+   * njen id — soft-delete i reordering opcija u adminu ne smiju pokidati
+   * već snimljene sesije, a tekst ostaje čitljiv i u statistici.
+   */
+  dodatnaPitanja: Record<string, string>;
 };
 
 export type GuideProizvod = {

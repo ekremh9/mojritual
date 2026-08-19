@@ -9,7 +9,7 @@ import {
   type GuideOsnovniPodaci,
   type GuideRezultat,
 } from '@/lib/domain/guide';
-import type { GuideCilj } from '@/lib/domain/guide-data';
+import type { GuideCilj, GuideOpcija } from '@/lib/domain/guide-data';
 import { bs } from '@/lib/i18n/bs';
 import { Korak1 } from './Korak1';
 import { Korak2 } from './Korak2';
@@ -28,15 +28,17 @@ type Korak = 1 | 2 | 3;
 
 export function VodicWizard({
   ciljevi,
+  opcijePoCilju,
   ulogovan,
 }: {
   ciljevi: GuideCilj[];
+  opcijePoCilju: Record<string, GuideOpcija[]>;
   ulogovan: boolean;
 }) {
   const [korak, setKorak] = useState<Korak>(1);
   const [osnovniPodaci, setOsnovniPodaci] = useState<GuideOsnovniPodaci>(PRAZNI_OSNOVNI_PODACI);
   const [odabraniCiljevi, setOdabraniCiljevi] = useState<string[]>([]);
-  const [dodatnaPitanja, setDodatnaPitanja] = useState<Record<string, number>>({});
+  const [dodatnaPitanja, setDodatnaPitanja] = useState<Record<string, string>>({});
   const [rezultat, setRezultat] = useState<GuideRezultat | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [ucitavanje, setUcitavanje] = useState(false);
@@ -108,6 +110,7 @@ export function VodicWizard({
       ) : (
         <Korak3
           ciljevi={odabraniCiljObjekti}
+          opcijePoCilju={opcijePoCilju}
           odgovori={dodatnaPitanja}
           onPromjena={setDodatnaPitanja}
         />

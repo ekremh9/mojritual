@@ -5,9 +5,11 @@
  * bez AI poziva. Rangiranje unutar svake grupe dolazi isključivo iz
  * `product_goals.relevantnost`/`.oznaka` (CLAUDE.md pravilo 2).
  *
- * Odgovori korisnika (uključujući koraka 3, koji trenutno ne filtriraju
- * rezultat) se snimaju u `guide_sessions` radi buduće statistike i faze
- * gdje će ti odgovori uticati na preporuku.
+ * Odgovori korisnika (uključujući korak 3) se snimaju u `guide_sessions`
+ * radi buduće statistike. Korak 3 trenutno ne filtrira/rangira proizvode —
+ * odabrana opcija samo bira KOJI tekst objašnjenja se prikaže (vlastiti
+ * tekst opcije iz `guide_option_templates`, ako postoji, inače fallback na
+ * `guide_explanation_templates` po cilju).
  */
 import { and, asc, eq, inArray } from 'drizzle-orm';
 import { auth } from '@/auth';
@@ -15,6 +17,7 @@ import { db } from '@/lib/db';
 import {
   goals,
   guideExplanationTemplates,
+  guideOptionTemplates,
   guideSessions,
   productGoals,
   productImages,
@@ -75,6 +78,30 @@ export async function computeGuideResultAction(
         ),
       );
     const tekstPoGoalId = new Map(aktivniTekstovi.map((red) => [red.goalId, red.tekst]));
+
+    // Objašnjenje po ODABRANOJ opciji (korak 3) — ima prednost nad tekstom
+    // na nivou cilja kad opcija ima vlastito objašnjenje. Ključ je
+    // goalId+tekst opcije jer se odgovor u guideSessions.odgovori bilježi po
+    // tekstu opcije, ne po njenom id-u (vidi GuideOdgovori.dodatnaPitanja).
+    const aktivneOpcije = await db
+      .select({
+        goalId: guideOptionTemplates.goalId,
+        tekstOpcije: guideOptionTemplates.tekstOpcije,
+        tekstObjasnjenja: guideOptionTemplates.tekstObjasnjenja,
+      })
+      .from(guideOptionTemplates)
+      .where(
+        and(
+          inArray(guideOptionTemplates.goalId, idsZaUpit),
+          eq(guideOptionTemplates.aktivan, true),
+        ),
+      );
+    const tekstPoOdabranojOpciji = new Map<string, string>();
+    for (const opcija of aktivneOpcije) {
+      if (opcija.tekstObjasnjenja && opcija.tekstObjasnjenja.trim() !== '') {
+        tekstPoOdabranojOpciji.set(`${opcija.goalId}::${opcija.tekstOpcije}`, opcija.tekstObjasnjenja);
+      }
+    }
 
     const veze = await db
       .select({
@@ -142,11 +169,16 @@ export async function computeGuideResultAction(
           slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
         }));
 
+      const odabranaOpcija = odgovori.dodatnaPitanja[cilj.id];
+      const tekstIzOpcije = odabranaOpcija
+        ? tekstPoOdabranojOpciji.get(`${cilj.id}::${odabranaOpcija}`)
+        : undefined;
+
       return {
         goalId: cilj.id,
         goalSlug: cilj.slug,
         naziv: cilj.naziv,
-        tekstObjasnjenja: tekstPoGoalId.get(cilj.id) ?? null,
+        tekstObjasnjenja: tekstIzOpcije ?? tekstPoGoalId.get(cilj.id) ?? null,
         proizvodi,
       };
     });

@@ -1,10 +1,12 @@
 /**
- * Statična pitanja koraka 3 Ritual Vodiča, po slugu cilja iz `goals`.
+ * Statične opcije koraka 3 Ritual Vodiča, po slugu cilja iz `goals` —
+ * IZVORNO korištene direktno u korisničkom toku, sada zamijenjene bazom
+ * (`guide_option_templates`, uređivo kroz `/admin/vodic`, vidi
+ * `guide-data.ts#getGuideOptionsByGoal`).
  *
- * Odgovori na ova pitanja se bilježe u `guide_sessions.odgovori`, ali za
- * sada NE filtriraju rezultat — rangiranje proizvoda dolazi isključivo iz
- * `product_goals.relevantnost`/`.oznaka` (vidi `guide.ts`). Ovo je zadržano
- * za buduću fazu kad bude više proizvoda po cilju.
+ * Ovaj fajl više ne učestvuje u korisničkom toku. Zadržan je kao
+ * jednokratni seed izvor (`lib/db/seed-guide-options.ts`) i kao referenca
+ * na originalne tekstove opcija.
  */
 
 export type GuideDodatnoPitanje = {
