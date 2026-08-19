@@ -31,6 +31,7 @@ async function getPartneri(filteri: PartneriFilteri) {
       kratkiOpis: brands.kratkiOpis,
       logoUrl: brands.logoUrl,
       verifikovan: brands.verifikovan,
+      istaknut: brands.istaknut,
       createdAt: brands.createdAt,
     })
     .from(brands)

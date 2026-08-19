@@ -9,6 +9,14 @@ export type PartnerKarticaData = {
   kratkiOpis: string | null;
   logoUrl: string | null;
   verifikovan: boolean;
+  /**
+   * `brands.istaknut` — opciono jer ga trenutno prosljeđuje samo
+   * /partneri (kao inline značka pored "Verifikovan"). Homepage isticanje
+   * ide preko zasebnog `istaknuto` propa (korner traka, druga pozicija i
+   * tekst — vidi ispod) da se ne dupliraju dvije značke za isto stanje na
+   * istoj kartici.
+   */
+  istaknut?: boolean;
   brojProizvoda: number;
 };
 
@@ -53,11 +61,20 @@ export function PartnerKartica({ partner, istaknuto }: PartnerKarticaProps) {
         </div>
         <div className="flex flex-1 flex-col gap-1">
           <span className="text-sm font-semibold text-[#1C2B22]">{partner.naziv}</span>
-          {partner.verifikovan ? (
-            <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#C7D6BA]/50 px-2 py-0.5 text-xs font-medium text-[#16332A]">
-              <BadgeCheck className="h-3 w-3" aria-hidden="true" />
-              {bs.partneri.verifikovan}
-            </span>
+          {partner.verifikovan || partner.istaknut ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {partner.verifikovan ? (
+                <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#C7D6BA]/50 px-2 py-0.5 text-xs font-medium text-[#16332A]">
+                  <BadgeCheck className="h-3 w-3" aria-hidden="true" />
+                  {bs.partneri.verifikovan}
+                </span>
+              ) : null}
+              {partner.istaknut ? (
+                <span className="inline-flex w-fit items-center rounded-full bg-[#16332A] px-2 py-0.5 text-xs font-medium text-[#F2F5ED]">
+                  {bs.partneri.istaknut}
+                </span>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>

@@ -671,6 +671,7 @@ export const bs = {
       naziv_desc: 'Naziv (Ž-A)',
     },
     verifikovan: 'Verifikovan',
+    istaknut: 'Istaknut',
     brojProizvoda,
   },
   vodic: {
