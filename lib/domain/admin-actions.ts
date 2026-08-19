@@ -193,6 +193,92 @@ export async function rejectProductAction(
 }
 
 /**
+ * Vraća VEĆ ODOBREN proizvod na popravku uz obavezan razlog — proizvod se
+ * odmah povlači iz prodaje (status → 'nacrt') dok brend ne ispravi i pošalje
+ * ponovo na odobrenje (na_cekanju prolazi kroz `approveProductAction` kao i
+ * svaki drugi novi zahtjev). Za razliku od `rejectProductAction` (koji radi
+ * na proizvodu koji ČEKA prvi pregled), ova akcija namjerno traži da trenutni
+ * status bude tačno 'odobren' — sprječava da dva admina koja rade
+ * istovremeno prepišu jedan drugog, i da se greškom povuče proizvod koji je
+ * već nacrt/odbijen/na čekanju.
+ */
+export async function revokeApprovalAction(
+  productId: string,
+  razlog: string,
+): Promise<AdminRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof productId !== 'string' || productId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof razlog !== 'string' || razlog.trim().length < 10) {
+      return { ok: false, error: bs.admin.proizvodi.detalj.vratiNaPopravku.greskaRazlog };
+    }
+
+    const [proizvod] = await db
+      .select({
+        status: products.status,
+        slug: products.slug,
+        naziv: products.naziv,
+        brandId: products.brandId,
+      })
+      .from(products)
+      .where(eq(products.id, productId))
+      .limit(1);
+
+    if (!proizvod) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (proizvod.status !== 'odobren') {
+      return { ok: false, error: bs.admin.proizvodi.detalj.greskaNijeOdobren };
+    }
+
+    const razlogOcisceno = razlog.trim();
+
+    await db
+      .update(products)
+      .set({
+        status: 'nacrt',
+        razlogOdbijanja: razlogOcisceno,
+        odobrioUserId: admin.id,
+        odobrenoAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(products.id, productId));
+
+    revalidatePath('/admin/proizvodi');
+    revalidatePath(`/admin/proizvodi/${productId}`);
+    revalidatePath('/shop');
+    revalidatePath(`/proizvod/${proizvod.slug}`);
+
+    const vlasniciIds = await getBrandVlasniciIds(proizvod.brandId);
+    await Promise.all(
+      vlasniciIds.map((userId) =>
+        createNotification(
+          userId,
+          'proizvod_odbijen',
+          bs.notifikacije.proizvodVracenNaPopravku.naslov,
+          bs.notifikacije.proizvodVracenNaPopravku.sadrzaj(proizvod.naziv, razlogOcisceno),
+          `/portal/proizvodi/${productId}`,
+        ),
+      ),
+    );
+
+    return { ok: true };
+  } catch {
+    console.error('revokeApprovalAction: vraćanje na popravku nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
  * Odobrava brend na čekanju — dobija pristup portalu i javnu stranicu.
  *
  * NAPOMENA: `brands.status` trenutno ima samo na_cekanju/odobren/suspendovan

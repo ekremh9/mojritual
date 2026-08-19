@@ -9,6 +9,7 @@ import type { Product } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 import { IsticanjeProizvoda } from '../_components/IsticanjeProizvoda';
 import { ProizvodOdobrenje } from '../_components/ProizvodOdobrenje';
+import { VratiNaPopravku } from '../_components/VratiNaPopravku';
 
 type AdminProizvodPageProps = {
   params: Promise<{ id: string }>;
@@ -214,6 +215,8 @@ export default async function AdminProizvodPage({ params }: AdminProizvodPagePro
 
           {proizvod.status === 'na_cekanju' ? (
             <ProizvodOdobrenje productId={proizvod.id} />
+          ) : proizvod.status === 'odobren' ? (
+            <VratiNaPopravku productId={proizvod.id} />
           ) : (
             <p className="rounded-xl bg-[#C7D6BA]/40 px-4 py-3 text-sm text-[#1C2B22]/80">
               {poruke.vecObradjeno}

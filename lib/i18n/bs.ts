@@ -111,6 +111,11 @@ export const bs = {
       sadrzaj: (naziv: string, razlog: string) =>
         `Vaš proizvod "${naziv}" je odbijen. Razlog: ${razlog}`,
     },
+    proizvodVracenNaPopravku: {
+      naslov: 'Proizvod vraćen na popravku',
+      sadrzaj: (naziv: string, razlog: string) =>
+        `Vaš proizvod "${naziv}" je vraćen na popravku i trenutno nije vidljiv u prodaji. Razlog: ${razlog}`,
+    },
     proizvodAutomatskiOdobren: {
       naslov: 'Proizvod odobren',
       sadrzaj: (naziv: string) =>
@@ -813,6 +818,7 @@ export const bs = {
         bezKategorija: 'Nema dodijeljenih kategorija.',
         razlogOdbijanja: 'Razlog odbijanja',
         vecObradjeno: 'Ova odluka je već donesena — status se više ne može mijenjati odavde.',
+        greskaNijeOdobren: 'Ovaj proizvod nije trenutno odobren.',
         polja: {
           brend: 'Brend',
           forma: 'Oblik proizvoda',
@@ -833,6 +839,16 @@ export const bs = {
         },
         uspjehOdobreno: 'Proizvod je odobren i sada je javno vidljiv.',
         uspjehOdbijeno: 'Proizvod je odbijen. Brend vidi razlog i može poslati ispravku.',
+        vratiNaPopravku: {
+          dugme: 'Vrati na popravku',
+          naslov: 'Razlog vraćanja na popravku',
+          placeholder: 'Objasnite brendu šta treba ispraviti prije ponovnog objavljivanja…',
+          dugmePotvrdi: 'Potvrdi vraćanje na popravku',
+          dugmeUcitavanje: 'Vraćanje na popravku…',
+          otkazi: 'Otkaži',
+          greskaRazlog: 'Unesite razlog vraćanja na popravku (najmanje 10 karaktera).',
+          uspjeh: 'Proizvod je vraćen na popravku i povučen iz prodaje. Brend je obaviješten.',
+        },
         isticanje: {
           naslov: 'Isticanje na početnoj',
           trenutno: 'Status isticanja',
