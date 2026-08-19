@@ -8,6 +8,7 @@ import type { Brand } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 import { BrendOdobrenje } from '../_components/BrendOdobrenje';
 import { IsticanjePartnera } from '../_components/IsticanjePartnera';
+import { VerifikacijaPartnera } from '../_components/VerifikacijaPartnera';
 
 type AdminBrendPageProps = {
   params: Promise<{ id: string }>;
@@ -141,6 +142,12 @@ export default async function AdminBrendPage({ params }: AdminBrendPageProps) {
           )}
 
           <p className="text-xs text-[#8A9086]">{poruke.odbijanjeNedostupno}</p>
+
+          <VerifikacijaPartnera
+            brandId={brend.id}
+            verifikovan={brend.verifikovan}
+            odobren={brend.status === 'odobren'}
+          />
 
           <IsticanjePartnera
             brandId={brend.id}

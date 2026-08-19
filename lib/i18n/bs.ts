@@ -111,6 +111,11 @@ export const bs = {
       sadrzaj: (naziv: string, razlog: string) =>
         `Vaš proizvod "${naziv}" je odbijen. Razlog: ${razlog}`,
     },
+    proizvodAutomatskiOdobren: {
+      naslov: 'Proizvod odobren',
+      sadrzaj: (naziv: string) =>
+        `Vaš proizvod "${naziv}" je automatski odobren jer je vaš brend verifikovan.`,
+    },
     brendOdobren: {
       naslov: 'Brend odobren',
       sadrzaj: 'Vaš brend je odobren i sada je vidljiv na platformi.',
@@ -877,6 +882,18 @@ export const bs = {
           napomenaNijeOdobren: 'Isticanje će biti vidljivo tek kad partner bude odobren.',
           uspjehAktivirano: 'Partner je istaknut na početnoj stranici.',
           uspjehUklonjeno: 'Isticanje je uklonjeno.',
+        },
+        verifikacija: {
+          naslov: 'Verifikacija partnera',
+          trenutno: 'Trenutno stanje',
+          verifikovan: 'Verifikovan',
+          nijeVerifikovan: 'Nije verifikovan',
+          verifikuj: 'Verifikuj partnera',
+          ukloni: 'Ukloni verifikaciju',
+          ucitavanje: 'Snimanje…',
+          napomenaNijeOdobren: 'Verifikacija je vidljiva tek kad brend bude odobren.',
+          uspjehVerifikovano: 'Partner je verifikovan.',
+          uspjehUklonjeno: 'Verifikacija je uklonjena.',
         },
       },
     },

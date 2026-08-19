@@ -14,6 +14,8 @@ import {
   products,
 } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
+import { getBrandVlasniciIds } from '@/lib/domain/admin-actions';
+import { createNotification } from '@/lib/domain/notifications';
 import {
   izracunajIstaknutStatus,
   NAZIV_PLACEHOLDER,
@@ -154,7 +156,7 @@ export async function saveProductAction(
     }
 
     const [pristup] = await db
-      .select({ uloga: brandUsers.uloga, status: brands.status })
+      .select({ uloga: brandUsers.uloga, status: brands.status, verifikovan: brands.verifikovan })
       .from(brandUsers)
       .innerJoin(brands, eq(brandUsers.brandId, brands.id))
       .where(and(eq(brandUsers.userId, session.user.id), eq(brandUsers.brandId, brandId)))
@@ -213,9 +215,21 @@ export async function saveProductAction(
       unos.istaknutZahtjev,
     );
 
+    // Verifikovan brend preskače red čekanja: slanje na odobrenje ('na_cekanju')
+    // upisuje status 'odobren' odmah. Provjera se radi ovdje, na serveru, sa
+    // istim `pristup` upitom koji već potvrđuje vlasništvo — ne kao odvojen
+    // klijentski poziv koji bi se mogao zaobići. Ne dira 'nacrt' putanju niti
+    // postojeće proizvode koji već čekaju (samo buduće slanje).
+    const autoOdobreno = ciljniStatus === 'na_cekanju' && pristup.verifikovan;
+    const finalniStatus = autoOdobreno ? 'odobren' : ciljniStatus;
+    const poljaOdobrenja = autoOdobreno
+      ? { odobrenoAt: new Date(), odobrioUserId: null }
+      : {};
+
     // NAPOMENA ZA BUDUĆNOST: ako se ukine ručno odobravanje admina,
     // 'na_cekanju' ovdje treba postati odmah 'odobren' — do tada svaki novi
-    // proizvod i svaka izmjena čeka pregled (spec 10.4).
+    // proizvod i svaka izmjena čeka pregled (spec 10.4), osim za verifikovane
+    // brendove (vidi `autoOdobreno` iznad).
     const finalniId = await db.transaction(async (tx) => {
       let idProizvoda: string;
 
@@ -236,7 +250,8 @@ export async function saveProductAction(
           .set({
             ...poljaProizvoda,
             ...(noviSlug ? { slug: noviSlug } : {}),
-            status: ciljniStatus,
+            status: finalniStatus,
+            ...poljaOdobrenja,
             // Stari razlog odbijanja više ne opisuje stanje nakon izmjene.
             razlogOdbijanja: null,
             istaknutStatus: noviIstaknutStatus,
@@ -255,7 +270,8 @@ export async function saveProductAction(
             ...poljaProizvoda,
             brandId,
             slug,
-            status: ciljniStatus,
+            status: finalniStatus,
+            ...poljaOdobrenja,
             istaknutStatus: noviIstaknutStatus,
           })
           .returning({ id: products.id });
@@ -283,6 +299,21 @@ export async function saveProductAction(
     revalidatePath('/shop');
     if (snimljeniProizvod?.slug) {
       revalidatePath(`/proizvod/${snimljeniProizvod.slug}`);
+    }
+
+    if (autoOdobreno) {
+      const vlasniciIds = await getBrandVlasniciIds(brandId);
+      await Promise.all(
+        vlasniciIds.map((userId) =>
+          createNotification(
+            userId,
+            'proizvod_odobren',
+            bs.notifikacije.proizvodAutomatskiOdobren.naslov,
+            bs.notifikacije.proizvodAutomatskiOdobren.sadrzaj(poljaProizvoda.naziv),
+            `/portal/proizvodi/${finalniId}`,
+          ),
+        ),
+      );
     }
 
     return { ok: true, productId: finalniId };

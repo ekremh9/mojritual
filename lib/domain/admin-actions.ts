@@ -33,7 +33,7 @@ async function zahtijevajAdmina(): Promise<{ id: string } | null> {
  * traženje primaoca obavještenja ne smije oboriti glavnu admin akciju,
  * isto pravilo kao `createNotification` samo.
  */
-async function getBrandVlasniciIds(brandId: string): Promise<string[]> {
+export async function getBrandVlasniciIds(brandId: string): Promise<string[]> {
   try {
     const vlasnici = await db
       .select({ userId: brandUsers.userId })
@@ -393,6 +393,51 @@ export async function toggleBrandFeaturedAction(
     return { ok: true };
   } catch {
     console.error('toggleBrandFeaturedAction: promjena isticanja nije uspjela');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
+ * Ručno postavlja `brands.verifikovan` — odvojeno od `brands.status`
+ * (odobrenje brenda samog). Radi bez obzira na status brenda; javna
+ * stranica partnera ionako prikazuje značku samo kad je brend odobren
+ * (vidi UI u app/admin/brendovi/[id]/page.tsx).
+ */
+export async function toggleVerifiedAction(
+  brandId: string,
+  novoStanje: boolean,
+): Promise<AdminRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof brandId !== 'string' || brandId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const [brend] = await db
+      .select({ id: brands.id, slug: brands.slug })
+      .from(brands)
+      .where(eq(brands.id, brandId))
+      .limit(1);
+
+    if (!brend) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    await db.update(brands).set({ verifikovan: novoStanje }).where(eq(brands.id, brandId));
+
+    revalidatePath('/admin/brendovi');
+    revalidatePath(`/admin/brendovi/${brandId}`);
+    revalidatePath(`/partner/${brend.slug}`);
+    revalidatePath('/partneri');
+
+    return { ok: true };
+  } catch {
+    console.error('toggleVerifiedAction: promjena verifikacije nije uspjela');
     return { ok: false, error: bs.admin.greskaOpsta };
   }
 }
