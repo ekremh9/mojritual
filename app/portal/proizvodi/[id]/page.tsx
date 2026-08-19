@@ -78,6 +78,7 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
         onemoguceno={pristup.brand.status === 'suspendovan'}
         status={proizvod.status}
         razlogOdbijanja={proizvod.razlogOdbijanja}
+        brandVerifikovan={pristup.brand.verifikovan}
       />
     </div>
   );

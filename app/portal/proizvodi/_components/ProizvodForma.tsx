@@ -46,6 +46,12 @@ type ProizvodFormaProps = {
   status: Product['status'] | null;
   /** Razlog odbijanja — prikazuje se samo kad je status `odbijen`. */
   razlogOdbijanja?: string | null;
+  /**
+   * Brend je verifikovan — proizvodi poslani na odobrenje se odmah objavljuju
+   * (server sam odlučuje ishod, vidi `saveProductAction`). Utiče samo na
+   * tekst dugmeta/napomene, ne na `ciljniStatus` koji se šalje serveru.
+   */
+  brandVerifikovan: boolean;
 };
 
 type PoljeProps = {
@@ -97,6 +103,7 @@ export function ProizvodForma({
   onemoguceno,
   status,
   razlogOdbijanja,
+  brandVerifikovan,
 }: ProizvodFormaProps) {
   const router = useRouter();
   const [vrijednosti, setVrijednosti] = useState<ProizvodUnos>(pocetneVrijednosti);
@@ -462,6 +469,12 @@ export function ProizvodForma({
           </p>
         ) : null}
 
+        {brandVerifikovan ? (
+          <p className="rounded-xl bg-[#C7D6BA]/40 px-4 py-3 text-sm text-[#1C2B22]/80">
+            {poruke.napomenaVerifikovan}
+          </p>
+        ) : null}
+
         {uspjeh ? (
           <p role="status" className="rounded-xl bg-[#C7D6BA]/50 px-4 py-3 text-sm font-medium text-[#16332A]">
             {uspjeh === 'nacrt' ? poruke.uspjehNacrt : poruke.uspjehPoslano}
@@ -489,7 +502,11 @@ export function ProizvodForma({
             disabled={zakljucano}
             className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {ciljUToku === 'na_cekanju' ? poruke.sacuvajUcitavanje : poruke.posaljiNaOdobrenje}
+            {ciljUToku === 'na_cekanju'
+              ? poruke.sacuvajUcitavanje
+              : brandVerifikovan
+                ? poruke.objavi
+                : poruke.posaljiNaOdobrenje}
           </button>
         </div>
       </form>

@@ -601,6 +601,8 @@ export const bs = {
         brojac: (duzina: number, max: number) => `${duzina}/${max}`,
         sacuvajNacrt: 'Sačuvaj kao nacrt',
         posaljiNaOdobrenje: 'Pošalji na odobrenje',
+        objavi: 'Objavi proizvod',
+        napomenaVerifikovan: 'Vaš brend je verifikovan — proizvod će biti odmah objavljen.',
         sacuvajUcitavanje: 'Snimanje…',
         uspjehNacrt: 'Proizvod je sačuvan kao nacrt.',
         uspjehPoslano: 'Proizvod je poslan na odobrenje.',
