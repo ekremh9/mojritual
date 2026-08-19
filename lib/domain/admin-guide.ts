@@ -9,6 +9,7 @@ import {
   brands,
   goals,
   guideExplanationTemplates,
+  guideOptionTemplates,
   productGoals,
   productImages,
   products,
@@ -76,14 +77,36 @@ export type AdminCiljProizvod = {
   oznaka: 'primarni' | 'sekundarni' | null;
 };
 
+export type AdminCiljOpcija = {
+  id: string;
+  tekstOpcije: string;
+  tekstObjasnjenja: string | null;
+  redoslijed: number;
+};
+
 export type AdminCiljDetalj = {
   id: string;
   slug: string;
   naziv: string;
   opis: string | null;
   aktivanTekst: { id: string; tekst: string } | null;
+  opcije: AdminCiljOpcija[];
   proizvodi: AdminCiljProizvod[];
 };
+
+/** Aktivne opcije za dodatno pitanje (korak 3 Vodiča), sortirane po redoslijedu. */
+async function getGoalOptions(goalId: string): Promise<AdminCiljOpcija[]> {
+  return db
+    .select({
+      id: guideOptionTemplates.id,
+      tekstOpcije: guideOptionTemplates.tekstOpcije,
+      tekstObjasnjenja: guideOptionTemplates.tekstObjasnjenja,
+      redoslijed: guideOptionTemplates.redoslijed,
+    })
+    .from(guideOptionTemplates)
+    .where(and(eq(guideOptionTemplates.goalId, goalId), eq(guideOptionTemplates.aktivan, true)))
+    .orderBy(asc(guideOptionTemplates.redoslijed));
+}
 
 /**
  * Cilj sa aktivnim tekstom objašnjenja i svim odobrenim proizvodima u
@@ -109,6 +132,8 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
     )
     .limit(1);
 
+  const opcije = await getGoalOptions(goalId);
+
   const odobreniProizvodi = await db
     .select({
       id: products.id,
@@ -127,6 +152,7 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
       naziv: cilj.naziv,
       opis: cilj.opis,
       aktivanTekst: aktivanTekst ?? null,
+      opcije,
       proizvodi: [],
     };
   }
@@ -182,6 +208,7 @@ export async function getGoalDetail(goalId: string): Promise<AdminCiljDetalj | n
     naziv: cilj.naziv,
     opis: cilj.opis,
     aktivanTekst: aktivanTekst ?? null,
+    opcije,
     proizvodi,
   };
 }

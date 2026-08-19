@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getGoalDetail } from '@/lib/domain/admin-guide';
 import { bs } from '@/lib/i18n/bs';
 import { ExplanationForm } from '../_components/ExplanationForm';
+import { GuideOptionsSection } from '../_components/GuideOptionsSection';
 import { ProductGoalRow } from '../_components/ProductGoalRow';
 
 type AdminVodicCiljPageProps = {
@@ -44,6 +45,8 @@ export default async function AdminVodicCiljPage({ params }: AdminVodicCiljPageP
       </div>
 
       <ExplanationForm goalId={cilj.id} pocetniTekst={cilj.aktivanTekst?.tekst ?? ''} />
+
+      <GuideOptionsSection goalId={cilj.id} opcije={cilj.opcije} />
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">

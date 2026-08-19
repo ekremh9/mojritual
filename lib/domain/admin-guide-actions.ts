@@ -4,10 +4,18 @@ import { revalidatePath } from 'next/cache';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { goals, guideExplanationTemplates, productGoals, products } from '@/lib/db/schema';
+import {
+  goals,
+  guideExplanationTemplates,
+  guideOptionTemplates,
+  productGoals,
+  products,
+} from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 
 export type AdminGuideRezultat = { ok: true } | { ok: false; error: string };
+
+const MAX_OPCIJA_PO_CILJU = 5;
 
 /**
  * Provjerava da je pozivalac prijavljen admin. Uloga se čita iz sesije, ne
@@ -186,6 +194,179 @@ export async function removeProductGoalAction(
     return { ok: true };
   } catch {
     console.error('removeProductGoalAction: uklanjanje veze proizvod-cilj nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
+ * Dodaje opciju za dodatno pitanje (korak 3 Vodiča) za dati cilj. Najviše
+ * `MAX_OPCIJA_PO_CILJU` AKTIVNIH opcija po cilju — provjera se radi ovdje,
+ * na serveru, ne oslanja se na onemogućeno dugme na klijentu (koje bi se
+ * moglo zaobići direktnim pozivom akcije).
+ */
+export async function addGuideOptionAction(
+  goalId: string,
+  tekstOpcije: string,
+  tekstObjasnjenja?: string,
+): Promise<AdminGuideRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof goalId !== 'string' || goalId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof tekstOpcije !== 'string' || tekstOpcije.trim() === '') {
+      return { ok: false, error: bs.admin.vodic.detalj.opcije.greskaTekstOpcije };
+    }
+
+    const [cilj] = await db.select({ id: goals.id }).from(goals).where(eq(goals.id, goalId)).limit(1);
+
+    if (!cilj) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const aktivneOpcije = await db
+      .select({ redoslijed: guideOptionTemplates.redoslijed })
+      .from(guideOptionTemplates)
+      .where(and(eq(guideOptionTemplates.goalId, goalId), eq(guideOptionTemplates.aktivan, true)));
+
+    if (aktivneOpcije.length >= MAX_OPCIJA_PO_CILJU) {
+      return { ok: false, error: bs.admin.vodic.detalj.opcije.greskaMaksimum };
+    }
+
+    const sljedeciRedoslijed =
+      aktivneOpcije.reduce((max, opcija) => Math.max(max, opcija.redoslijed), -1) + 1;
+
+    const tekstObjasnjenjaOcisceno =
+      typeof tekstObjasnjenja === 'string' && tekstObjasnjenja.trim() !== ''
+        ? tekstObjasnjenja.trim()
+        : null;
+
+    await db.insert(guideOptionTemplates).values({
+      goalId,
+      tekstOpcije: tekstOpcije.trim(),
+      tekstObjasnjenja: tekstObjasnjenjaOcisceno,
+      redoslijed: sljedeciRedoslijed,
+      aktivan: true,
+    });
+
+    revalidateGuidePaths(goalId);
+
+    return { ok: true };
+  } catch {
+    console.error('addGuideOptionAction: dodavanje opcije nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
+ * Ažurira tekst opcije i/ili njeno objašnjenje. Samo prosljeđena polja se
+ * mijenjaju — `undefined` znači "ne diraj", prazan string za objašnjenje
+ * znači "obriši objašnjenje" (postavlja se na `null`).
+ */
+export async function updateGuideOptionAction(
+  optionId: string,
+  tekstOpcije?: string,
+  tekstObjasnjenja?: string,
+): Promise<AdminGuideRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof optionId !== 'string' || optionId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const [opcija] = await db
+      .select({ id: guideOptionTemplates.id, goalId: guideOptionTemplates.goalId })
+      .from(guideOptionTemplates)
+      .where(eq(guideOptionTemplates.id, optionId))
+      .limit(1);
+
+    if (!opcija) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const izmjene: { tekstOpcije?: string; tekstObjasnjenja?: string | null; updatedAt: Date } = {
+      updatedAt: new Date(),
+    };
+
+    if (tekstOpcije !== undefined) {
+      if (typeof tekstOpcije !== 'string' || tekstOpcije.trim() === '') {
+        return { ok: false, error: bs.admin.vodic.detalj.opcije.greskaTekstOpcije };
+      }
+      izmjene.tekstOpcije = tekstOpcije.trim();
+    }
+
+    if (tekstObjasnjenja !== undefined) {
+      izmjene.tekstObjasnjenja =
+        typeof tekstObjasnjenja === 'string' && tekstObjasnjenja.trim() !== ''
+          ? tekstObjasnjenja.trim()
+          : null;
+    }
+
+    await db.update(guideOptionTemplates).set(izmjene).where(eq(guideOptionTemplates.id, optionId));
+
+    revalidateGuidePaths(opcija.goalId);
+
+    return { ok: true };
+  } catch {
+    console.error('updateGuideOptionAction: ažuriranje opcije nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/**
+ * Uklanja opciju — SOFT-DELETE (`aktivan = false`), ne DELETE reda.
+ *
+ * `guide_sessions.odgovori` bilježi odabranu opciju po TEKSTU, ne po
+ * `optionId` (nema FK) — hard delete tehnički ne bi pokidao historijske
+ * sesije. Soft-delete je ipak izabran jer: (1) je reverzibilan, isti princip
+ * kao `unpublishProductAction` (proizvod se povlači, ne briše) — administratorska
+ * greška se da ispraviti bez pristupa bazi; (2) "manje od 5 AKTIVNIH opcija"
+ * provjera u `addGuideOptionAction` već tretira `aktivan` kao operativni
+ * signal vidljivosti, isti obrazac kao `guideExplanationTemplates.aktivan`.
+ */
+export async function removeGuideOptionAction(optionId: string): Promise<AdminGuideRezultat> {
+  try {
+    const admin = await zahtijevajAdmina();
+
+    if (!admin) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof optionId !== 'string' || optionId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const [opcija] = await db
+      .select({ id: guideOptionTemplates.id, goalId: guideOptionTemplates.goalId })
+      .from(guideOptionTemplates)
+      .where(eq(guideOptionTemplates.id, optionId))
+      .limit(1);
+
+    if (!opcija) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    await db
+      .update(guideOptionTemplates)
+      .set({ aktivan: false, updatedAt: new Date() })
+      .where(eq(guideOptionTemplates.id, optionId));
+
+    revalidateGuidePaths(opcija.goalId);
+
+    return { ok: true };
+  } catch {
+    console.error('removeGuideOptionAction: uklanjanje opcije nije uspjelo');
     return { ok: false, error: bs.admin.greskaOpsta };
   }
 }
