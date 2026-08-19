@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { auth } from '@/auth';
+import { MarkNotificationsReadOnView } from '@/app/(shop)/_components/MarkNotificationsReadOnView';
 import { getUserBrand } from '@/lib/domain/brand-access';
-import { getNotifications, markAllAsRead } from '@/lib/domain/notifications';
+import { getNotifications } from '@/lib/domain/notifications';
 import { bs } from '@/lib/i18n/bs';
 
 export const metadata: Metadata = {
@@ -37,13 +38,13 @@ export default async function PortalObavjestenjaPage() {
   // session.user.id je iz auth() sesije, nikad sa klijenta.
   const obavjestenja = await getNotifications(session.user.id);
 
-  // markAllAsRead se poziva NAKON dohvata — isti izbor kao /nalog/obavjestenja.
-  await markAllAsRead(session.user.id);
-
   const poruke = bs.portal.obavjestenja;
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Označavanje pročitanim se dešava na klijentu nakon mount-a — vidi komentar u MarkNotificationsReadOnView. */}
+      <MarkNotificationsReadOnView />
+
       <Link
         href="/portal"
         className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[#1C2B22]/70 hover:text-[#1C2B22]"

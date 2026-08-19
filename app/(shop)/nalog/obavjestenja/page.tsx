@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { auth } from '@/auth';
-import { getNotifications, markAllAsRead } from '@/lib/domain/notifications';
+import { getNotifications } from '@/lib/domain/notifications';
 import { bs } from '@/lib/i18n/bs';
+import { MarkNotificationsReadOnView } from '../../_components/MarkNotificationsReadOnView';
 
 export const metadata: Metadata = {
   title: bs.nalog.obavjestenja.naslov,
@@ -30,16 +31,20 @@ export default async function MojaObavjestenjaPage() {
   // session.user.id je iz auth() sesije, nikad sa klijenta.
   const obavjestenja = await getNotifications(session.user.id);
 
-  // markAllAsRead se poziva NAKON dohvata, ne prije — inače bi svako
-  // obavještenje već bilo "pročitano" u trenutku prikaza i ne bi se moglo
-  // vizuelno istaknuti kao novo. Jednostavniji izbor od markAsRead po
-  // kliku na svaki red (vidi self-review).
-  await markAllAsRead(session.user.id);
-
   const poruke = bs.nalog.obavjestenja;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+      {/*
+        Označavanje pročitanim se NE dešava ovdje tokom render-a (Server
+        Action/revalidatePath to ne dozvoljava usred renderovanja rute) —
+        MarkNotificationsReadOnView to pokreće sa klijenta nakon mount-a,
+        strogo nakon što je gornja lista već poslana korisniku kao
+        "nepročitano" (isti efekat kao stari redoslijed: dohvat prije
+        označavanja, da se obavještenje vizuelno istakne kao novo).
+      */}
+      <MarkNotificationsReadOnView />
+
       <Link
         href="/nalog"
         className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[#1C2B22]/70 hover:text-[#1C2B22]"
