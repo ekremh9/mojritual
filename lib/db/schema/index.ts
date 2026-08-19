@@ -6,6 +6,7 @@ import { commissionPeriods } from './commission';
 import { medicalReviewers, posts } from './content';
 import { emailVerificationTokens } from './email-verification';
 import { goals, guideExplanationTemplates, guideSessions, productGoals } from './guide';
+import { guideOptionTemplates } from './guide-options';
 import { ingredients, productIngredients } from './ingredients';
 import { notifications } from './notifications';
 import { orderItems, orderShipments, orders } from './orders';
@@ -22,6 +23,7 @@ export * from './commission';
 export * from './content';
 export * from './email-verification';
 export * from './guide';
+export * from './guide-options';
 export * from './ingredients';
 export * from './leads';
 export * from './notifications';
@@ -247,6 +249,7 @@ export const commissionPeriodsRelations = relations(commissionPeriods, ({ one })
 export const goalsRelations = relations(goals, ({ many }) => ({
   productGoals: many(productGoals),
   explanationTemplates: many(guideExplanationTemplates),
+  optionTemplates: many(guideOptionTemplates),
 }));
 
 export const productGoalsRelations = relations(productGoals, ({ one }) => ({
@@ -269,6 +272,13 @@ export const guideExplanationTemplatesRelations = relations(
     }),
   }),
 );
+
+export const guideOptionTemplatesRelations = relations(guideOptionTemplates, ({ one }) => ({
+  goal: one(goals, {
+    fields: [guideOptionTemplates.goalId],
+    references: [goals.id],
+  }),
+}));
 
 export const guideSessionsRelations = relations(guideSessions, ({ one }) => ({
   user: one(users, {
