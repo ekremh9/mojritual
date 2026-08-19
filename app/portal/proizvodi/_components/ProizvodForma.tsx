@@ -162,6 +162,15 @@ export function ProizvodForma({
         return;
       }
 
+      // Slanje na odobrenje (ili direktno objavljivanje za verifikovane
+      // brendove — vidi napomenaVerifikovan) postojećeg proizvoda vraća
+      // brend na listu da prati status. "Sačuvaj kao nacrt" MORA ostati na
+      // formi — brend često nastavlja uređivati odmah nakon snimanja.
+      if (ciljniStatus === 'na_cekanju') {
+        router.push('/portal/proizvodi');
+        return;
+      }
+
       setUspjeh(ciljniStatus);
       router.refresh();
     } catch {
