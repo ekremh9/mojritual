@@ -3,8 +3,17 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { and, asc, eq } from 'drizzle-orm';
+import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
+import {
+  brands,
+  categories,
+  productCategories,
+  productImages,
+  products,
+  wholesalePriceTiers,
+} from '@/lib/db/schema';
+import { jeOdobreniPartner } from '@/lib/domain/brand-access';
 import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 import { DodajUKorpuDugme } from './_components/DodajUKorpuDugme';
@@ -44,7 +53,7 @@ const getProizvod = cache(async (slug: string) => {
     return null;
   }
 
-  const [slike, kategorijeProizvoda] = await Promise.all([
+  const [slike, kategorijeProizvoda, wholesalePragoviRedovi] = await Promise.all([
     db
       .select({ url: productImages.url, alt: productImages.alt })
       .from(productImages)
@@ -55,9 +64,22 @@ const getProizvod = cache(async (slug: string) => {
       .from(productCategories)
       .innerJoin(categories, eq(productCategories.categoryId, categories.id))
       .where(eq(productCategories.productId, proizvod.id)),
+    db
+      .select({
+        minKolicina: wholesalePriceTiers.minKolicina,
+        popustPosto: wholesalePriceTiers.popustPosto,
+      })
+      .from(wholesalePriceTiers)
+      .where(eq(wholesalePriceTiers.productId, proizvod.id))
+      .orderBy(asc(wholesalePriceTiers.minKolicina)),
   ]);
 
-  return { ...proizvod, slike, kategorijeProizvoda };
+  const wholesalePragovi = wholesalePragoviRedovi.map((prag) => ({
+    minKolicina: prag.minKolicina,
+    popustPosto: Number(prag.popustPosto),
+  }));
+
+  return { ...proizvod, slike, kategorijeProizvoda, wholesalePragovi };
 });
 
 export async function generateMetadata({ params }: ProizvodPageProps): Promise<Metadata> {
@@ -81,6 +103,9 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
   if (!proizvod) {
     notFound();
   }
+
+  const session = await auth();
+  const jePartner = session?.user?.id ? await jeOdobreniPartner(session.user.id) : false;
 
   const pasusiOpisa = proizvod.opis?.split('\n\n').filter((pasus) => pasus.trim().length > 0) ?? [];
 
@@ -128,7 +153,12 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
             </Link>
           </span>
 
-          <DodajUKorpuDugme productId={proizvod.id} />
+          <DodajUKorpuDugme
+            productId={proizvod.id}
+            cijena={proizvod.cijena}
+            jePartner={jePartner}
+            pragovi={proizvod.wholesalePragovi}
+          />
         </div>
 
         {pasusiOpisa.length > 0 ? (

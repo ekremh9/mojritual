@@ -160,6 +160,15 @@ export const bs = {
     upozorenja: 'Upozorenja',
     kategorije: 'Kategorije',
     prikaziSliku: (n: number) => `Prikaži sliku ${n}`,
+    veleprodaja: {
+      kolicinaLabela: 'Količina',
+      jedinicnaCijena: (cijena: string) => `Cijena po komadu: ${cijena}`,
+      ukupno: (iznos: string) => `Ukupno: ${iznos}`,
+      pragOpis: (minKolicina: number, cijenaPoKomadu: string, popustPosto: number) =>
+        `${minKolicina}+ kom: ${cijenaPoKomadu}/kom (${popustPosto}%)`,
+      napomena:
+        'Veleprodajna cijena je informativna — potvrđuje se u narudžbi, ne primjenjuje se automatski u korpi.',
+    },
   },
   korpa: {
     naslov: 'Korpa',

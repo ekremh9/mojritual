@@ -89,3 +89,37 @@ export function validirajWholesalePragove(
 
   return undefined;
 }
+
+/**
+ * Jedinična cijena po komadu za datu količinu — pronalazi NAJVIŠI prag
+ * čiji je `minKolicina <= kolicina` (pragovi se sortiraju interno, ulaz
+ * ne mora biti sortiran) i primjenjuje njegov `popustPosto` na
+ * `baseCijenaFening`, zaokruženo na cijeli fening. Kad nijedan prag ne
+ * odgovara (količina manja od svih pragova, ili prazan niz), vraća
+ * `baseCijenaFening` nepromijenjeno — nema veleprodajnog popusta.
+ *
+ * ISKLJUČIVO za prikaz (stranica proizvoda) — ne upisuje ništa, ne
+ * zaključava cijenu za korpu/narudžbu. Stvarna primjena popusta u
+ * korpi/checkoutu je sljedeći, odvojeni korak.
+ */
+export function izracunajJedinicnuCijenu(
+  baseCijenaFening: number,
+  kolicina: number,
+  pragovi: WholesalePrag[],
+): number {
+  const sortirani = [...pragovi].sort((a, b) => a.minKolicina - b.minKolicina);
+
+  let odabraniPrag: WholesalePrag | null = null;
+  for (const prag of sortirani) {
+    if (prag.minKolicina > kolicina) {
+      break;
+    }
+    odabraniPrag = prag;
+  }
+
+  if (!odabraniPrag) {
+    return baseCijenaFening;
+  }
+
+  return Math.round(baseCijenaFening * (1 - odabraniPrag.popustPosto / 100));
+}
