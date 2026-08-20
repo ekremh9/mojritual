@@ -20,3 +20,10 @@ export async function processBrandLogo(buffer: Buffer): Promise<Buffer> {
     .webp({ quality: 85 })
     .toBuffer();
 }
+
+export async function processBlogCover(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer)
+    .resize({ width: 1600, height: 900, fit: 'cover', position: 'center' })
+    .webp({ quality: 80 })
+    .toBuffer();
+}

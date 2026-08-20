@@ -5,9 +5,14 @@ import { and, asc, eq } from 'drizzle-orm';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { brandUsers, brands, productImages, products } from '@/lib/db/schema';
+import { brandUsers, brands, posts, productImages, products } from '@/lib/db/schema';
 import { ALLOWED_IMAGE_TYPES, MAX_PRODUCT_IMAGES, MAX_UPLOAD_SIZE_BYTES } from '@/lib/storage/image-constants';
-import { processBrandCover, processBrandLogo, processProductImage } from '@/lib/storage/image-processing';
+import {
+  processBlogCover,
+  processBrandCover,
+  processBrandLogo,
+  processProductImage,
+} from '@/lib/storage/image-processing';
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, obrisiSaR2, r2Client } from '@/lib/storage/r2-client';
 import { bs } from '@/lib/i18n/bs';
 
@@ -229,6 +234,59 @@ export async function uploadProductImageAction(
     // Bez detalja unosa u logu.
     console.error('uploadProductImageAction: upload slike proizvoda nije uspio');
     return { ok: false, error: bs.portal.slike.greskaOpsta };
+  }
+}
+
+/**
+ * Snima naslovnu sliku (cover) bloga na R2 — admin-only, jedna slika po
+ * postu (zamjenjuje se, isti obrazac kao `uploadBrandImageAction` za
+ * logo/cover: stara slika ostaje na R2 kao orphan, ne briše se ovdje).
+ */
+export async function uploadBlogImageAction(
+  formData: FormData,
+  postId: string,
+): Promise<UploadRezultat> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    if (typeof postId !== 'string' || postId.trim() === '') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const [post] = await db
+      .select({ id: posts.id, slug: posts.slug })
+      .from(posts)
+      .where(eq(posts.id, postId))
+      .limit(1);
+
+    if (!post) {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const provjera = await ucitajIProvjeriSliku(formData.get('file'));
+    if (!provjera.ok) {
+      return { ok: false, error: provjera.error };
+    }
+
+    const obradjena = await processBlogCover(provjera.buffer);
+    const key = `posts/${postId}/cover-${Date.now()}.webp`;
+    const url = await uploadNaR2(key, obradjena);
+
+    await db.update(posts).set({ coverUrl: url, updatedAt: new Date() }).where(eq(posts.id, postId));
+
+    revalidatePath('/admin/blog');
+    revalidatePath(`/admin/blog/${postId}`);
+    revalidatePath('/blog');
+    revalidatePath(`/blog/${post.slug}`);
+
+    return { ok: true, url };
+  } catch {
+    console.error('uploadBlogImageAction: upload naslovne slike bloga nije uspio');
+    return { ok: false, error: bs.admin.blog.forma.slika.greskaOpsta };
   }
 }
 

@@ -27,6 +27,12 @@ export const posts = pgTable(
     }),
     status: postStatusEnum('status').notNull().default('nacrt'),
     objavljenoAt: timestamp('objavljeno_at', { withTimezone: true }),
+    // Šema izvorno nije imala created_at/updated_at (vidi docs/schema.md
+    // §9) — dodano uz admin CRUD da lista nacrta ima smislen redoslijed
+    // (objavljeno_at je null dok je nacrt) i da postoji trag zadnje izmjene,
+    // isti obrazac kao praktično svaka druga tabela u šemi.
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index('posts_slug_idx').on(table.slug),
