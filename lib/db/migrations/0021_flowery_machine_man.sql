@@ -1,0 +1,3 @@
+ALTER TABLE "products" ADD COLUMN "istaknut_plan_id" uuid;--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_istaknut_plan_id_featuring_price_plans_id_fk" FOREIGN KEY ("istaknut_plan_id") REFERENCES "public"."featuring_price_plans"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "products_istaknut_plan_id_idx" ON "products" USING btree ("istaknut_plan_id");

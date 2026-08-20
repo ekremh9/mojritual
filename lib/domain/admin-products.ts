@@ -3,7 +3,14 @@
  */
 import { and, asc, count, desc, eq, inArray, ne } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
+import {
+  brands,
+  categories,
+  featuringPricePlans,
+  productCategories,
+  productImages,
+  products,
+} from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
 import { jeProizvodStatus, PRODUCT_STATUSI } from '@/lib/domain/portal-products';
 
@@ -176,6 +183,7 @@ export type AdminProizvodDetalj = {
   oznake: string[] | null;
   istaknutStatus: Product['istaknutStatus'];
   istaknutRazlogOdbijanja: string | null;
+  istaknutPlan: { naziv: string; cijena: number } | null;
   createdAt: Date;
   updatedAt: Date;
   brend: { naziv: string; slug: string };
@@ -207,6 +215,8 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
       oznake: products.oznake,
       istaknutStatus: products.istaknutStatus,
       istaknutRazlogOdbijanja: products.istaknutRazlogOdbijanja,
+      istaknutPlanNaziv: featuringPricePlans.naziv,
+      istaknutPlanCijena: featuringPricePlans.cijena,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt,
       brendNaziv: brands.naziv,
@@ -214,6 +224,7 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
     })
     .from(products)
     .innerJoin(brands, eq(products.brandId, brands.id))
+    .leftJoin(featuringPricePlans, eq(products.istaknutPlanId, featuringPricePlans.id))
     .where(eq(products.id, productId))
     .limit(1);
 
@@ -251,6 +262,10 @@ export async function getProductForAdmin(productId: string): Promise<AdminProizv
     oznake: proizvod.oznake,
     istaknutStatus: proizvod.istaknutStatus,
     istaknutRazlogOdbijanja: proizvod.istaknutRazlogOdbijanja,
+    istaknutPlan:
+      proizvod.istaknutPlanNaziv !== null && proizvod.istaknutPlanCijena !== null
+        ? { naziv: proizvod.istaknutPlanNaziv, cijena: proizvod.istaknutPlanCijena }
+        : null,
     createdAt: proizvod.createdAt,
     updatedAt: proizvod.updatedAt,
     brend: { naziv: proizvod.brendNaziv, slug: proizvod.brendSlug },

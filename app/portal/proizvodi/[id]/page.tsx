@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
+import { getFeaturingPlans } from '@/lib/domain/admin-featuring';
 import { getUserBrand } from '@/lib/domain/brand-access';
 import { getFullCategoryTree } from '@/lib/domain/categories';
 import { getGoalsForVodic } from '@/lib/domain/guide-data';
@@ -36,15 +37,18 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
 
   // Provjera vlasništva je unutar getPortalProductForEdit — proizvod koji
   // ne postoji ili pripada drugom brendu tretiramo isto, kao notFound.
-  const [proizvod, kategorije, ciljevi] = await Promise.all([
+  const [proizvod, kategorije, ciljevi, sviPlanovi] = await Promise.all([
     getPortalProductForEdit(pristup.brand.id, id),
     getFullCategoryTree(),
     getGoalsForVodic(),
+    getFeaturingPlans('proizvod'),
   ]);
 
   if (!proizvod) {
     notFound();
   }
+
+  const planovi = sviPlanovi.filter((plan) => plan.aktivan);
 
   return (
     <div className="flex flex-col gap-6">
@@ -77,6 +81,7 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
         pocetneVrijednosti={proizvod.pocetneVrijednosti}
         kategorije={kategorije}
         ciljevi={ciljevi}
+        planovi={planovi}
         onemoguceno={pristup.brand.status === 'suspendovan'}
         status={proizvod.status}
         razlogOdbijanja={proizvod.razlogOdbijanja}

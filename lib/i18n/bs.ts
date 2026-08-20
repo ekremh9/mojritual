@@ -586,6 +586,7 @@ export const bs = {
           detalji: 'Detalji',
           cijena: 'Cijena',
           dostupnost: 'Dostupnost',
+          isticanje: 'Isticanje na početnoj',
         },
         polja: {
           naziv: 'Naziv proizvoda',
@@ -609,9 +610,11 @@ export const bs = {
           staraCijena: 'Stara cijena (KM)',
           staraCijenaPomoc: 'Opciono — prikazuje se precrtano, za isticanje sniženja.',
           dostupnost: 'Dostupnost',
-          istaknutZahtjev: 'Želim da ovaj proizvod bude istaknut na početnoj stranici',
-          istaknutZahtjevPomoc:
-            'Istaknuti proizvodi se dogovaraju posebno s administracijom (može uključivati naknadu). Označavanjem šaljete zahtjev, ne garantuje automatsko isticanje.',
+          istaknutPlan: 'Paket isticanja',
+          istaknutPlanNijeIzabran: 'Ne želim isticanje',
+          istaknutPlanOpcija: (naziv: string, cijena: string) => `${naziv} — ${cijena}`,
+          istaknutPlanPomoc:
+            'Istaknut proizvod se prikazuje na početnoj stranici prema odabranom paketu — trajanje i cijena su definisani cjenovnikom. Odabirom paketa šaljete zahtjev, admin ga treba odobriti; ne garantuje automatsko isticanje.',
           predlozeniCiljevi: 'Predložite ciljeve za ovaj proizvod',
           predlozeniCiljeviPomoc:
             'Ovo je prijedlog. Medicinski recenzent odlučuje o konačnoj kategorizaciji i preporukama u Ritual Vodiču.',
@@ -650,6 +653,7 @@ export const bs = {
         greskaPristup: 'Nemate pristup ovom proizvodu.',
         greskaSuspendovan: 'Vaš brend je suspendovan. Izmjene proizvoda nisu moguće.',
         greskaZadrziStatus: 'Ovo je moguće samo za proizvod koji je trenutno odobren.',
+        greskaIstaknutPlan: 'Odaberite paket isticanja.',
         greskaOpsta: 'Snimanje nije uspjelo. Pokušajte ponovo.',
       },
     },
@@ -866,6 +870,7 @@ export const bs = {
         isticanje: {
           naslov: 'Isticanje na početnoj',
           trenutno: 'Status isticanja',
+          zahtjevanPaket: (naziv: string, cijena: string) => `Zahtjevan paket: ${naziv} — ${cijena}`,
           statusi: {
             nema_zahtjeva: 'Nema zahtjeva',
             na_cekanju: 'Na čekanju',

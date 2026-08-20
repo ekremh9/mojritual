@@ -5,6 +5,7 @@ import { categories } from './categories';
 import { commissionPeriods } from './commission';
 import { medicalReviewers, posts } from './content';
 import { emailVerificationTokens } from './email-verification';
+import { featuringPricePlans } from './featuring-plans';
 import { goals, guideExplanationTemplates, guideSessions, productGoals } from './guide';
 import { guideOptionTemplates } from './guide-options';
 import { ingredients, productIngredients } from './ingredients';
@@ -126,6 +127,10 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   odobrioUser: one(users, {
     fields: [products.odobrioUserId],
     references: [users.id],
+  }),
+  istaknutPlan: one(featuringPricePlans, {
+    fields: [products.istaknutPlanId],
+    references: [featuringPricePlans.id],
   }),
   images: many(productImages),
   productCategories: many(productCategories),

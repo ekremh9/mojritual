@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import {
   brandUsers,
   brands,
+  featuringPricePlans,
   orderItems,
   productCategories,
   productGoalProposals,
@@ -230,6 +231,42 @@ export async function saveProductAction(
       unos.istaknutZahtjev,
     );
 
+    // Paket se upisuje SAMO kad se šalje/ostaje nov zahtjev ('na_cekanju') —
+    // tad se provjerava da izabrani paket stvarno postoji, aktivan je i
+    // tipa 'proizvod' (klijent šalje samo ono što je vidio u formi, ne
+    // garancija da je još uvijek važeće). Kad zahtjev nestaje, planId ide na
+    // null. Kad status ostaje 'odobreno' (uređivanje ostalih polja na već
+    // odobrenom isticanju), planId se NE dira — ne smije se tiho zamijeniti
+    // paket bez nove admin odluke.
+    let istaknutPlanIzmjena: { istaknutPlanId: string | null } | Record<string, never> = {};
+    if (noviIstaknutStatus === 'nema_zahtjeva') {
+      istaknutPlanIzmjena = { istaknutPlanId: null };
+    } else if (noviIstaknutStatus === 'na_cekanju') {
+      const planId = unos.istaknutPlanId?.trim();
+
+      if (!planId) {
+        return { ok: false, error: poruke.greskaIstaknutPlan };
+      }
+
+      const [plan] = await db
+        .select({ id: featuringPricePlans.id })
+        .from(featuringPricePlans)
+        .where(
+          and(
+            eq(featuringPricePlans.id, planId),
+            eq(featuringPricePlans.tip, 'proizvod'),
+            eq(featuringPricePlans.aktivan, true),
+          ),
+        )
+        .limit(1);
+
+      if (!plan) {
+        return { ok: false, error: poruke.greskaIstaknutPlan };
+      }
+
+      istaknutPlanIzmjena = { istaknutPlanId: plan.id };
+    }
+
     // Verifikovan brend preskače red čekanja: slanje na odobrenje ('na_cekanju')
     // upisuje status 'odobren' odmah. Provjera se radi ovdje, na serveru, sa
     // istim `pristup` upitom koji već potvrđuje vlasništvo — ne kao odvojen
@@ -275,6 +312,7 @@ export async function saveProductAction(
             razlogOdbijanja: null,
             istaknutStatus: noviIstaknutStatus,
             istaknutRazlogOdbijanja: null,
+            ...istaknutPlanIzmjena,
             updatedAt: new Date(),
           })
           .where(eq(products.id, idProizvoda));
@@ -292,6 +330,7 @@ export async function saveProductAction(
             status: finalniStatus,
             ...poljaOdobrenja,
             istaknutStatus: noviIstaknutStatus,
+            ...istaknutPlanIzmjena,
           })
           .returning({ id: products.id });
 

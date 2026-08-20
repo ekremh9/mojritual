@@ -14,7 +14,8 @@ import {
   type ProizvodUnos,
 } from '@/lib/domain/product-form';
 import { saveProductAction } from '@/lib/domain/portal-product-actions';
-import type { Product } from '@/lib/db/schema';
+import type { FeaturingPricePlan, Product } from '@/lib/db/schema';
+import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 
 const STATUS_KLASE: Record<Product['status'], string> = {
@@ -40,6 +41,12 @@ type ProizvodFormaProps = {
   pocetneVrijednosti: ProizvodUnos;
   kategorije: KategorijaOpcija[];
   ciljevi: GuideCilj[];
+  /**
+   * Aktivni paketi cjenovnika za isticanje proizvoda (tip='proizvod').
+   * Prazna lista = trenutno nema ponude, pa se cijela sekcija isticanja
+   * ne prikazuje (vidi ispod).
+   */
+  planovi: FeaturingPricePlan[];
   /** Brend je suspendovan — forma se prikazuje, ali se ne može mijenjati. */
   onemoguceno: boolean;
   /** `null` = novi proizvod, još nema statusa. */
@@ -100,6 +107,7 @@ export function ProizvodForma({
   pocetneVrijednosti,
   kategorije,
   ciljevi,
+  planovi,
   onemoguceno,
   status,
   razlogOdbijanja,
@@ -129,6 +137,20 @@ export function ProizvodForma({
       kategorije: oznaceno
         ? [...prethodne.kategorije, id]
         : prethodne.kategorije.filter((postojeciId) => postojeciId !== id),
+    }));
+    setUspjeh(null);
+  }
+
+  /**
+   * Select ima jednu vrijednost (id paketa ili '' za "Ne želim isticanje") —
+   * `istaknutZahtjev` i `istaknutPlanId` se postavljaju zajedno da forma ne
+   * može biti u nekonzistentnom stanju (npr. plan izabran, zahtjev false).
+   */
+  function odaberiIstaknutPlan(planId: string) {
+    setVrijednosti((prethodne) => ({
+      ...prethodne,
+      istaknutPlanId: planId,
+      istaknutZahtjev: planId !== '',
     }));
     setUspjeh(null);
   }
@@ -516,18 +538,35 @@ export function ProizvodForma({
             </Polje>
           </section>
 
-          <section className={KLASE_KARTICE}>
-            <label className="flex items-start gap-3 text-sm text-[#1C2B22]">
-              <input
-                type="checkbox"
-                checked={vrijednosti.istaknutZahtjev}
-                onChange={(event) => postavi('istaknutZahtjev', event.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-[#1C2B22]/30 text-[#16332A] accent-[#16332A]"
-              />
-              <span className="font-medium">{poruke.polja.istaknutZahtjev}</span>
-            </label>
-            <p className="text-xs text-[#1C2B22]/60">{poruke.polja.istaknutZahtjevPomoc}</p>
-          </section>
+          {planovi.length > 0 ? (
+            <section className={KLASE_KARTICE}>
+              <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.sekcije.isticanje}</h2>
+
+              <Polje id="istaknutPlanId" label={poruke.polja.istaknutPlan}>
+                {({ id }) => (
+                  <select
+                    id={id}
+                    name={id}
+                    value={vrijednosti.istaknutPlanId ?? ''}
+                    onChange={(event) => odaberiIstaknutPlan(event.target.value)}
+                    className={KLASE_POLJA}
+                  >
+                    <option value="">{poruke.polja.istaknutPlanNijeIzabran}</option>
+                    {planovi.map((plan) => (
+                      <option key={plan.id} value={plan.id}>
+                        {poruke.polja.istaknutPlanOpcija(
+                          `${plan.naziv} (${plan.trajanjeDana} dana)`,
+                          formatCijena(plan.cijena),
+                        )}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </Polje>
+
+              <p className="text-xs text-[#1C2B22]/60">{poruke.polja.istaknutPlanPomoc}</p>
+            </section>
+          ) : null}
         </fieldset>
 
         {brandVerifikovan && !jeVecOdobren ? (

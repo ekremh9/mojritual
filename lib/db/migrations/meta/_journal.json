@@ -148,6 +148,13 @@
       "when": 1787221490680,
       "tag": "0020_little_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1787222177947,
+      "tag": "0021_flowery_machine_man",
+      "breakpoints": true
     }
   ]
 }

@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { brands } from './brands';
 import { categories } from './categories';
+import { featuringPricePlans } from './featuring-plans';
 import { users } from './users';
 
 export const productFormaEnum = pgEnum('product_forma', [
@@ -75,12 +76,20 @@ export const products = pgTable(
       .notNull()
       .default('nema_zahtjeva'),
     istaknutRazlogOdbijanja: text('istaknut_razlog_odbijanja'),
+    // Paket cjenovnika koji je brend zahtijevao (featuring_price_plans.tip
+    // ='proizvod') — vidi izracunajIstaknutStatus/saveProductAction.
+    // BEZ cascade: brisanje/deaktivacija paketa ne smije obrisati istoriju
+    // zahtjeva, samo otkačiti vezu (onDelete 'set null').
+    istaknutPlanId: uuid('istaknut_plan_id').references(() => featuringPricePlans.id, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index('products_brand_id_idx').on(table.brandId),
     index('products_odobrio_user_id_idx').on(table.odobrioUserId),
+    index('products_istaknut_plan_id_idx').on(table.istaknutPlanId),
   ],
 );
 

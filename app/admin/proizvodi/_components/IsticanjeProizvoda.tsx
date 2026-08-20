@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { approveFeaturedAction, rejectFeaturedAction } from '@/lib/domain/admin-actions';
 import type { Product } from '@/lib/db/schema';
+import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 
 type IsticanjeProizvodaProps = {
   productId: string;
   istaknutStatus: Product['istaknutStatus'];
   istaknutRazlogOdbijanja: string | null;
+  /** Paket iz cjenovnika koji je brend zahtijevao — `null` ako nema (stariji zahtjev bez izbora paketa). */
+  istaknutPlan: { naziv: string; cijena: number } | null;
   odobren: boolean;
 };
 
@@ -35,6 +38,7 @@ export function IsticanjeProizvoda({
   productId,
   istaknutStatus: istaknutStatusPocetno,
   istaknutRazlogOdbijanja: istaknutRazlogPocetno,
+  istaknutPlan,
   odobren,
 }: IsticanjeProizvodaProps) {
   const router = useRouter();
@@ -121,6 +125,12 @@ export function IsticanjeProizvoda({
           </span>
         )}
       </div>
+
+      {istaknutPlan ? (
+        <p className="text-sm text-[#1C2B22]/70">
+          {poruke.zahtjevanPaket(istaknutPlan.naziv, formatCijena(istaknutPlan.cijena))}
+        </p>
+      ) : null}
 
       {istaknutStatus === 'odbijeno' && istaknutRazlog ? (
         <p className="rounded-xl bg-[#B3261E]/10 px-3 py-2 text-xs text-[#B3261E]">

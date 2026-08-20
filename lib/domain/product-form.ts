@@ -69,6 +69,13 @@ export type ProizvodUnos = {
   staraCijenaKm: string;
   dostupnost: string;
   istaknutZahtjev: boolean;
+  /**
+   * Odabrani paket cjenovnika (`featuring_price_plans`, tip='proizvod') kad
+   * je `istaknutZahtjev` uključen — prazan string = nijedan odabran. Server
+   * (`saveProductAction`) provjerava da je paket stvarno aktivan za taj tip
+   * prije upisa, klijent samo šalje ono što je izabrano u formi.
+   */
+  istaknutPlanId?: string;
   /** goalId-evi koje partner predlaže za ovaj proizvod — vidi product-goal-proposals.ts. */
   predlozeniCiljevi: string[];
 };
@@ -133,6 +140,7 @@ export function normalizujProizvod(data: unknown): ProizvodUnos {
     staraCijenaKm: tekst(izvor.staraCijenaKm),
     dostupnost: jeDostupnost(tekst(izvor.dostupnost)) ? tekst(izvor.dostupnost) : 'dostupno',
     istaknutZahtjev: tacnoNetacno(izvor.istaknutZahtjev),
+    istaknutPlanId: tekst(izvor.istaknutPlanId),
     predlozeniCiljevi: nizTekstova(izvor.predlozeniCiljevi),
   };
 }

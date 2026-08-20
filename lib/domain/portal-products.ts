@@ -229,10 +229,11 @@ export async function getPortalProductForEdit(
       cijenaKm: feningToKm(proizvod.cijena).toFixed(2),
       staraCijenaKm: proizvod.staraCijena === null ? '' : feningToKm(proizvod.staraCijena).toFixed(2),
       dostupnost: proizvod.dostupnost,
-      // Checkbox je "označen" i dok se čeka odluka i dok je već odobreno —
+      // Select je "izabran" i dok se čeka odluka i dok je već odobreno —
       // oba znače aktivan zahtjev/status sa brendove tačke gledišta.
       istaknutZahtjev:
         proizvod.istaknutStatus === 'na_cekanju' || proizvod.istaknutStatus === 'odobreno',
+      istaknutPlanId: proizvod.istaknutPlanId ?? '',
       predlozeniCiljevi: prijedloziCiljevaProizvoda.map((red) => red.goalId),
     },
   };
