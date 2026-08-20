@@ -35,10 +35,11 @@ export const bs = {
       shop: 'Shop',
       ritualVodic: 'Ritual Vodič',
       partneri: 'Partneri',
+      kreirajteNalog: 'Kreirajte nalog',
     },
     brendovi: {
       naslov: 'Za partnere',
-      registracija: 'Registrujte svoj brend',
+      registracija: 'Registrujte se kao partner',
     },
     kontakt: {
       naslov: 'Kontakt',
@@ -344,8 +345,8 @@ export const bs = {
     dugmeUcitavanje: 'Kreiranje naloga…',
     imatePitanje: 'Već imate nalog?',
     prijaviteSe: 'Prijavite se',
-    predstavljateBrend: 'Predstavljate brend?',
-    registrujteBrend: 'Registrujte svoj brend ovdje',
+    predstavljateBrend: 'Želite postati partner?',
+    registrujteBrend: 'Registrujte se ovdje',
     validacija: {
       imeObavezno: 'Unesite ime i prezime.',
       emailObavezan: 'Unesite email adresu.',
@@ -361,9 +362,9 @@ export const bs = {
       'Nalog je kreiran, ali automatska prijava nije uspjela. Prijavite se ručno.',
   },
   registracijaBrend: {
-    naslov: 'Registracija brenda',
+    naslov: 'Registracija partnera',
     podnaslov:
-      'Registrujte svoj brend na Ritualu. Nakon registracije možete odmah početi popunjavati profil i dodavati proizvode — vaš brend i proizvodi postaju javno vidljivi tek nakon odobrenja administratora.',
+      'Registrujte se kao partner na Ritualu. Nakon registracije možete odmah početi popunjavati profil i dodavati proizvode — vaš profil i proizvodi postaju javno vidljivi tek nakon odobrenja administratora.',
     ime: 'Kontakt osoba',
     imePlaceholder: 'Vaše ime i prezime',
     email: 'Email',
@@ -371,9 +372,9 @@ export const bs = {
     lozinka: 'Lozinka',
     lozinkaPomoc: 'Najmanje 8 karaktera.',
     potvrdaLozinke: 'Potvrdite lozinku',
-    brandNaziv: 'Naziv brenda',
-    brandNazivPlaceholder: 'Naziv vašeg brenda',
-    dugme: 'Registruj brend',
+    brandNaziv: 'Naziv partnera',
+    brandNazivPlaceholder: 'Naziv vašeg partnera',
+    dugme: 'Registruj se kao partner',
     dugmeUcitavanje: 'Registracija u toku…',
     imatePitanje: 'Kreirate nalog kao kupac?',
     registrujteSeKaoKupac: 'Registrujte se ovdje',
@@ -385,8 +386,8 @@ export const bs = {
       lozinkaKratka: 'Lozinka mora imati najmanje 8 karaktera.',
       potvrdaObavezna: 'Potvrdite lozinku.',
       potvrdaNePoklapa: 'Lozinke se ne poklapaju.',
-      brandNazivObavezan: 'Unesite naziv brenda.',
-      brandNazivKratak: 'Naziv brenda mora imati najmanje 2 karaktera.',
+      brandNazivObavezan: 'Unesite naziv partnera.',
+      brandNazivKratak: 'Naziv partnera mora imati najmanje 2 karaktera.',
     },
     greskaEmailZauzet: 'Korisnik sa ovom email adresom već postoji.',
     greskaOpsta: 'Registracija nije uspjela. Pokušajte ponovo.',
@@ -664,8 +665,7 @@ export const bs = {
   },
   partneri: {
     naslov: 'Partneri',
-    metaOpis:
-      'Pregledajte sve partnere na Ritualu — brendove čiji proizvodi čine ponudu platforme.',
+    metaOpis: 'Pregledajte sve partnere na Ritualu čiji proizvodi čine ponudu platforme.',
     rezultati: (broj: number) => `${broj} ${jeJednina(broj) ? 'partner' : 'partnera'}`,
     prazno: 'Nema partnera koji odgovaraju pretrazi.',
     pretraga: {

@@ -27,6 +27,9 @@ export function Footer() {
           <Link href="/partneri" className={KLASE_LINKA}>
             {poruke.kupcima.partneri}
           </Link>
+          <Link href="/registracija" className={KLASE_LINKA}>
+            {poruke.kupcima.kreirajteNalog}
+          </Link>
         </div>
 
         <div className="flex flex-col gap-3">
