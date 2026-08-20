@@ -761,6 +761,7 @@ export const bs = {
       brendovaNaCekanju: 'Brendova na čekanju',
       odobrenihBrendova: 'Odobrenih brendova',
       odobrenihProizvoda: 'Odobrenih proizvoda',
+      zahtjeviIsticanjaNaCekanju: 'Zahtjevi za isticanje na čekanju',
       brziLinkovi: 'Brzi linkovi',
       pogledajProizvode: 'Proizvodi na čekanju',
       pogledajBrendove: 'Brendovi na čekanju',
@@ -770,9 +771,10 @@ export const bs = {
       prazno: 'Trenutno nema proizvoda.',
       praznoFilter: 'Nema proizvoda sa ovim statusom.',
       bezKategorije: '—',
-      trazIsticanje: 'Traži isticanje',
+      nemaPodatka: '—',
       filteri: {
         svi: 'Svi',
+        zahtjeviIsticanja: 'Zahtjevi za isticanje',
       },
       tabela: {
         slika: 'Slika',
@@ -781,7 +783,18 @@ export const bs = {
         kategorija: 'Kategorija',
         cijena: 'Cijena',
         status: 'Status',
+        isticanje: 'Isticanje',
         poslano: 'Poslano',
+      },
+      // Isticanje na početnoj (products.istaknutStatus) — nezavisna osa od
+      // statusa proizvoda samog. Isti obrazac kao bs.portal.proizvodi
+      // (vidi app/portal/proizvodi/page.tsx): 'nema_zahtjeva' se ne
+      // prikazuje kao badge, samo crtica.
+      istaknutStatus: {
+        nema_zahtjeva: 'Nema zahtjeva',
+        na_cekanju: 'Na čekanju',
+        odobreno: 'Istaknuto',
+        odbijeno: 'Odbijeno',
       },
       forme: {
         kapsula: 'Kapsule',

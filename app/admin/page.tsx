@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getBrandApprovalStats } from '@/lib/domain/admin-brands';
-import { getProductApprovalStats } from '@/lib/domain/admin-products';
+import { getPendingFeaturedCount, getProductApprovalStats } from '@/lib/domain/admin-products';
 import { bs } from '@/lib/i18n/bs';
 
 export const metadata: Metadata = {
@@ -9,9 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminPage() {
-  const [proizvodi, brendovi] = await Promise.all([
+  const [proizvodi, brendovi, zahtjeviIsticanja] = await Promise.all([
     getProductApprovalStats(),
     getBrandApprovalStats(),
+    getPendingFeaturedCount(),
   ]);
 
   const statistike = [
@@ -35,6 +36,15 @@ export default async function AdminPage() {
             <span className="text-sm text-[#1C2B22]/70">{stavka.label}</span>
           </div>
         ))}
+        <Link
+          href="/admin/proizvodi?istaknutoStatus=na_cekanju"
+          className="flex flex-col gap-1 rounded-2xl border border-[#1C2B22]/10 bg-white p-4 transition-colors hover:bg-[#F2F5ED]"
+        >
+          <span className="text-2xl font-semibold text-[#1C2B22]">{zahtjeviIsticanja}</span>
+          <span className="text-sm text-[#1C2B22]/70">
+            {bs.admin.dashboard.zahtjeviIsticanjaNaCekanju}
+          </span>
+        </Link>
       </div>
 
       <div className="flex flex-col gap-3">

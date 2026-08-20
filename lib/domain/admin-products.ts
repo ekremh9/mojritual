@@ -1,7 +1,7 @@
 /**
  * Proizvodi za admin pregled i odobravanje — svi brendovi, ne samo jedan.
  */
-import { asc, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
@@ -22,22 +22,35 @@ export type AdminProizvodNaCekanju = {
 };
 
 /**
- * Proizvodi za admin listu, svi brendovi, opciono filtrirani po statusu.
+ * Proizvodi za admin listu, svi brendovi, opciono filtrirani po statusu
+ * proizvoda i/ili statusu zahtjeva za isticanje (nezavisna osa — vidi
+ * `products.istaknutStatus`). Kad je stavljen filter "zahtjevi za isticanje
+ * na čekanju" (istaknutStatusFilter='na_cekanju'), poziva se BEZ statusFilter
+ * (vidi app/admin/proizvodi/page.tsx) — zahtjev za isticanje može stići i na
+ * proizvodu koji je već odobren, pa se ne smije suziti na jedan status.
  *
- * Sortiranje zavisi od taba: "Na čekanju" sortira najstariji prvo — oni koji
- * čekaju najduže trebaju biti obrađeni prvi. Svaki drugi tab (Svi, Odobreni,
- * Odbijeni, Nacrti) sortira najnoviji prvo — tamo je "šta se nedavno desilo"
- * relevantnije od reda čekanja.
+ * Sortiranje zavisi od taba: "Na čekanju" (bilo koja od dvije ose) sortira
+ * najstariji prvo — oni koji čekaju najduže trebaju biti obrađeni prvi.
+ * Svaki drugi tab (Svi, Odobreni, Odbijeni, Nacrti) sortira najnoviji prvo —
+ * tamo je "šta se nedavno desilo" relevantnije od reda čekanja.
  */
 export async function getProductsByStatus(
   statusFilter?: Product['status'],
+  istaknutStatusFilter?: Product['istaknutStatus'],
 ): Promise<AdminProizvodNaCekanju[]> {
-  const uslov = statusFilter
-    ? eq(products.status, statusFilter)
-    : undefined;
+  const uslovi = [];
+  if (statusFilter) {
+    uslovi.push(eq(products.status, statusFilter));
+  }
+  if (istaknutStatusFilter) {
+    uslovi.push(eq(products.istaknutStatus, istaknutStatusFilter));
+  }
+  const uslov = uslovi.length > 0 ? and(...uslovi) : undefined;
 
   const redoslijed =
-    statusFilter === 'na_cekanju' ? asc(products.createdAt) : desc(products.createdAt);
+    statusFilter === 'na_cekanju' || istaknutStatusFilter === 'na_cekanju'
+      ? asc(products.createdAt)
+      : desc(products.createdAt);
 
   const odabraniProizvodi = await db
     .select({
@@ -124,6 +137,20 @@ export async function getProductStatusCounts(): Promise<AdminProizvodBrojaci> {
     brojaci[red.status] = red.ukupno;
   }
   return brojaci;
+}
+
+/**
+ * Broj proizvoda čiji je zahtjev za isticanje na čekanju admin odluke —
+ * nezavisno od `products.status` (vidi napomenu uz `getProductsByStatus`).
+ * Koristi se za dashboard karticu i brojač uz tab na /admin/proizvodi.
+ */
+export async function getPendingFeaturedCount(): Promise<number> {
+  const [red] = await db
+    .select({ ukupno: count() })
+    .from(products)
+    .where(eq(products.istaknutStatus, 'na_cekanju'));
+
+  return red?.ukupno ?? 0;
 }
 
 export type AdminProizvodDetalj = {

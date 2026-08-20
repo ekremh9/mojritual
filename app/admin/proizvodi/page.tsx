@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
 import {
+  getPendingFeaturedCount,
   getProductsByStatus,
   getProductStatusCounts,
   jeProizvodStatus,
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 type AdminProizvodiPageProps = {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; istaknutoStatus?: string }>;
 };
 
 const STATUS_KLASE: Record<Product['status'], string> = {
@@ -26,6 +26,16 @@ const STATUS_KLASE: Record<Product['status'], string> = {
   na_cekanju: 'bg-amber-100 text-amber-800',
   odobren: 'bg-[#16332A] text-[#F2F5ED]',
   odbijen: 'bg-[#B3261E]/10 text-[#B3261E]',
+};
+
+// 'nema_zahtjeva' namjerno izostavljen — ta ćelija se renderuje kao crtica,
+// bez badge-a (vidi tabelu ispod). Identično app/portal/proizvodi/page.tsx —
+// duplirano na istom nivou kao STATUS_KLASE iznad (obje strane već drže
+// svoju kopiju te mape), umjesto izdvajanja u zajedničku funkciju.
+const ISTAKNUT_KLASE: Record<Exclude<Product['istaknutStatus'], 'nema_zahtjeva'>, string> = {
+  na_cekanju: 'bg-amber-100 text-amber-800',
+  odobreno: 'bg-[#16332A] text-[#F2F5ED]',
+  odbijeno: 'bg-[#B3261E]/10 text-[#B3261E]',
 };
 
 function formatDatum(datum: Date): string {
@@ -36,28 +46,51 @@ function proizvodiHref(status: Product['status'] | null): string {
   return status ? `/admin/proizvodi?status=${status}` : '/admin/proizvodi';
 }
 
+const ZAHTJEVI_ISTICANJA_HREF = '/admin/proizvodi?istaknutoStatus=na_cekanju';
+
 function ukupnoBrojaca(brojaci: AdminProizvodBrojaci): number {
   return PRODUCT_STATUSI.reduce((zbir, status) => zbir + brojaci[status], 0);
 }
 
 export default async function AdminProizvodiPage({ searchParams }: AdminProizvodiPageProps) {
-  const { status: statusParam } = await searchParams;
-  const statusFilter = statusParam && jeProizvodStatus(statusParam) ? statusParam : undefined;
+  const { status: statusParam, istaknutoStatus: istaknutoStatusParam } = await searchParams;
+  // Isti obrazac kao portal (vidi app/portal/proizvodi/page.tsx): dvije
+  // nezavisne ose filtera dijele tab prostor, ne kombinuju se u jednom
+  // zahtjevu. Zahtjev za isticanje može stići na proizvodu bilo kojeg
+  // statusa, pa kad je ovaj tab aktivan status filter se ignoriše.
+  const zahtjeviIsticanjaFilter = istaknutoStatusParam === 'na_cekanju';
+  const statusFilter =
+    !zahtjeviIsticanjaFilter && statusParam && jeProizvodStatus(statusParam)
+      ? statusParam
+      : undefined;
 
-  const [proizvodi, brojaci] = await Promise.all([
-    getProductsByStatus(statusFilter),
+  const [proizvodi, brojaci, brojZahtjevaIsticanja] = await Promise.all([
+    getProductsByStatus(statusFilter, zahtjeviIsticanjaFilter ? 'na_cekanju' : undefined),
     getProductStatusCounts(),
+    getPendingFeaturedCount(),
   ]);
 
   const ukupno = ukupnoBrojaca(brojaci);
 
   const tabovi = [
-    { status: null, label: bs.admin.proizvodi.filteri.svi, broj: ukupno },
+    {
+      href: proizvodiHref(null),
+      aktivan: !zahtjeviIsticanjaFilter && statusFilter === undefined,
+      label: bs.admin.proizvodi.filteri.svi,
+      broj: ukupno,
+    },
     ...PRODUCT_STATUSI.map((status) => ({
-      status,
+      href: proizvodiHref(status),
+      aktivan: !zahtjeviIsticanjaFilter && statusFilter === status,
       label: bs.admin.proizvodi.status[status],
       broj: brojaci[status],
     })),
+    {
+      href: ZAHTJEVI_ISTICANJA_HREF,
+      aktivan: zahtjeviIsticanjaFilter,
+      label: bs.admin.proizvodi.filteri.zahtjeviIsticanja,
+      broj: brojZahtjevaIsticanja,
+    },
   ];
 
   return (
@@ -74,22 +107,19 @@ export default async function AdminProizvodiPage({ searchParams }: AdminProizvod
             aria-label={bs.admin.proizvodi.naslov}
             className="flex gap-1 overflow-x-auto pb-1"
           >
-            {tabovi.map((tab) => {
-              const aktivan = tab.status === (statusFilter ?? null);
-              return (
-                <Link
-                  key={tab.status ?? 'svi'}
-                  href={proizvodiHref(tab.status)}
-                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                    aktivan
-                      ? 'bg-[#16332A] text-[#F2F5ED]'
-                      : 'bg-white text-[#1C2B22]/70 hover:bg-[#F2F5ED]'
-                  }`}
-                >
-                  {tab.label} ({tab.broj})
-                </Link>
-              );
-            })}
+            {tabovi.map((tab) => (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                  tab.aktivan
+                    ? 'bg-[#16332A] text-[#F2F5ED]'
+                    : 'bg-white text-[#1C2B22]/70 hover:bg-[#F2F5ED]'
+                }`}
+              >
+                {tab.label} ({tab.broj})
+              </Link>
+            ))}
           </nav>
 
           {proizvodi.length === 0 ? (
@@ -107,6 +137,7 @@ export default async function AdminProizvodiPage({ searchParams }: AdminProizvod
                     <th className="px-4 py-3">{bs.admin.proizvodi.tabela.kategorija}</th>
                     <th className="px-4 py-3">{bs.admin.proizvodi.tabela.cijena}</th>
                     <th className="px-4 py-3">{bs.admin.proizvodi.tabela.status}</th>
+                    <th className="px-4 py-3">{bs.admin.proizvodi.tabela.isticanje}</th>
                     <th className="px-4 py-3">{bs.admin.proizvodi.tabela.poslano}</th>
                   </tr>
                 </thead>
@@ -129,23 +160,12 @@ export default async function AdminProizvodiPage({ searchParams }: AdminProizvod
                         </Link>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/admin/proizvodi/${proizvod.id}`}
-                            className="font-medium text-[#1C2B22] hover:underline"
-                          >
-                            {proizvod.naziv}
-                          </Link>
-                          {proizvod.istaknutStatus === 'na_cekanju' ? (
-                            <span
-                              title={bs.admin.proizvodi.trazIsticanje}
-                              aria-label={bs.admin.proizvodi.trazIsticanje}
-                              className="inline-flex shrink-0 items-center justify-center rounded-full bg-amber-100 p-1 text-amber-700"
-                            >
-                              <Star className="h-3 w-3" aria-hidden="true" />
-                            </span>
-                          ) : null}
-                        </div>
+                        <Link
+                          href={`/admin/proizvodi/${proizvod.id}`}
+                          className="font-medium text-[#1C2B22] hover:underline"
+                        >
+                          {proizvod.naziv}
+                        </Link>
                       </td>
                       <td className="px-4 py-3 text-[#1C2B22]/70">{proizvod.brend.naziv}</td>
                       <td className="px-4 py-3 text-[#1C2B22]/70">
@@ -158,6 +178,17 @@ export default async function AdminProizvodiPage({ searchParams }: AdminProizvod
                         >
                           {bs.admin.proizvodi.status[proizvod.status]}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {proizvod.istaknutStatus === 'nema_zahtjeva' ? (
+                          <span className="text-[#1C2B22]/40">{bs.admin.proizvodi.nemaPodatka}</span>
+                        ) : (
+                          <span
+                            className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${ISTAKNUT_KLASE[proizvod.istaknutStatus]}`}
+                          >
+                            {bs.admin.proizvodi.istaknutStatus[proizvod.istaknutStatus]}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-[#1C2B22]/70">{formatDatum(proizvod.createdAt)}</td>
                     </tr>
