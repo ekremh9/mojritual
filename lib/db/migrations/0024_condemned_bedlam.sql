@@ -1,0 +1,1 @@
+ALTER TABLE "wholesale_price_tiers" DROP COLUMN "cijena";
