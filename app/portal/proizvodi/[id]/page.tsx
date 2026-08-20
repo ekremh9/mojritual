@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { getFeaturingPlans } from '@/lib/domain/admin-featuring';
-import { getUserBrand } from '@/lib/domain/brand-access';
+import { getBrandWholesaleDefaults, getUserBrand } from '@/lib/domain/brand-access';
 import { getFullCategoryTree } from '@/lib/domain/categories';
 import { getGoalsForVodic } from '@/lib/domain/guide-data';
 import { getPortalProductForEdit } from '@/lib/domain/portal-products';
@@ -37,11 +37,12 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
 
   // Provjera vlasništva je unutar getPortalProductForEdit — proizvod koji
   // ne postoji ili pripada drugom brendu tretiramo isto, kao notFound.
-  const [proizvod, kategorije, ciljevi, sviPlanovi] = await Promise.all([
+  const [proizvod, kategorije, ciljevi, sviPlanovi, brandDefaults] = await Promise.all([
     getPortalProductForEdit(pristup.brand.id, id),
     getFullCategoryTree(),
     getGoalsForVodic(),
     getFeaturingPlans('proizvod'),
+    getBrandWholesaleDefaults(pristup.brand.id),
   ]);
 
   if (!proizvod) {
@@ -82,6 +83,7 @@ export default async function PortalProizvodUrediPage({ params }: PortalProizvod
         kategorije={kategorije}
         ciljevi={ciljevi}
         planovi={planovi}
+        brandDefaults={brandDefaults}
         onemoguceno={pristup.brand.status === 'suspendovan'}
         status={proizvod.status}
         razlogOdbijanja={proizvod.razlogOdbijanja}

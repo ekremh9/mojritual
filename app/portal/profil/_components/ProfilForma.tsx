@@ -11,6 +11,12 @@ import {
 } from '@/lib/domain/brand-profile';
 import { updateBrandProfile } from '@/lib/domain/portal-actions';
 import { bs } from '@/lib/i18n/bs';
+import {
+  izracunajPragoveZaSlanje,
+  pocetniPragoviTekst,
+  WholesalePragoviPolja,
+  type PragRedTekst,
+} from '../../_components/WholesalePragoviPolja';
 
 const KLASE_POLJA =
   'w-full rounded-xl border border-[#1C2B22]/15 bg-white px-4 py-2.5 text-sm text-[#1C2B22] outline-none transition placeholder:text-[#1C2B22]/40 focus:border-[#16332A] focus:ring-2 focus:ring-[#16332A]/20 disabled:cursor-not-allowed disabled:bg-[#F2F5ED] disabled:text-[#1C2B22]/60';
@@ -82,6 +88,16 @@ export function ProfilForma({ brandId, pocetneVrijednosti, onemoguceno }: Profil
   function postavi<K extends PoljeProfila>(polje: K, vrijednost: BrandProfilUnos[K]) {
     setVrijednosti((prethodne) => ({ ...prethodne, [polje]: vrijednost }));
     setUspjeh(false);
+  }
+
+  const [pragoviTekst, setPragoviTekst] = useState<PragRedTekst[]>(() =>
+    pocetniPragoviTekst(pocetneVrijednosti.wholesaleDefaults),
+  );
+
+  function azurirajPrag(indeks: number, polje: keyof PragRedTekst, tekst: string) {
+    const noviRedovi = pragoviTekst.map((red, i) => (i === indeks ? { ...red, [polje]: tekst } : red));
+    setPragoviTekst(noviRedovi);
+    postavi('wholesaleDefaults', izracunajPragoveZaSlanje(noviRedovi));
   }
 
   async function posalji(event: FormEvent<HTMLFormElement>) {
@@ -367,6 +383,17 @@ export function ProfilForma({ brandId, pocetneVrijednosti, onemoguceno }: Profil
             />
             {poruke.polja.nemaBesplatneDostave}
           </label>
+        </section>
+
+        <section className={KLASE_KARTICE}>
+          <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.wholesale.naslov}</h2>
+          <p className="text-xs text-[#1C2B22]/60">{poruke.wholesale.napomena}</p>
+
+          <WholesalePragoviPolja
+            redovi={pragoviTekst}
+            onChange={azurirajPrag}
+            greska={greskePolja.wholesaleDefaults}
+          />
         </section>
       </fieldset>
 

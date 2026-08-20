@@ -439,6 +439,18 @@ export const bs = {
       greskaMaxSlika: 'Proizvod već ima maksimalan broj slika (4).',
       greskaOpsta: 'Upload slike nije uspio. Pokušajte ponovo.',
     },
+    // Dijeli forma proizvoda (pragovi po proizvodu) i profil brenda
+    // (podrazumijevani pragovi) — isti red/labele, samo drugačiji
+    // kontekstualni "napomena" tekst na svakom mjestu posebno.
+    wholesale: {
+      pragLabela: (broj: number) => `Prag ${broj}`,
+      kolicina: 'Min. količina (kom)',
+      kolicinaPlaceholder: 'Npr. 50',
+      popust: 'Popust (%)',
+      popustPlaceholder: 'Npr. 10',
+      izracunataCijena: (kolicina: number, cijenaPoKomadu: string) =>
+        `${kolicina}+ kom → ${cijenaPoKomadu}/kom`,
+    },
     profil: {
       naslov: 'Profil brenda',
       podnaslov: 'Podaci koje kupci vide na javnoj stranici vašeg brenda.',
@@ -502,6 +514,18 @@ export const bs = {
         cijenaDostaveNeispravna: 'Cijena dostave mora biti broj veći ili jednak 0.',
         pragObavezan: 'Unesite prag besplatne dostave ili označite „Nema besplatne dostave".',
         pragNeispravan: 'Prag besplatne dostave mora biti broj veći ili jednak 0.',
+        wholesalePragoviMax: 'Maksimalno 3 podrazumijevana praga.',
+        wholesalePragoviKolicinaNeispravna: 'Količina mora biti pozitivan cijeli broj.',
+        wholesalePragoviKolicinaRastuce:
+          'Pragovi količine moraju biti rastući — svaki sljedeći prag mora biti veći od prethodnog.',
+        wholesalePragoviPopustNeispravan: 'Procenat popusta mora biti broj od 0 do 100.',
+        wholesalePragoviPopustRastuce:
+          'Popust mora rasti ili ostati isti sa većim pragom — veći prag ne smije imati manji popust od manjeg.',
+      },
+      wholesale: {
+        naslov: 'Podrazumijevani veleprodajni pragovi',
+        napomena:
+          'Definišite jednom, primijenite jednim klikom na bilo koji proizvod. Ovo je samo prečica za popunjavanje — stvarni pragovi po proizvodu (koje partner može doraditi) ostaju izvor istine za narudžbu.',
       },
       greskaPristup: 'Nemate pristup profilu ovog brenda.',
       greskaSuspendovan: 'Vaš brend je suspendovan. Izmjene profila nisu moguće.',
@@ -623,13 +647,8 @@ export const bs = {
         wholesale: {
           napomena:
             'Kupci koji naruče najmanje ovoliko komada dobijaju popust na cijenu po komadu.',
-          pragLabela: (broj: number) => `Prag ${broj}`,
-          kolicina: 'Min. količina (kom)',
-          kolicinaPlaceholder: 'Npr. 50',
-          popust: 'Popust (%)',
-          popustPlaceholder: 'Npr. 10',
-          izracunataCijena: (kolicina: number, cijenaPoKomadu: string) =>
-            `${kolicina}+ kom → ${cijenaPoKomadu}/kom`,
+          primijeniDefaults: 'Primijeni podrazumijevane pragove',
+          primijenjeno: 'Primijenjeno — provjerite redove ispod i sačuvajte izmjene.',
         },
         dostupnostOpcije: {
           dostupno: 'Dostupno',

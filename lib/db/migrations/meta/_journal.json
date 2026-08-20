@@ -176,6 +176,13 @@
       "when": 1787230421221,
       "tag": "0024_condemned_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1787232654928,
+      "tag": "0025_ambitious_doctor_spectrum",
+      "breakpoints": true
     }
   ]
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { brandUsers, brands } from '@/lib/db/schema';
+import { brandUsers, brands, brandWholesaleDefaults } from '@/lib/db/schema';
 import {
   normalizujBrandProfil,
   pripremiBrandProfil,
@@ -69,7 +69,36 @@ export async function updateBrandProfile(
       return { ok: false, error: prvaGreska };
     }
 
-    await db.update(brands).set(pripremiBrandProfil(unos)).where(eq(brands.id, brandId));
+    const { wholesaleDefaults, ...poljaProfila } = pripremiBrandProfil(unos);
+
+    // Filter na Number.isFinite je odbrana istog obrasca kao
+    // saveProductAction/wholesale_price_tiers: nepotpun red (jedno polje
+    // popunjeno, drugo prazno) bi inače pukao na `integer` koloni pri
+    // upisu — ovdje se to ne može ni desiti jer validacija iznad već
+    // odbija takav unos prije nego stigne do transakcije, ali filter
+    // ostaje kao ista odbrambena linija, ne oslanjajući se samo na to.
+    const validniWholesaleDefaults = wholesaleDefaults.filter(
+      (prag) => Number.isFinite(prag.minKolicina) && Number.isFinite(prag.popustPosto),
+    );
+
+    await db.transaction(async (tx) => {
+      await tx.update(brands).set(poljaProfila).where(eq(brands.id, brandId));
+
+      // Sinhronizuje podrazumijevane veleprodajne pragove — full
+      // DELETE+INSERT, isti obrazac kao wholesale_price_tiers po
+      // proizvodu (saveProductAction).
+      await tx.delete(brandWholesaleDefaults).where(eq(brandWholesaleDefaults.brandId, brandId));
+
+      if (validniWholesaleDefaults.length > 0) {
+        await tx.insert(brandWholesaleDefaults).values(
+          validniWholesaleDefaults.map((prag) => ({
+            brandId,
+            minKolicina: prag.minKolicina,
+            popustPosto: prag.popustPosto.toFixed(2),
+          })),
+        );
+      }
+    });
 
     revalidatePath('/portal/profil');
     revalidatePath(`/partner/${pristup.slug}`);

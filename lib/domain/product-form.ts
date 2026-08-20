@@ -1,5 +1,10 @@
 import type { Product } from '@/lib/db/schema';
 import { kmToFening } from '@/lib/domain/format';
+import {
+  nizWholesalePragova,
+  validirajWholesalePragove,
+  type WholesalePrag,
+} from '@/lib/domain/wholesale-tiers';
 import { bs } from '@/lib/i18n/bs';
 
 /**
@@ -85,10 +90,8 @@ export type ProizvodUnos = {
    * po komadu za prag se NIKAD ne čuva — računa se iz `products.cijena *
    * (1 - popustPosto/100)` u trenutku potrebe (prikaz/narudžba).
    */
-  wholesalePragovi?: Array<{ minKolicina: number; popustPosto: number }>;
+  wholesalePragovi?: WholesalePrag[];
 };
-
-export const MAX_WHOLESALE_PRAGOVA = 3;
 
 export type PoljeProizvoda = keyof ProizvodUnos;
 export type GreskeProizvoda = Partial<Record<PoljeProizvoda, string>>;
@@ -106,7 +109,7 @@ export type ProizvodVrijednosti = {
   staraCijena: number | null;
   dostupnost: Product['dostupnost'];
   kategorije: string[];
-  wholesalePragovi: Array<{ minKolicina: number; popustPosto: number }>;
+  wholesalePragovi: WholesalePrag[];
 };
 
 function tekst(vrijednost: unknown): string {
@@ -126,30 +129,6 @@ function nizTekstova(vrijednost: unknown): string[] {
 
 function tacnoNetacno(vrijednost: unknown): boolean {
   return vrijednost === true;
-}
-
-/**
- * Ne odbacuje nijednu stavku i ne skraćuje na 3 — to je posao validacije
- * (`validirajProizvod` mora imati šta da odbije za "max 3 stavke"). Svako
- * polje koje nije broj postaje `NaN`, isti obrazac kao `kmToFening`:
- * validacija ga odbija, pozivalac se ne oslanja na tihu konverziju.
- */
-function nizWholesalePragova(vrijednost: unknown): Array<{ minKolicina: number; popustPosto: number }> {
-  if (!Array.isArray(vrijednost)) {
-    return [];
-  }
-
-  return vrijednost.map((stavka) => {
-    const izvor = (typeof stavka === 'object' && stavka !== null ? stavka : {}) as Record<
-      string,
-      unknown
-    >;
-
-    return {
-      minKolicina: typeof izvor.minKolicina === 'number' ? izvor.minKolicina : Number(izvor.minKolicina),
-      popustPosto: typeof izvor.popustPosto === 'number' ? izvor.popustPosto : Number(izvor.popustPosto),
-    };
-  });
 }
 
 /**
@@ -244,42 +223,15 @@ export function validirajProizvod(unos: ProizvodUnos, ciljniStatus: CiljniStatus
     greske.dostupnost = poruke.dostupnostNeispravna;
   }
 
-  const wholesalePragovi = unos.wholesalePragovi ?? [];
-  if (wholesalePragovi.length > MAX_WHOLESALE_PRAGOVA) {
-    greske.wholesalePragovi = poruke.wholesalePragoviMax;
-  } else {
-    const svePolja = wholesalePragovi.every(
-      (prag) => Number.isInteger(prag.minKolicina) && prag.minKolicina > 0,
-    );
-    const sviPopusti = wholesalePragovi.every(
-      (prag) => Number.isFinite(prag.popustPosto) && prag.popustPosto >= 0 && prag.popustPosto <= 100,
-    );
-
-    if (!svePolja) {
-      greske.wholesalePragovi = poruke.wholesalePragoviKolicinaNeispravna;
-    } else if (!sviPopusti) {
-      greske.wholesalePragovi = poruke.wholesalePragoviPopustNeispravan;
-    } else {
-      // Količina mora STROGO rasti (svaki sljedeći prag veći od
-      // prethodnog) — dva praga sa istom količinom nemaju smisla. Popust
-      // smije ostati isti kod većeg praga (>=), samo ne smije opasti —
-      // veća količina ne smije nositi manji popust od manje količine.
-      for (let i = 1; i < wholesalePragovi.length; i++) {
-        if (wholesalePragovi[i]!.minKolicina <= wholesalePragovi[i - 1]!.minKolicina) {
-          greske.wholesalePragovi = poruke.wholesalePragoviKolicinaRastuce;
-          break;
-        }
-      }
-
-      if (!greske.wholesalePragovi) {
-        for (let i = 1; i < wholesalePragovi.length; i++) {
-          if (wholesalePragovi[i]!.popustPosto < wholesalePragovi[i - 1]!.popustPosto) {
-            greske.wholesalePragovi = poruke.wholesalePragoviPopustRastuce;
-            break;
-          }
-        }
-      }
-    }
+  const wholesaleGreska = validirajWholesalePragove(unos.wholesalePragovi, {
+    max: poruke.wholesalePragoviMax,
+    kolicinaNeispravna: poruke.wholesalePragoviKolicinaNeispravna,
+    kolicinaRastuce: poruke.wholesalePragoviKolicinaRastuce,
+    popustNeispravan: poruke.wholesalePragoviPopustNeispravan,
+    popustRastuce: poruke.wholesalePragoviPopustRastuce,
+  });
+  if (wholesaleGreska) {
+    greske.wholesalePragovi = wholesaleGreska;
   }
 
   return greske;

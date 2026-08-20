@@ -23,6 +23,7 @@ function unos(izmjene: Partial<BrandProfilUnos> = {}): BrandProfilUnos {
     cijenaDostaveKm: '6.00',
     pragBesplatneDostaveKm: '80.00',
     nemaBesplatneDostave: false,
+    wholesaleDefaults: [],
     ...izmjene,
   };
 }
@@ -157,6 +158,37 @@ describe('validirajBrandProfil', () => {
       validirajBrandProfil(unos({ pragBesplatneDostaveKm: '', nemaBesplatneDostave: true }))
         .pragBesplatneDostaveKm,
     ).toBeUndefined();
+  });
+
+  describe('wholesaleDefaults', () => {
+    it('nedostavljeni pragovi (undefined ili prazan niz) ne prave grešku — opciono polje', () => {
+      expect(validirajBrandProfil(unos({ wholesaleDefaults: undefined })).wholesaleDefaults).toBeUndefined();
+      expect(validirajBrandProfil(unos({ wholesaleDefaults: [] })).wholesaleDefaults).toBeUndefined();
+    });
+
+    it('primjenjuje ista pravila kao pragovi po proizvodu (dijeljena validirajWholesalePragove)', () => {
+      expect(
+        validirajBrandProfil(
+          unos({
+            wholesaleDefaults: [
+              { minKolicina: 50, popustPosto: 10 },
+              { minKolicina: 200, popustPosto: 15 },
+            ],
+          }),
+        ).wholesaleDefaults,
+      ).toBeUndefined();
+
+      expect(
+        validirajBrandProfil(
+          unos({
+            wholesaleDefaults: [
+              { minKolicina: 200, popustPosto: 15 },
+              { minKolicina: 50, popustPosto: 10 },
+            ],
+          }),
+        ).wholesaleDefaults,
+      ).toBeDefined();
+    });
   });
 });
 

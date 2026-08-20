@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { brandCertificates, brands } from './brands';
+import { brandWholesaleDefaults } from './brand-wholesale-defaults';
 import { bundleItems, bundles } from './bundles';
 import { categories } from './categories';
 import { commissionPeriods } from './commission';
@@ -19,6 +20,7 @@ import { brandUsers, businessAccounts, users } from './users';
 import { wholesalePriceTiers } from './wholesale';
 
 export * from './brands';
+export * from './brand-wholesale-defaults';
 export * from './bundles';
 export * from './categories';
 export * from './commission';
@@ -100,6 +102,14 @@ export const brandsRelations = relations(brands, ({ many }) => ({
   orderShipments: many(orderShipments),
   commissionPeriods: many(commissionPeriods),
   supportTickets: many(supportTickets),
+  wholesaleDefaults: many(brandWholesaleDefaults),
+}));
+
+export const brandWholesaleDefaultsRelations = relations(brandWholesaleDefaults, ({ one }) => ({
+  brand: one(brands, {
+    fields: [brandWholesaleDefaults.brandId],
+    references: [brands.id],
+  }),
 }));
 
 export const brandCertificatesRelations = relations(brandCertificates, ({ one }) => ({

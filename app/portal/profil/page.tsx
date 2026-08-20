@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { AlertTriangle, Info } from 'lucide-react';
 import { auth } from '@/auth';
-import { getUserBrand } from '@/lib/domain/brand-access';
+import { getBrandWholesaleDefaults, getUserBrand } from '@/lib/domain/brand-access';
 import type { BrandProfilUnos } from '@/lib/domain/brand-profile';
 import { feningToKm } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
@@ -28,6 +28,7 @@ export default async function PortalProfilPage() {
 
   const { brand } = pristup;
   const suspendovan = brand.status === 'suspendovan';
+  const wholesaleDefaults = await getBrandWholesaleDefaults(brand.id);
 
   const pocetneVrijednosti: BrandProfilUnos = {
     naziv: brand.naziv,
@@ -43,6 +44,7 @@ export default async function PortalProfilPage() {
     pragBesplatneDostaveKm:
       brand.pragBesplatneDostave === null ? '' : feningToKm(brand.pragBesplatneDostave).toFixed(2),
     nemaBesplatneDostave: brand.pragBesplatneDostave === null,
+    wholesaleDefaults,
   };
 
   return (

@@ -6,7 +6,6 @@ import type { KategorijaOpcija } from '@/lib/domain/categories';
 import type { GuideCilj } from '@/lib/domain/guide-data';
 import {
   MAX_KRATKI_OPIS,
-  MAX_WHOLESALE_PRAGOVA,
   PRODUCT_DOSTUPNOSTI,
   PRODUCT_FORME,
   validirajProizvod,
@@ -15,9 +14,16 @@ import {
   type ProizvodUnos,
 } from '@/lib/domain/product-form';
 import { saveProductAction } from '@/lib/domain/portal-product-actions';
+import type { WholesalePrag } from '@/lib/domain/wholesale-tiers';
 import type { FeaturingPricePlan, Product } from '@/lib/db/schema';
 import { formatCijena, kmToFening } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
+import {
+  izracunajPragoveZaSlanje,
+  pocetniPragoviTekst,
+  WholesalePragoviPolja,
+  type PragRedTekst,
+} from '../../_components/WholesalePragoviPolja';
 
 const STATUS_KLASE: Record<Product['status'], string> = {
   nacrt: 'bg-[#8A9086]/15 text-[#1C2B22]/70',
@@ -35,38 +41,6 @@ const KLASE_KARTICE = 'flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/1
 
 type CiljniStatus = 'nacrt' | 'na_cekanju' | 'zadrzi';
 
-type PragRedTekst = { minKolicina: string; popustPosto: string };
-
-/** Uvijek tačno `MAX_WHOLESALE_PRAGOVA` redova u UI-ju (popunjeni pragovi + prazni ostatak), bez obzira koliko partner stvarno ima. */
-function pocetniPragoviTekst(pragovi: ProizvodUnos['wholesalePragovi']): PragRedTekst[] {
-  const redovi = (pragovi ?? []).map((prag) => ({
-    minKolicina: String(prag.minKolicina),
-    popustPosto: String(prag.popustPosto),
-  }));
-
-  while (redovi.length < MAX_WHOLESALE_PRAGOVA) {
-    redovi.push({ minKolicina: '', popustPosto: '' });
-  }
-
-  return redovi;
-}
-
-/**
- * Kompaktuje UI redove u ono što se stvarno šalje: potpuno prazan red
- * (oba polja prazna) se izostavlja — nije greška, samo neiskorišten prag.
- * Djelimično popunjen red (samo jedno polje) OSTAJE u nizu sa `NaN` na
- * praznom polju — `validirajProizvod` ga onda odbija kroz isti
- * broj/opseg provjeru, ne kao poseban "nepotpun red" slučaj.
- */
-function izracunajPragoveZaSlanje(redovi: PragRedTekst[]): NonNullable<ProizvodUnos['wholesalePragovi']> {
-  return redovi
-    .filter((red) => red.minKolicina.trim() !== '' || red.popustPosto.trim() !== '')
-    .map((red) => ({
-      minKolicina: red.minKolicina.trim() === '' ? Number.NaN : Number(red.minKolicina),
-      popustPosto: red.popustPosto.trim() === '' ? Number.NaN : Number(red.popustPosto),
-    }));
-}
-
 type ProizvodFormaProps = {
   brandId: string;
   /** `null` = novi proizvod (insert). Inače id proizvoda koji se uređuje (update). */
@@ -80,6 +54,13 @@ type ProizvodFormaProps = {
    * ne prikazuje (vidi ispod).
    */
   planovi: FeaturingPricePlan[];
+  /**
+   * Podrazumijevani veleprodajni pragovi partnera (`brand_wholesale_defaults`)
+   * — prazna lista = partner ih nije definisao, dugme "Primijeni" se ne
+   * prikazuje. Samo klijentska prečica za popunjavanje, ne šalje se ovaj
+   * prop nazad serveru.
+   */
+  brandDefaults: WholesalePrag[];
   /** Brend je suspendovan — forma se prikazuje, ali se ne može mijenjati. */
   onemoguceno: boolean;
   /** `null` = novi proizvod, još nema statusa. */
@@ -141,6 +122,7 @@ export function ProizvodForma({
   kategorije,
   ciljevi,
   planovi,
+  brandDefaults,
   onemoguceno,
   status,
   razlogOdbijanja,
@@ -167,11 +149,26 @@ export function ProizvodForma({
   const [pragoviTekst, setPragoviTekst] = useState<PragRedTekst[]>(() =>
     pocetniPragoviTekst(pocetneVrijednosti.wholesalePragovi),
   );
+  const [defaultsPrimijenjeni, setDefaultsPrimijenjeni] = useState(false);
 
   function azurirajPrag(indeks: number, polje: keyof PragRedTekst, tekst: string) {
     const noviRedovi = pragoviTekst.map((red, i) => (i === indeks ? { ...red, [polje]: tekst } : red));
     setPragoviTekst(noviRedovi);
     postavi('wholesalePragovi', izracunajPragoveZaSlanje(noviRedovi));
+    setDefaultsPrimijenjeni(false);
+  }
+
+  /**
+   * PREPISUJE trenutna 3 reda podrazumijevanim vrijednostima partnera —
+   * namjerno bez merge-a (spec: "ne treba komplikovan merge, partner može
+   * ručno doraditi poslije klika"). Ništa se ne šalje serveru ovim klikom;
+   * partner i dalje mora kliknuti "Sačuvaj izmjene"/"Pošalji na odobrenje".
+   */
+  function primijeniDefaults() {
+    const noviRedovi = pocetniPragoviTekst(brandDefaults);
+    setPragoviTekst(noviRedovi);
+    postavi('wholesalePragovi', izracunajPragoveZaSlanje(noviRedovi));
+    setDefaultsPrimijenjeni(true);
   }
 
   function preklopiKategoriju(id: string, oznaceno: boolean) {
@@ -562,73 +559,29 @@ export function ProizvodForma({
           </section>
 
           <section className={KLASE_KARTICE}>
-            <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.sekcije.wholesale}</h2>
-            <p className="text-xs text-[#1C2B22]/60">{poruke.wholesale.napomena}</p>
-
-            <div className="flex flex-col gap-3">
-              {pragoviTekst.map((red, indeks) => {
-                const minKolicinaNum = Number(red.minKolicina);
-                const popustNum = Number(red.popustPosto);
-                const prikaziIzracun =
-                  red.minKolicina.trim() !== '' &&
-                  red.popustPosto.trim() !== '' &&
-                  Number.isFinite(minKolicinaNum) &&
-                  Number.isFinite(popustNum) &&
-                  Number.isFinite(cijenaFening);
-                const cijenaPoKomadu = prikaziIzracun
-                  ? Math.round(cijenaFening * (1 - popustNum / 100))
-                  : null;
-
-                return (
-                  <div
-                    key={indeks}
-                    className="flex flex-col gap-2 rounded-xl border border-[#1C2B22]/10 p-3"
-                  >
-                    <span className="text-sm font-medium text-[#1C2B22]">
-                      {poruke.wholesale.pragLabela(indeks + 1)}
-                    </span>
-                    <div className="flex flex-wrap gap-3">
-                      <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-[#1C2B22]/70">
-                        {poruke.wholesale.kolicina}
-                        <input
-                          type="number"
-                          min="1"
-                          step="1"
-                          inputMode="numeric"
-                          placeholder={poruke.wholesale.kolicinaPlaceholder}
-                          value={red.minKolicina}
-                          onChange={(event) => azurirajPrag(indeks, 'minKolicina', event.target.value)}
-                          className={KLASE_POLJA}
-                        />
-                      </label>
-                      <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-[#1C2B22]/70">
-                        {poruke.wholesale.popust}
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          inputMode="decimal"
-                          placeholder={poruke.wholesale.popustPlaceholder}
-                          value={red.popustPosto}
-                          onChange={(event) => azurirajPrag(indeks, 'popustPosto', event.target.value)}
-                          className={KLASE_POLJA}
-                        />
-                      </label>
-                    </div>
-                    {cijenaPoKomadu !== null ? (
-                      <p className="text-xs text-[#16332A]">
-                        {poruke.wholesale.izracunataCijena(minKolicinaNum, formatCijena(cijenaPoKomadu))}
-                      </p>
-                    ) : null}
-                  </div>
-                );
-              })}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.sekcije.wholesale}</h2>
+              {brandDefaults.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={primijeniDefaults}
+                  className="inline-flex items-center justify-center rounded-full border border-[#16332A]/40 px-4 py-1.5 text-xs font-medium text-[#16332A] transition-colors hover:bg-[#16332A]/10"
+                >
+                  {poruke.wholesale.primijeniDefaults}
+                </button>
+              ) : null}
             </div>
-
-            {greskePolja.wholesalePragovi ? (
-              <p className="text-xs text-[#B3261E]">{greskePolja.wholesalePragovi}</p>
+            <p className="text-xs text-[#1C2B22]/60">{poruke.wholesale.napomena}</p>
+            {defaultsPrimijenjeni ? (
+              <p className="text-xs font-medium text-[#16332A]">{poruke.wholesale.primijenjeno}</p>
             ) : null}
+
+            <WholesalePragoviPolja
+              redovi={pragoviTekst}
+              onChange={azurirajPrag}
+              greska={greskePolja.wholesalePragovi}
+              cijenaFening={cijenaFening}
+            />
           </section>
 
           <section className={KLASE_KARTICE}>

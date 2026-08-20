@@ -1,4 +1,9 @@
 import { kmToFening } from '@/lib/domain/format';
+import {
+  nizWholesalePragova,
+  validirajWholesalePragove,
+  type WholesalePrag,
+} from '@/lib/domain/wholesale-tiers';
 import { bs } from '@/lib/i18n/bs';
 
 /**
@@ -28,6 +33,14 @@ export type BrandProfilUnos = {
   cijenaDostaveKm: string;
   pragBesplatneDostaveKm: string;
   nemaBesplatneDostave: boolean;
+  /**
+   * Podrazumijevani veleprodajni pragovi (`brand_wholesale_defaults`) — do
+   * 3 nivoa, opciono. SAMO prečica za popunjavanje forme proizvoda
+   * ("Primijeni podrazumijevane pragove") — ne ulazi ni u kakav obračun
+   * cijene sam po sebi, izvor istine za narudžbu ostaje isključivo
+   * `wholesale_price_tiers` na proizvodu.
+   */
+  wholesaleDefaults?: WholesalePrag[];
 };
 
 export type PoljeProfila = keyof BrandProfilUnos;
@@ -46,6 +59,7 @@ export type BrandProfilVrijednosti = {
   adresa: string | null;
   cijenaDostave: number;
   pragBesplatneDostave: number | null;
+  wholesaleDefaults: WholesalePrag[];
 };
 
 function tekst(vrijednost: unknown): string {
@@ -90,6 +104,7 @@ export function normalizujBrandProfil(data: unknown): BrandProfilUnos {
     cijenaDostaveKm: tekst(izvor.cijenaDostaveKm),
     pragBesplatneDostaveKm: tekst(izvor.pragBesplatneDostaveKm),
     nemaBesplatneDostave: izvor.nemaBesplatneDostave === true,
+    wholesaleDefaults: nizWholesalePragova(izvor.wholesaleDefaults),
   };
 }
 
@@ -151,6 +166,17 @@ export function validirajBrandProfil(unos: BrandProfilUnos): GreskeProfila {
     }
   }
 
+  const wholesaleGreska = validirajWholesalePragove(unos.wholesaleDefaults, {
+    max: poruke.wholesalePragoviMax,
+    kolicinaNeispravna: poruke.wholesalePragoviKolicinaNeispravna,
+    kolicinaRastuce: poruke.wholesalePragoviKolicinaRastuce,
+    popustNeispravan: poruke.wholesalePragoviPopustNeispravan,
+    popustRastuce: poruke.wholesalePragoviPopustRastuce,
+  });
+  if (wholesaleGreska) {
+    greske.wholesaleDefaults = wholesaleGreska;
+  }
+
   return greske;
 }
 
@@ -173,5 +199,6 @@ export function pripremiBrandProfil(unos: BrandProfilUnos): BrandProfilVrijednos
     pragBesplatneDostave: unos.nemaBesplatneDostave
       ? null
       : kmToFening(unos.pragBesplatneDostaveKm),
+    wholesaleDefaults: unos.wholesaleDefaults ?? [],
   };
 }
