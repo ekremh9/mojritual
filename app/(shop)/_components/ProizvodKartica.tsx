@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Star } from 'lucide-react';
 import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 
@@ -31,9 +32,10 @@ export function ProizvodKartica({ proizvod, istaknuto }: ProizvodKarticaProps) {
       className="relative flex flex-col overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-white transition-shadow hover:shadow-md"
     >
       {istaknuto ? (
-        <span className="absolute right-2 top-2 z-10 rounded-full bg-[#16332A] px-2.5 py-1 text-xs font-medium text-[#F2F5ED]">
-          {bs.homepage.istaknutiProizvodi.badge}
-        </span>
+        <Star
+          aria-label={bs.homepage.istaknutiProizvodi.badge}
+          className="absolute right-2 top-2 z-10 h-6 w-6 fill-amber-400 text-amber-400 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+        />
       ) : null}
       <div className="relative aspect-square w-full bg-[#F2F5ED]">
         {proizvod.slika ? (

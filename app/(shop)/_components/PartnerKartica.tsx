@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { BadgeCheck, Building2 } from 'lucide-react';
+import { BadgeCheck, Building2, Star } from 'lucide-react';
 import { bs } from '@/lib/i18n/bs';
 
 export type PartnerKarticaData = {
@@ -39,9 +39,10 @@ export function PartnerKartica({ partner, istaknuto }: PartnerKarticaProps) {
       className="relative flex flex-col gap-3 rounded-2xl border border-[#1C2B22]/10 bg-white p-5 transition-shadow hover:shadow-md"
     >
       {istaknuto ? (
-        <span className="absolute right-2 top-2 z-10 rounded-full bg-[#16332A] px-2.5 py-1 text-xs font-medium text-[#F2F5ED]">
-          {bs.homepage.istaknutiPartneri.badge}
-        </span>
+        <Star
+          aria-label={bs.homepage.istaknutiPartneri.badge}
+          className="absolute right-2 top-2 z-10 h-6 w-6 fill-amber-400 text-amber-400 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+        />
       ) : null}
       <div className="flex items-center gap-3">
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#F2F5ED]">
