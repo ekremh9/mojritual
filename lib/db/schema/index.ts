@@ -23,6 +23,7 @@ export * from './categories';
 export * from './commission';
 export * from './content';
 export * from './email-verification';
+export * from './featuring-plans';
 export * from './guide';
 export * from './guide-options';
 export * from './ingredients';
