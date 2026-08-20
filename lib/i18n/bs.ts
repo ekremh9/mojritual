@@ -37,7 +37,7 @@ export const bs = {
       partneri: 'Partneri',
     },
     brendovi: {
-      naslov: 'Za brendove',
+      naslov: 'Za partnere',
       registracija: 'Registrujte svoj brend',
     },
     kontakt: {
