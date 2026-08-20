@@ -361,10 +361,16 @@ export const bs = {
     greskaAutomatskePrijave:
       'Nalog je kreiran, ali automatska prijava nije uspjela. Prijavite se ručno.',
   },
+  veleprodajaBaner: {
+    partnerTekst: 'Veleprodajne cijene su automatski primijenjene na vaš nalog.',
+    gostTekst:
+      'Kupujete na veliko? Registrujte se kao partner i ostvarite posebne popuste na narudžbe većih količina.',
+    dugme: 'Registrujte se',
+  },
   registracijaBrend: {
     naslov: 'Registracija partnera',
     podnaslov:
-      'Registrujte se kao partner na Ritualu. Nakon registracije možete odmah početi popunjavati profil i dodavati proizvode — vaš profil i proizvodi postaju javno vidljivi tek nakon odobrenja administratora.',
+      'Registrujte se kao partner na Ritualu. Nakon registracije možete odmah početi popunjavati profil i dodavati proizvode — vaš profil i proizvodi postaju javno vidljivi tek nakon odobrenja administratora. Partner status vam takođe otvara pristup veleprodajnim cijenama i posebnim popustima na narudžbe većih količina.',
     ime: 'Kontakt osoba',
     imePlaceholder: 'Vaše ime i prezime',
     email: 'Email',

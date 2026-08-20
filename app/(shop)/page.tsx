@@ -7,6 +7,7 @@ import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
 import { PartnerKartica } from './_components/PartnerKartica';
 import { ProizvodKartica } from './_components/ProizvodKartica';
+import { VeleprodajaBaner } from './_components/VeleprodajaBaner';
 
 const BROJ_ISTAKNUTIH = 10;
 const BROJ_ISTAKNUTIH_PARTNERA = 6;
@@ -214,6 +215,12 @@ export default async function HomePage() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="px-4 pt-6 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <VeleprodajaBaner />
         </div>
       </section>
 

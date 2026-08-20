@@ -33,6 +33,18 @@ export const getUserBrand = cache(async (userId: string): Promise<BrandPristup |
 });
 
 /**
+ * Da li je korisnik povezan sa ODOBRENIM partnerom (`brands.status =
+ * 'odobren'`) — bilo kao vlasnik ili urednik (isti tretman kao svugdje
+ * drugo u portalu, npr. `saveProductAction`: obje uloge pripadaju
+ * brendu). Reusuje `getUserBrand`, ne duplira upit. Koristi ga npr.
+ * `VeleprodajaBaner` da razlikuje partnera od gosta/kupca.
+ */
+export async function jeOdobreniPartner(userId: string): Promise<boolean> {
+  const pristup = await getUserBrand(userId);
+  return pristup !== null && pristup.brand.status === 'odobren';
+}
+
+/**
  * Podrazumijevani veleprodajni pragovi partnera (`brand_wholesale_defaults`),
  * sortirano po `minKolicina` — prečica za popunjavanje forme proizvoda
  * ("Primijeni podrazumijevane pragove"), ne izvor istine za narudžbu.
