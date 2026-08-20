@@ -14,6 +14,7 @@ import {
   productGoals,
   productImages,
   products,
+  wholesalePriceTiers,
 } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
 import { getBrandVlasniciIds } from '@/lib/domain/admin-actions';
@@ -220,7 +221,7 @@ export async function saveProductAction(
       return { ok: false, error: prvaGreska };
     }
 
-    const { kategorije, ...poljaProizvoda } = pripremiProizvod(unos);
+    const { kategorije, wholesalePragovi, ...poljaProizvoda } = pripremiProizvod(unos);
 
     // Status isticanja zavisi od PRETHODNOG stanja (na_cekanju/odobreno
     // ostaju nepromijenjeni), ne samo od checkbox-a — vidi komentar uz
@@ -341,6 +342,34 @@ export async function saveProductAction(
         await tx
           .insert(productCategories)
           .values(kategorije.map((categoryId) => ({ productId: idProizvoda, categoryId })));
+      }
+
+      // Sinhronizuje veleprodajne pragove (wholesale_price_tiers) —
+      // full DELETE+INSERT je dovoljan (partner uređuje sve pragove
+      // odjednom kroz istu formu, nema potrebe za diff-om kao kod
+      // prijedloga ciljeva koji imaju svoju istoriju). `popustPosto` ide
+      // kao string jer je DB kolona `numeric` (fening-precizni procenat,
+      // ne JS float) — isti obrazac kao `orderItems.provizijaPostoSnapshot`.
+      //
+      // Filter na Number.isFinite je odbrana za 'nacrt' putanju — jedina
+      // gdje ovo polje NIKAD ne prolazi kroz validirajProizvod (nacrt se
+      // sprema bez validacije, po dizajnu). Bez ovoga bi napola popunjen
+      // red (NaN u minKolicina) pukao na `integer` koloni i srušio cijelo
+      // snimanje nacrta — funkcija obećava da nikad ne baca grešku klijentu.
+      await tx.delete(wholesalePriceTiers).where(eq(wholesalePriceTiers.productId, idProizvoda));
+
+      const validniWholesalePragovi = wholesalePragovi.filter(
+        (prag) => Number.isFinite(prag.minKolicina) && Number.isFinite(prag.popustPosto),
+      );
+
+      if (validniWholesalePragovi.length > 0) {
+        await tx.insert(wholesalePriceTiers).values(
+          validniWholesalePragovi.map((prag) => ({
+            productId: idProizvoda,
+            minKolicina: prag.minKolicina,
+            popustPosto: prag.popustPosto.toFixed(2),
+          })),
+        );
       }
 
       // Sinhronizuje PRIJEDLOGE ciljeva (product_goal_proposals) sa checkbox

@@ -587,6 +587,7 @@ export const bs = {
           cijena: 'Cijena',
           dostupnost: 'Dostupnost',
           isticanje: 'Isticanje na početnoj',
+          wholesale: 'Veleprodajni pragovi (opciono)',
         },
         polja: {
           naziv: 'Naziv proizvoda',
@@ -619,6 +620,17 @@ export const bs = {
           predlozeniCiljeviPomoc:
             'Ovo je prijedlog. Medicinski recenzent odlučuje o konačnoj kategorizaciji i preporukama u Ritual Vodiču.',
         },
+        wholesale: {
+          napomena:
+            'Kupci koji naruče najmanje ovoliko komada dobijaju popust na cijenu po komadu.',
+          pragLabela: (broj: number) => `Prag ${broj}`,
+          kolicina: 'Min. količina (kom)',
+          kolicinaPlaceholder: 'Npr. 50',
+          popust: 'Popust (%)',
+          popustPlaceholder: 'Npr. 10',
+          izracunataCijena: (kolicina: number, cijenaPoKomadu: string) =>
+            `${kolicina}+ kom → ${cijenaPoKomadu}/kom`,
+        },
         dostupnostOpcije: {
           dostupno: 'Dostupno',
           nedostupno: 'Nedostupno',
@@ -649,6 +661,13 @@ export const bs = {
           staraCijenaNeispravna: 'Stara cijena mora biti broj veći od 0.',
           staraCijenaManja: 'Stara cijena mora biti veća od trenutne cijene.',
           dostupnostNeispravna: 'Odaberite ispravnu dostupnost.',
+          wholesalePragoviMax: 'Maksimalno 3 veleprodajna praga.',
+          wholesalePragoviKolicinaNeispravna: 'Količina mora biti pozitivan cijeli broj.',
+          wholesalePragoviKolicinaRastuce:
+            'Pragovi količine moraju biti rastući — svaki sljedeći prag mora biti veći od prethodnog.',
+          wholesalePragoviPopustNeispravan: 'Procenat popusta mora biti broj od 0 do 100.',
+          wholesalePragoviPopustRastuce:
+            'Popust mora rasti ili ostati isti sa većim pragom — veći prag ne smije imati manji popust od manjeg.',
         },
         greskaPristup: 'Nemate pristup ovom proizvodu.',
         greskaSuspendovan: 'Vaš brend je suspendovan. Izmjene proizvoda nisu moguće.',

@@ -25,6 +25,7 @@ function unos(izmjene: Partial<ProizvodUnos> = {}): ProizvodUnos {
     istaknutZahtjev: false,
     istaknutPlanId: '',
     predlozeniCiljevi: [],
+    wholesalePragovi: [],
     ...izmjene,
   };
 }
@@ -153,6 +154,153 @@ describe('validirajProizvod', () => {
   it('nacrt sa placeholder nazivom prolazi bez grešaka', () => {
     const greske = validirajProizvod(unos({ naziv: NAZIV_PLACEHOLDER }), 'nacrt');
     expect(greske).toEqual({});
+  });
+
+  describe('wholesalePragovi', () => {
+    it('nedostavljeni pragovi (undefined ili prazan niz) ne prave grešku — opciono polje', () => {
+      expect(validirajProizvod(unos({ wholesalePragovi: undefined }), 'na_cekanju').wholesalePragovi).toBeUndefined();
+      expect(validirajProizvod(unos({ wholesalePragovi: [] }), 'na_cekanju').wholesalePragovi).toBeUndefined();
+    });
+
+    it('prihvata 1, 2 ili 3 ispravna rastuća praga', () => {
+      expect(
+        validirajProizvod(
+          unos({ wholesalePragovi: [{ minKolicina: 50, popustPosto: 10 }] }),
+          'na_cekanju',
+        ).wholesalePragovi,
+      ).toBeUndefined();
+
+      expect(
+        validirajProizvod(
+          unos({
+            wholesalePragovi: [
+              { minKolicina: 50, popustPosto: 10 },
+              { minKolicina: 200, popustPosto: 15 },
+              { minKolicina: 1000, popustPosto: 25 },
+            ],
+          }),
+          'na_cekanju',
+        ).wholesalePragovi,
+      ).toBeUndefined();
+    });
+
+    it('odbija više od 3 praga', () => {
+      const greske = validirajProizvod(
+        unos({
+          wholesalePragovi: [
+            { minKolicina: 10, popustPosto: 1 },
+            { minKolicina: 20, popustPosto: 2 },
+            { minKolicina: 30, popustPosto: 3 },
+            { minKolicina: 40, popustPosto: 4 },
+          ],
+        }),
+        'na_cekanju',
+      );
+      expect(greske.wholesalePragovi).toBeDefined();
+    });
+
+    it('minKolicina mora biti pozitivan cijeli broj', () => {
+      expect(
+        validirajProizvod(unos({ wholesalePragovi: [{ minKolicina: 0, popustPosto: 10 }] }), 'na_cekanju')
+          .wholesalePragovi,
+      ).toBeDefined();
+      expect(
+        validirajProizvod(unos({ wholesalePragovi: [{ minKolicina: -5, popustPosto: 10 }] }), 'na_cekanju')
+          .wholesalePragovi,
+      ).toBeDefined();
+      expect(
+        validirajProizvod(
+          unos({ wholesalePragovi: [{ minKolicina: 10.5, popustPosto: 10 }] }),
+          'na_cekanju',
+        ).wholesalePragovi,
+      ).toBeDefined();
+      expect(
+        validirajProizvod(
+          unos({ wholesalePragovi: [{ minKolicina: Number.NaN, popustPosto: 10 }] }),
+          'na_cekanju',
+        ).wholesalePragovi,
+      ).toBeDefined();
+    });
+
+    it('popustPosto mora biti broj od 0 do 100', () => {
+      expect(
+        validirajProizvod(unos({ wholesalePragovi: [{ minKolicina: 50, popustPosto: -1 }] }), 'na_cekanju')
+          .wholesalePragovi,
+      ).toBeDefined();
+      expect(
+        validirajProizvod(unos({ wholesalePragovi: [{ minKolicina: 50, popustPosto: 101 }] }), 'na_cekanju')
+          .wholesalePragovi,
+      ).toBeDefined();
+      expect(
+        validirajProizvod(unos({ wholesalePragovi: [{ minKolicina: 50, popustPosto: 0 }] }), 'na_cekanju')
+          .wholesalePragovi,
+      ).toBeUndefined();
+      expect(
+        validirajProizvod(unos({ wholesalePragovi: [{ minKolicina: 50, popustPosto: 100 }] }), 'na_cekanju')
+          .wholesalePragovi,
+      ).toBeUndefined();
+    });
+
+    it('odbija pragove količine koji nisu strogo rastući', () => {
+      const isti = validirajProizvod(
+        unos({
+          wholesalePragovi: [
+            { minKolicina: 50, popustPosto: 10 },
+            { minKolicina: 50, popustPosto: 15 },
+          ],
+        }),
+        'na_cekanju',
+      );
+      expect(isti.wholesalePragovi).toBeDefined();
+
+      const opadajuci = validirajProizvod(
+        unos({
+          wholesalePragovi: [
+            { minKolicina: 200, popustPosto: 10 },
+            { minKolicina: 50, popustPosto: 15 },
+          ],
+        }),
+        'na_cekanju',
+      );
+      expect(opadajuci.wholesalePragovi).toBeDefined();
+    });
+
+    it('dozvoljava jednak popust kod većeg praga, ali odbija manji popust kod većeg praga', () => {
+      const jednakPopust = validirajProizvod(
+        unos({
+          wholesalePragovi: [
+            { minKolicina: 50, popustPosto: 10 },
+            { minKolicina: 200, popustPosto: 10 },
+          ],
+        }),
+        'na_cekanju',
+      );
+      expect(jednakPopust.wholesalePragovi).toBeUndefined();
+
+      const opadajuciPopust = validirajProizvod(
+        unos({
+          wholesalePragovi: [
+            { minKolicina: 50, popustPosto: 15 },
+            { minKolicina: 200, popustPosto: 10 },
+          ],
+        }),
+        'na_cekanju',
+      );
+      expect(opadajuciPopust.wholesalePragovi).toBeDefined();
+    });
+
+    it('nacrt sa nevalidnim pragovima prolazi bez grešaka (validacija se preskače za nacrt)', () => {
+      const greske = validirajProizvod(
+        unos({
+          wholesalePragovi: [
+            { minKolicina: -5, popustPosto: 200 },
+            { minKolicina: -5, popustPosto: 200 },
+          ],
+        }),
+        'nacrt',
+      );
+      expect(greske).toEqual({});
+    });
   });
 });
 

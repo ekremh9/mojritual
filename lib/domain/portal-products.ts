@@ -11,6 +11,7 @@ import {
   productGoalProposals,
   productImages,
   products,
+  wholesalePriceTiers,
 } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
 import type { ProizvodUnos } from '@/lib/domain/product-form';
@@ -210,6 +211,12 @@ export async function getPortalProductForEdit(
     .where(eq(productImages.productId, proizvod.id))
     .orderBy(asc(productImages.redoslijed));
 
+  const wholesalePragoviProizvoda = await db
+    .select({ minKolicina: wholesalePriceTiers.minKolicina, popustPosto: wholesalePriceTiers.popustPosto })
+    .from(wholesalePriceTiers)
+    .where(eq(wholesalePriceTiers.productId, proizvod.id))
+    .orderBy(asc(wholesalePriceTiers.minKolicina));
+
   return {
     id: proizvod.id,
     status: proizvod.status,
@@ -235,6 +242,10 @@ export async function getPortalProductForEdit(
         proizvod.istaknutStatus === 'na_cekanju' || proizvod.istaknutStatus === 'odobreno',
       istaknutPlanId: proizvod.istaknutPlanId ?? '',
       predlozeniCiljevi: prijedloziCiljevaProizvoda.map((red) => red.goalId),
+      wholesalePragovi: wholesalePragoviProizvoda.map((prag) => ({
+        minKolicina: prag.minKolicina,
+        popustPosto: Number(prag.popustPosto),
+      })),
     },
   };
 }

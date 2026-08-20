@@ -6,6 +6,7 @@ import type { KategorijaOpcija } from '@/lib/domain/categories';
 import type { GuideCilj } from '@/lib/domain/guide-data';
 import {
   MAX_KRATKI_OPIS,
+  MAX_WHOLESALE_PRAGOVA,
   PRODUCT_DOSTUPNOSTI,
   PRODUCT_FORME,
   validirajProizvod,
@@ -15,7 +16,7 @@ import {
 } from '@/lib/domain/product-form';
 import { saveProductAction } from '@/lib/domain/portal-product-actions';
 import type { FeaturingPricePlan, Product } from '@/lib/db/schema';
-import { formatCijena } from '@/lib/domain/format';
+import { formatCijena, kmToFening } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 
 const STATUS_KLASE: Record<Product['status'], string> = {
@@ -33,6 +34,38 @@ const KLASE_LABELE = 'text-sm font-medium text-[#1C2B22]';
 const KLASE_KARTICE = 'flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5';
 
 type CiljniStatus = 'nacrt' | 'na_cekanju' | 'zadrzi';
+
+type PragRedTekst = { minKolicina: string; popustPosto: string };
+
+/** Uvijek tačno `MAX_WHOLESALE_PRAGOVA` redova u UI-ju (popunjeni pragovi + prazni ostatak), bez obzira koliko partner stvarno ima. */
+function pocetniPragoviTekst(pragovi: ProizvodUnos['wholesalePragovi']): PragRedTekst[] {
+  const redovi = (pragovi ?? []).map((prag) => ({
+    minKolicina: String(prag.minKolicina),
+    popustPosto: String(prag.popustPosto),
+  }));
+
+  while (redovi.length < MAX_WHOLESALE_PRAGOVA) {
+    redovi.push({ minKolicina: '', popustPosto: '' });
+  }
+
+  return redovi;
+}
+
+/**
+ * Kompaktuje UI redove u ono što se stvarno šalje: potpuno prazan red
+ * (oba polja prazna) se izostavlja — nije greška, samo neiskorišten prag.
+ * Djelimično popunjen red (samo jedno polje) OSTAJE u nizu sa `NaN` na
+ * praznom polju — `validirajProizvod` ga onda odbija kroz isti
+ * broj/opseg provjeru, ne kao poseban "nepotpun red" slučaj.
+ */
+function izracunajPragoveZaSlanje(redovi: PragRedTekst[]): NonNullable<ProizvodUnos['wholesalePragovi']> {
+  return redovi
+    .filter((red) => red.minKolicina.trim() !== '' || red.popustPosto.trim() !== '')
+    .map((red) => ({
+      minKolicina: red.minKolicina.trim() === '' ? Number.NaN : Number(red.minKolicina),
+      popustPosto: red.popustPosto.trim() === '' ? Number.NaN : Number(red.popustPosto),
+    }));
+}
 
 type ProizvodFormaProps = {
   brandId: string;
@@ -129,6 +162,16 @@ export function ProizvodForma({
   function postavi<K extends PoljeProizvoda>(polje: K, vrijednost: ProizvodUnos[K]) {
     setVrijednosti((prethodne) => ({ ...prethodne, [polje]: vrijednost }));
     setUspjeh(null);
+  }
+
+  const [pragoviTekst, setPragoviTekst] = useState<PragRedTekst[]>(() =>
+    pocetniPragoviTekst(pocetneVrijednosti.wholesalePragovi),
+  );
+
+  function azurirajPrag(indeks: number, polje: keyof PragRedTekst, tekst: string) {
+    const noviRedovi = pragoviTekst.map((red, i) => (i === indeks ? { ...red, [polje]: tekst } : red));
+    setPragoviTekst(noviRedovi);
+    postavi('wholesalePragovi', izracunajPragoveZaSlanje(noviRedovi));
   }
 
   function preklopiKategoriju(id: string, oznaceno: boolean) {
@@ -230,6 +273,10 @@ export function ProizvodForma({
   }
 
   const duzinaOpisa = vrijednosti.kratkiOpis.trim().length;
+  // Za UŽIVO prikaz izračunate cijene po komadu ispod svakog praga —
+  // isključivo prikaz, server je izvor istine pri snimanju (nikad se ne
+  // šalje/čuva ova izračunata vrijednost).
+  const cijenaFening = kmToFening(vrijednosti.cijenaKm);
 
   return (
     <div className="flex flex-col gap-6">
@@ -512,6 +559,76 @@ export function ProizvodForma({
                 />
               )}
             </Polje>
+          </section>
+
+          <section className={KLASE_KARTICE}>
+            <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.sekcije.wholesale}</h2>
+            <p className="text-xs text-[#1C2B22]/60">{poruke.wholesale.napomena}</p>
+
+            <div className="flex flex-col gap-3">
+              {pragoviTekst.map((red, indeks) => {
+                const minKolicinaNum = Number(red.minKolicina);
+                const popustNum = Number(red.popustPosto);
+                const prikaziIzracun =
+                  red.minKolicina.trim() !== '' &&
+                  red.popustPosto.trim() !== '' &&
+                  Number.isFinite(minKolicinaNum) &&
+                  Number.isFinite(popustNum) &&
+                  Number.isFinite(cijenaFening);
+                const cijenaPoKomadu = prikaziIzracun
+                  ? Math.round(cijenaFening * (1 - popustNum / 100))
+                  : null;
+
+                return (
+                  <div
+                    key={indeks}
+                    className="flex flex-col gap-2 rounded-xl border border-[#1C2B22]/10 p-3"
+                  >
+                    <span className="text-sm font-medium text-[#1C2B22]">
+                      {poruke.wholesale.pragLabela(indeks + 1)}
+                    </span>
+                    <div className="flex flex-wrap gap-3">
+                      <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-[#1C2B22]/70">
+                        {poruke.wholesale.kolicina}
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          inputMode="numeric"
+                          placeholder={poruke.wholesale.kolicinaPlaceholder}
+                          value={red.minKolicina}
+                          onChange={(event) => azurirajPrag(indeks, 'minKolicina', event.target.value)}
+                          className={KLASE_POLJA}
+                        />
+                      </label>
+                      <label className="flex flex-1 flex-col gap-1 text-xs font-medium text-[#1C2B22]/70">
+                        {poruke.wholesale.popust}
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          inputMode="decimal"
+                          placeholder={poruke.wholesale.popustPlaceholder}
+                          value={red.popustPosto}
+                          onChange={(event) => azurirajPrag(indeks, 'popustPosto', event.target.value)}
+                          className={KLASE_POLJA}
+                        />
+                      </label>
+                    </div>
+                    {cijenaPoKomadu !== null ? (
+                      <p className="text-xs text-[#16332A]">
+                        {poruke.wholesale.izracunataCijena(minKolicinaNum, formatCijena(cijenaPoKomadu))}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+
+            {greskePolja.wholesalePragovi ? (
+              <p className="text-xs text-[#B3261E]">{greskePolja.wholesalePragovi}</p>
+            ) : null}
           </section>
 
           <section className={KLASE_KARTICE}>
