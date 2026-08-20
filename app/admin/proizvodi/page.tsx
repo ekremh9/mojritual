@@ -52,6 +52,15 @@ function ukupnoBrojaca(brojaci: AdminProizvodBrojaci): number {
   return PRODUCT_STATUSI.reduce((zbir, status) => zbir + brojaci[status], 0);
 }
 
+/**
+ * Brojač za tab "Svi" — namjerno isključuje 'nacrt' (vidi getProductsByStatus
+ * u lib/domain/admin-products.ts). Tab "Nacrt" zadržava svoj vlastiti,
+ * nedirani brojač iz `brojaci.nacrt` direktno.
+ */
+function sviBrojac(brojaci: AdminProizvodBrojaci): number {
+  return ukupnoBrojaca(brojaci) - brojaci.nacrt;
+}
+
 export default async function AdminProizvodiPage({ searchParams }: AdminProizvodiPageProps) {
   const { status: statusParam, istaknutoStatus: istaknutoStatusParam } = await searchParams;
   // Isti obrazac kao portal (vidi app/portal/proizvodi/page.tsx): dvije
@@ -77,7 +86,7 @@ export default async function AdminProizvodiPage({ searchParams }: AdminProizvod
       href: proizvodiHref(null),
       aktivan: !zahtjeviIsticanjaFilter && statusFilter === undefined,
       label: bs.admin.proizvodi.filteri.svi,
-      broj: ukupno,
+      broj: sviBrojac(brojaci),
     },
     ...PRODUCT_STATUSI.map((status) => ({
       href: proizvodiHref(status),

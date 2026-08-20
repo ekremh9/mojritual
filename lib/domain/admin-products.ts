@@ -1,7 +1,7 @@
 /**
  * Proizvodi za admin pregled i odobravanje — svi brendovi, ne samo jedan.
  */
-import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, ne } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, categories, productCategories, productImages, products } from '@/lib/db/schema';
 import type { Product } from '@/lib/db/schema';
@@ -41,6 +41,12 @@ export async function getProductsByStatus(
   const uslovi = [];
   if (statusFilter) {
     uslovi.push(eq(products.status, statusFilter));
+  } else if (!istaknutStatusFilter) {
+    // Tab "Svi" (nijedan filter proslijeđen) namjerno isključuje 'nacrt' —
+    // nacrti su partnerov privatan radni prostor bez ikakve admin akcije
+    // nad njima, samo ometaju pregled. Tab "Nacrt" i dalje postoji zasebno
+    // (statusFilter='nacrt' eksplicitno) za namjeran uvid.
+    uslovi.push(ne(products.status, 'nacrt'));
   }
   if (istaknutStatusFilter) {
     uslovi.push(eq(products.istaknutStatus, istaknutStatusFilter));
