@@ -157,7 +157,8 @@ export const bs = {
   },
   proizvod: {
     dodajUKorpu: 'Dodaj u korpu',
-    uKorpu: 'U korpu',
+    uKorpu: 'Dodaj u korpu',
+    uKorpuKratko: 'U korpu',
     dodanoUKorpu: 'Dodano ✓',
     smanjiKolicinu: 'Smanji količinu',
     povecajKolicinu: 'Povećaj količinu',

@@ -66,7 +66,14 @@ export function BrzoDodajUKorpuDugme({ productId, imaVeleprodajnePragove }: Brzo
       ) : (
         <>
           <ShoppingBag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          {bs.proizvod.uKorpu}
+          {/*
+            Ispod `sm` je kartica 2-kolonska (~136-164px) — puni tekst
+            "Dodaj u korpu" tu prelama u 2 reda (izmjereno). Isti `sm`
+            prag na kojem se ProizvodKartica grid prelama na 3+ kolone
+            (vidi ShopPage/HomePage), gdje puni tekst udobno staje.
+          */}
+          <span className="sm:hidden">{bs.proizvod.uKorpuKratko}</span>
+          <span className="hidden sm:inline">{bs.proizvod.uKorpu}</span>
         </>
       )}
     </button>
