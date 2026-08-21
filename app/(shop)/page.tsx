@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { and, asc, count, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { brands, categories, productImages, products } from '@/lib/db/schema';
+import { brands, categories, productImages, products, wholesalePriceTiers } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
 import { getHeroImageUrl, getShowHeroStats } from '@/lib/domain/site-settings';
 import { bs } from '@/lib/i18n/bs';
@@ -113,9 +113,27 @@ async function getIstaknutiProizvodi() {
     }
   }
 
+  // Jedan upit za cijelu listu (ne po kartici) — vidi imaVeleprodajnePragove
+  // na ProizvodKarticaData, sakriva brzo "Dodaj u korpu" dugme za odobrene
+  // partnere kad proizvod ima veleprodajne pragove.
+  const idsSaPragovima = new Set(
+    (
+      await db
+        .selectDistinct({ productId: wholesalePriceTiers.productId })
+        .from(wholesalePriceTiers)
+        .where(
+          inArray(
+            wholesalePriceTiers.productId,
+            odabraniProizvodi.map((proizvod) => proizvod.id),
+          ),
+        )
+    ).map((red) => red.productId),
+  );
+
   return odabraniProizvodi.map((proizvod) => ({
     ...proizvod,
     slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
+    imaVeleprodajnePragove: idsSaPragovima.has(proizvod.id),
   }));
 }
 

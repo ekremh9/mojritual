@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
+import { BrzoDodajUKorpuDugme } from './BrzoDodajUKorpuDugme';
 
 export type ProizvodKarticaData = {
   id: string;
@@ -11,6 +12,14 @@ export type ProizvodKarticaData = {
   kratkiOpis: string | null;
   cijena: number;
   slika: { url: string; alt: string | null } | null;
+  /**
+   * Da li proizvod ima definisane veleprodajne pragove
+   * (`wholesale_price_tiers`) — sakriva brzo "Dodaj u korpu" dugme za
+   * odobrene partnere (vidi BrzoDodajUKorpuDugme). Opciono: kartice koje
+   * ovo ne prosljeđuju (npr. stranica partnera) se ponašaju kao `false`,
+   * dugme se uvijek prikazuje.
+   */
+  imaVeleprodajnePragove?: boolean;
 };
 
 type ProizvodKarticaProps = {
@@ -53,9 +62,15 @@ export function ProizvodKartica({ proizvod, istaknuto }: ProizvodKarticaProps) {
         {proizvod.kratkiOpis ? (
           <span className="text-sm text-ritual-charcoal/70">{proizvod.kratkiOpis}</span>
         ) : null}
-        <span className="mt-auto pt-2 text-base font-semibold text-ritual-charcoal">
-          {formatCijena(proizvod.cijena)}
-        </span>
+        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+          <span className="text-base font-semibold text-ritual-charcoal">
+            {formatCijena(proizvod.cijena)}
+          </span>
+          <BrzoDodajUKorpuDugme
+            productId={proizvod.id}
+            imaVeleprodajnePragove={proizvod.imaVeleprodajnePragove ?? false}
+          />
+        </div>
       </div>
     </Link>
   );

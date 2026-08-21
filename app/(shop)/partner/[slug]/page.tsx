@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { Award, BadgeCheck } from 'lucide-react';
 import { db } from '@/lib/db';
-import { brandCertificates, brands, productImages, products } from '@/lib/db/schema';
+import { brandCertificates, brands, productImages, products, wholesalePriceTiers } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 import { ProizvodKartica } from '../../_components/ProizvodKartica';
 
@@ -85,9 +85,27 @@ async function getProizvodiBrenda(brandId: string) {
     }
   }
 
+  // Jedan upit za cijelu listu (ne po kartici) — vidi imaVeleprodajnePragove
+  // na ProizvodKarticaData, sakriva brzo "Dodaj u korpu" dugme za odobrene
+  // partnere kad proizvod ima veleprodajne pragove.
+  const idsSaPragovima = new Set(
+    (
+      await db
+        .selectDistinct({ productId: wholesalePriceTiers.productId })
+        .from(wholesalePriceTiers)
+        .where(
+          inArray(
+            wholesalePriceTiers.productId,
+            odobreniProizvodi.map((proizvod) => proizvod.id),
+          ),
+        )
+    ).map((red) => red.productId),
+  );
+
   return odobreniProizvodi.map((proizvod) => ({
     ...proizvod,
     slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
+    imaVeleprodajnePragove: idsSaPragovima.has(proizvod.id),
   }));
 }
 

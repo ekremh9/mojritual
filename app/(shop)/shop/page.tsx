@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { asc, count, eq, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { brands, productImages, products } from '@/lib/db/schema';
+import { brands, productImages, products, wholesalePriceTiers } from '@/lib/db/schema';
 import { getCategoryTree } from '@/lib/domain/categories';
 import {
   buildShopOrderBy,
@@ -86,9 +86,27 @@ async function getProizvodi(
     }
   }
 
+  // Jedan upit za cijelu listu (ne po kartici) — vidi imaVeleprodajnePragove
+  // na ProizvodKarticaData, sakriva brzo "Dodaj u korpu" dugme za odobrene
+  // partnere kad proizvod ima veleprodajne pragove.
+  const idsSaPragovima = new Set(
+    (
+      await db
+        .selectDistinct({ productId: wholesalePriceTiers.productId })
+        .from(wholesalePriceTiers)
+        .where(
+          inArray(
+            wholesalePriceTiers.productId,
+            odabraniProizvodi.map((proizvod) => proizvod.id),
+          ),
+        )
+    ).map((red) => red.productId),
+  );
+
   return odabraniProizvodi.map((proizvod) => ({
     ...proizvod,
     slika: prvaSlikaPoProizvodu.get(proizvod.id) ?? null,
+    imaVeleprodajnePragove: idsSaPragovima.has(proizvod.id),
   }));
 }
 
