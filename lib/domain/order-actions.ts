@@ -5,6 +5,7 @@ import { eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { brands, orderItems, orderShipments, orders } from '@/lib/db/schema';
+import { jeOdobreniPartner } from '@/lib/domain/brand-access';
 import { izracunajKorpu, parsirajStavke, type KorpaStavka } from '@/lib/domain/cart';
 import { getCartProductsData } from '@/lib/domain/cart-data';
 import { formatCijena } from '@/lib/domain/format';
@@ -62,7 +63,15 @@ export async function createOrderAction(
 ): Promise<CreateOrderRezultat> {
   try {
     const poruke = bs.checkout;
-    const stavkeCiste = parsirajStavke(stavke);
+
+    // `jePartner` MORA doći iz `auth()` ovdje, prije bilo kakvog parsiranja
+    // količine — jedini izvor istine za veći limit po stavci
+    // (MAX_KOLICINA_PARTNER u cart.ts). Klijent šalje samo productId/kolicina
+    // (vidi CartContext), nikad svoj partner status.
+    const session = await auth();
+    const jePartner = session?.user?.id ? await jeOdobreniPartner(session.user.id) : false;
+
+    const stavkeCiste = parsirajStavke(stavke, jePartner);
 
     if (stavkeCiste.length === 0) {
       return { ok: false, error: poruke.greskaKorpaPrazna };
@@ -75,7 +84,7 @@ export async function createOrderAction(
       return { ok: false, error: poruke.greskaProizvodiNedostupni };
     }
 
-    const korpa = izracunajKorpu(stavkeCiste, proizvodi);
+    const korpa = izracunajKorpu(stavkeCiste, proizvodi, jePartner);
 
     if (korpa.grupe.length === 0) {
       return { ok: false, error: poruke.greskaProizvodiNedostupni };
@@ -89,7 +98,6 @@ export async function createOrderAction(
       return { ok: false, error: prvaGreska };
     }
 
-    const session = await auth();
     const brandIds = korpa.grupe.map((grupa) => grupa.brend.id);
 
     const orderBroj = await db.transaction(async (tx) => {
@@ -178,7 +186,13 @@ export async function createOrderAction(
             shipmentId,
             productId: linija.proizvod.id,
             nazivSnapshot: linija.proizvod.naziv,
-            cijenaSnapshot: linija.proizvod.cijena,
+            // `jedinicnaCijena`, NE `proizvod.cijena` — za odobrenog partnera
+            // sa dovoljnom količinom ovo je već veleprodajna cijena
+            // (`izracunajKorpu` je izračunava preko `wholesale-tiers.ts`);
+            // `proizvod.cijena` bi ovdje snimila redovnu cijenu čak i kad je
+            // korpa/dostava ispod već obračunate po popustu — nesklad između
+            // snapshot-a stavke i stvarno naplaćenog iznosa pošiljke.
+            cijenaSnapshot: linija.jedinicnaCijena,
             kolicina: linija.kolicina,
             provizijaPostoSnapshot: provizijaPosto,
             provizijaIznos: Math.round((linija.medjuzbir * parseFloat(provizijaPosto)) / 100),

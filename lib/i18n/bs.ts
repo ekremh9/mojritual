@@ -180,6 +180,7 @@ export const bs = {
     smanjiKolicinu: 'Smanji količinu',
     povecajKolicinu: 'Povećaj količinu',
     ukloni: 'Ukloni iz korpe',
+    veleprodajnaCijena: (cijenaPoKomadu: string) => `Veleprodajna cijena: ${cijenaPoKomadu}/kom`,
     dostava: 'Dostava',
     besplatnaDostava: 'Besplatno',
     doBesplatneDostave: (iznos: string) => `Još ${iznos} do besplatne dostave`,

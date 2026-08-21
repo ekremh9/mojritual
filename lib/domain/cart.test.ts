@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  MAX_KOLICINA_PARTNER,
   MAX_KOLICINA_PO_STAVCI,
   brojArtikala,
   dodajStavku,
@@ -33,17 +34,26 @@ function proizvod(
   id: string,
   cijena: number,
   brend: KorpaProizvod['brend'] = nordic,
+  pragovi?: KorpaProizvod['pragovi'],
 ): KorpaProizvod {
-  return { id, slug: id, naziv: id, cijena, slika: null, brend };
+  return { id, slug: id, naziv: id, cijena, pragovi, slika: null, brend };
 }
 
 describe('normalizujKolicinu', () => {
-  it('ograničava na raspon 1..MAX i odbacuje decimale', () => {
+  it('ograničava na raspon 1..MAX_KOLICINA_PO_STAVCI kad jePartner nije proslijeđen (ili je false)', () => {
     expect(normalizujKolicinu(0)).toBe(1);
     expect(normalizujKolicinu(-5)).toBe(1);
     expect(normalizujKolicinu(2.7)).toBe(2);
     expect(normalizujKolicinu(1000)).toBe(MAX_KOLICINA_PO_STAVCI);
     expect(normalizujKolicinu(Number.NaN)).toBe(1);
+    expect(normalizujKolicinu(1000, false)).toBe(MAX_KOLICINA_PO_STAVCI);
+  });
+
+  it('ograničava na raspon 1..MAX_KOLICINA_PARTNER kad je jePartner=true', () => {
+    expect(normalizujKolicinu(500, true)).toBe(500);
+    expect(normalizujKolicinu(MAX_KOLICINA_PARTNER + 1, true)).toBe(MAX_KOLICINA_PARTNER);
+    expect(normalizujKolicinu(0, true)).toBe(1);
+    expect(normalizujKolicinu(Number.NaN, true)).toBe(1);
   });
 });
 
@@ -68,6 +78,14 @@ describe('dodajStavku', () => {
     const rezultat = dodajStavku([{ productId: 'a', kolicina: 98 }], 'a', 10);
     expect(rezultat).toEqual([{ productId: 'a', kolicina: MAX_KOLICINA_PO_STAVCI }]);
   });
+
+  it('partner (jePartner=true) koristi MAX_KOLICINA_PARTNER umjesto MAX_KOLICINA_PO_STAVCI', () => {
+    const rezultat = dodajStavku([{ productId: 'a', kolicina: 98 }], 'a', 500, true);
+    expect(rezultat).toEqual([{ productId: 'a', kolicina: 598 }]);
+
+    const preko = dodajStavku([], 'a', MAX_KOLICINA_PARTNER + 100, true);
+    expect(preko).toEqual([{ productId: 'a', kolicina: MAX_KOLICINA_PARTNER }]);
+  });
 });
 
 describe('postaviKolicinu i ukloniStavku', () => {
@@ -79,6 +97,16 @@ describe('postaviKolicinu i ukloniStavku', () => {
   it('uklanja stavku kad je količina manja od 1', () => {
     const rezultat = postaviKolicinu([{ productId: 'a', kolicina: 2 }], 'a', 0);
     expect(rezultat).toEqual([]);
+  });
+
+  it('postaviKolicinu za partnera dozvoljava količinu iznad MAX_KOLICINA_PO_STAVCI', () => {
+    const rezultat = postaviKolicinu([{ productId: 'a', kolicina: 1 }], 'a', 500, true);
+    expect(rezultat).toEqual([{ productId: 'a', kolicina: 500 }]);
+  });
+
+  it('postaviKolicinu za ne-partnera i dalje klempuje na MAX_KOLICINA_PO_STAVCI', () => {
+    const rezultat = postaviKolicinu([{ productId: 'a', kolicina: 1 }], 'a', 500);
+    expect(rezultat).toEqual([{ productId: 'a', kolicina: MAX_KOLICINA_PO_STAVCI }]);
   });
 
   it('uklanja samo traženu stavku', () => {
@@ -122,6 +150,21 @@ describe('parsirajStavke', () => {
     ).toEqual([
       { productId: 'a', kolicina: 5 },
       { productId: 'b', kolicina: 1 },
+    ]);
+  });
+
+  it('bez jePartner (server-side, npr. gost/kupac u createOrderAction) klempuje na MAX_KOLICINA_PO_STAVCI', () => {
+    expect(parsirajStavke([{ productId: 'a', kolicina: 5000 }])).toEqual([
+      { productId: 'a', kolicina: MAX_KOLICINA_PO_STAVCI },
+    ]);
+  });
+
+  it('sa jePartner=true dozvoljava veleprodajnu količinu do MAX_KOLICINA_PARTNER', () => {
+    expect(parsirajStavke([{ productId: 'a', kolicina: 5000 }], true)).toEqual([
+      { productId: 'a', kolicina: 5000 },
+    ]);
+    expect(parsirajStavke([{ productId: 'a', kolicina: MAX_KOLICINA_PARTNER + 500 }], true)).toEqual([
+      { productId: 'a', kolicina: MAX_KOLICINA_PARTNER },
     ]);
   });
 });
@@ -230,6 +273,82 @@ describe('izracunajKorpu', () => {
     const korpa = izracunajKorpu([{ productId: 'p1', kolicina: 3 }], [proizvod('p1', 3333)]);
     expect(Number.isInteger(korpa.ukupno)).toBe(true);
     expect(korpa.medjuzbir).toBe(9999);
+  });
+
+  describe('veleprodajni pragovi', () => {
+    const PRAGOVI = [
+      { minKolicina: 50, popustPosto: 10 },
+      { minKolicina: 200, popustPosto: 20 },
+    ];
+
+    it('partner sa dovoljnom količinom dobija popust — jedinicnaCijena i medjuzbir odražavaju popust', () => {
+      const korpa = izracunajKorpu(
+        [{ productId: 'p1', kolicina: 50 }],
+        [proizvod('p1', 2490, nordic, PRAGOVI)],
+      );
+
+      const linija = korpa.grupe[0]!.linije[0]!;
+      expect(linija.jedinicnaCijena).toBe(Math.round(2490 * 0.9));
+      expect(linija.medjuzbir).toBe(Math.round(2490 * 0.9) * 50);
+      expect(korpa.medjuzbir).toBe(linija.medjuzbir);
+    });
+
+    it('partner sa količinom ispod najnižeg praga ne dobija popust', () => {
+      const korpa = izracunajKorpu(
+        [{ productId: 'p1', kolicina: 10 }],
+        [proizvod('p1', 2490, nordic, PRAGOVI)],
+      );
+
+      const linija = korpa.grupe[0]!.linije[0]!;
+      expect(linija.jedinicnaCijena).toBe(2490);
+      expect(linija.medjuzbir).toBe(2490 * 10);
+    });
+
+    it('ne-partner (proizvod bez pragovi polja) nikad ne dobija popust, čak ni sa velikom količinom', () => {
+      // `pragovi` je `undefined` — isto što `getCartProductsData` vraća za
+      // goste/kupce, bez obzira koliko pragova taj proizvod stvarno ima.
+      // Količina namjerno ostaje unutar MAX_KOLICINA_PO_STAVCI (99) — cilj
+      // ovog testa je grananje po `pragovi`, ne ponašanje klemp-a na limitu.
+      const korpa = izracunajKorpu(
+        [{ productId: 'p1', kolicina: 99 }],
+        [proizvod('p1', 2490)],
+      );
+
+      const linija = korpa.grupe[0]!.linije[0]!;
+      expect(linija.jedinicnaCijena).toBe(2490);
+      expect(linija.medjuzbir).toBe(2490 * 99);
+    });
+
+    it('proizvod sa praznim nizom pragova (partner, ali proizvod nema definisane pragove) ne mijenja cijenu', () => {
+      const korpa = izracunajKorpu(
+        [{ productId: 'p1', kolicina: 99 }],
+        [proizvod('p1', 2490, nordic, [])],
+      );
+
+      const linija = korpa.grupe[0]!.linije[0]!;
+      expect(linija.jedinicnaCijena).toBe(2490);
+    });
+
+    it('treći parametar (jePartner) bira gornju granicu KOLIČINE, nezavisno od pragovi/cijene', () => {
+      // Bez jePartner (podrazumijevano false) — 5000 se klempuje na 99, pa
+      // se čak i popust (za koji bi 5000 svakako kvalifikovao) primjenjuje
+      // na klempovanu, manju količinu.
+      const bezPartnera = izracunajKorpu(
+        [{ productId: 'p1', kolicina: 5000 }],
+        [proizvod('p1', 2490, nordic, PRAGOVI)],
+      );
+      expect(bezPartnera.grupe[0]!.linije[0]!.kolicina).toBe(MAX_KOLICINA_PO_STAVCI);
+
+      // Sa jePartner=true — 5000 prolazi netaknuto (unutar MAX_KOLICINA_PARTNER).
+      const saPartnerom = izracunajKorpu(
+        [{ productId: 'p1', kolicina: 5000 }],
+        [proizvod('p1', 2490, nordic, PRAGOVI)],
+        true,
+      );
+      const linija = saPartnerom.grupe[0]!.linije[0]!;
+      expect(linija.kolicina).toBe(5000);
+      expect(linija.jedinicnaCijena).toBe(Math.round(2490 * 0.8));
+    });
   });
 });
 

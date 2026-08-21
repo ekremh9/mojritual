@@ -7,6 +7,7 @@ import { Minus, Plus, X } from 'lucide-react';
 import { useCart } from '@/lib/cart/CartContext';
 import { getCartProductsData } from '@/lib/domain/cart-data';
 import {
+  MAX_KOLICINA_PARTNER,
   MAX_KOLICINA_PO_STAVCI,
   izracunajKorpu,
   nedostajuciIds,
@@ -16,10 +17,12 @@ import { formatCijena } from '@/lib/domain/format';
 import { bs } from '@/lib/i18n/bs';
 
 export default function KorpaPage() {
-  const { stavke, postaviKolicinu, ukloniStavku } = useCart();
+  const { stavke, postaviKolicinu, ukloniStavku, jePartner } = useCart();
   const [proizvodi, setProizvodi] = useState<KorpaProizvod[]>([]);
   const [ucitano, setUcitano] = useState(false);
   const [prikaziNapomenuNedostajucih, setPrikaziNapomenuNedostajucih] = useState(false);
+
+  const maxKolicina = jePartner ? MAX_KOLICINA_PARTNER : MAX_KOLICINA_PO_STAVCI;
 
   const productIds = stavke.map((stavka) => stavka.productId);
   const kljucProizvoda = productIds.slice().sort().join(',');
@@ -42,7 +45,7 @@ export default function KorpaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kljucProizvoda]);
 
-  const korpa = izracunajKorpu(stavke, proizvodi);
+  const korpa = izracunajKorpu(stavke, proizvodi, jePartner);
   const nedostajuci = nedostajuciIds(stavke, proizvodi);
   const kljucNedostajucih = nedostajuci.join(',');
 
@@ -134,8 +137,18 @@ export default function KorpaPage() {
                         {linija.proizvod.naziv}
                       </Link>
                       <span className="text-sm text-[#1C2B22]/70">
-                        {formatCijena(linija.proizvod.cijena)}
+                        {formatCijena(linija.jedinicnaCijena)}
+                        {linija.jedinicnaCijena !== linija.proizvod.cijena ? (
+                          <span className="ml-2 text-xs text-[#1C2B22]/40 line-through">
+                            {formatCijena(linija.proizvod.cijena)}
+                          </span>
+                        ) : null}
                       </span>
+                      {linija.jedinicnaCijena !== linija.proizvod.cijena ? (
+                        <span className="text-xs font-medium text-[#16332A]">
+                          {bs.korpa.veleprodajnaCijena(formatCijena(linija.jedinicnaCijena))}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
@@ -158,10 +171,10 @@ export default function KorpaPage() {
                         onClick={() =>
                           postaviKolicinu(
                             linija.proizvod.id,
-                            Math.min(MAX_KOLICINA_PO_STAVCI, linija.kolicina + 1),
+                            Math.min(maxKolicina, linija.kolicina + 1),
                           )
                         }
-                        disabled={linija.kolicina >= MAX_KOLICINA_PO_STAVCI}
+                        disabled={linija.kolicina >= maxKolicina}
                         aria-label={bs.korpa.povecajKolicinu}
                         className="flex h-10 w-10 items-center justify-center rounded-full text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-40"
                       >

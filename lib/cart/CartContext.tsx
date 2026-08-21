@@ -27,11 +27,27 @@ type CartContextValue = {
   ukloniStavku: (productId: string) => void;
   clearCart: () => void;
   brojArtikala: number;
+  /** Odobren partner — veći limit po stavci (vidi MAX_KOLICINA_PARTNER u cart.ts). */
+  jePartner: boolean;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-export function CartProvider({ children }: { children: ReactNode }) {
+type CartProviderProps = {
+  children: ReactNode;
+  /**
+   * Odobren partner (`brands.status='odobren'`) — dolazi kao prop iz
+   * root layouta (`app/layout.tsx`, server component preko `auth()` +
+   * `jeOdobreniPartner`), NE iz nečeg što ovaj klijentski provider sam
+   * utvrđuje. Korpa je globalna (mount-ovana za cijelu aplikaciju), pa
+   * nema drugog pouzdanog načina da klijent sazna svoj partner status
+   * bez posebnog API poziva za svaku promjenu količine — ovo je taj
+   * status, dobiven JEDNOM, na inicijalnom server renderu stranice.
+   */
+  jePartner?: boolean;
+};
+
+export function CartProvider({ children, jePartner = false }: CartProviderProps) {
   const [stavke, setStavke] = useState<KorpaStavka[]>([]);
   const [ucitanoIzLocalStorage, setUcitanoIzLocalStorage] = useState(false);
 
@@ -44,13 +60,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Inicijalno čitanje eksternog izvora (localStorage) nakon mounta —
         // namjerno sinhrono, jedini način da se izbjegne hydration mismatch.
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setStavke(parsirajStavke(JSON.parse(sirovoStanje)));
+        setStavke(parsirajStavke(JSON.parse(sirovoStanje), jePartner));
       }
     } catch {
       // Neispravan/oštećen sadržaj u localStorage — korpa ostaje prazna.
     } finally {
       setUcitanoIzLocalStorage(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -62,13 +79,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(KLJUC_LOCALSTORAGE, JSON.stringify(stavke));
   }, [stavke, ucitanoIzLocalStorage]);
 
-  const dodajUKorpu = useCallback((productId: string, kolicina = 1) => {
-    setStavke((prethodneStavke) => dodajStavku(prethodneStavke, productId, kolicina));
-  }, []);
+  const dodajUKorpu = useCallback(
+    (productId: string, kolicina = 1) => {
+      setStavke((prethodneStavke) => dodajStavku(prethodneStavke, productId, kolicina, jePartner));
+    },
+    [jePartner],
+  );
 
-  const postaviKolicinu = useCallback((productId: string, kolicina: number) => {
-    setStavke((prethodneStavke) => postaviKolicinuStavci(prethodneStavke, productId, kolicina));
-  }, []);
+  const postaviKolicinu = useCallback(
+    (productId: string, kolicina: number) => {
+      setStavke((prethodneStavke) =>
+        postaviKolicinuStavci(prethodneStavke, productId, kolicina, jePartner),
+      );
+    },
+    [jePartner],
+  );
 
   const ukloniStavku = useCallback((productId: string) => {
     setStavke((prethodneStavke) => ukloniStavkuIzListe(prethodneStavke, productId));
@@ -93,8 +118,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ukloniStavku,
       clearCart,
       brojArtikala: izracunajBrojArtikala(stavke),
+      jePartner,
     }),
-    [stavke, dodajUKorpu, postaviKolicinu, ukloniStavku, clearCart],
+    [stavke, dodajUKorpu, postaviKolicinu, ukloniStavku, clearCart, jePartner],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

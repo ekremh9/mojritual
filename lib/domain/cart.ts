@@ -7,8 +7,15 @@
  *
  * Sve cijene su cijeli brojevi u fening.
  */
+import { izracunajJedinicnuCijenu, type WholesalePrag } from '@/lib/domain/wholesale-tiers';
 
 export const MAX_KOLICINA_PO_STAVCI = 99;
+/**
+ * Odobreni partneri naručuju veleprodajne količine — 99 bi ih tiho
+ * ograničilo. Primjenjuje se SAMO kad se `jePartner=true` eksplicitno
+ * proslijedi (nikad podrazumijevano — vidi `normalizujKolicinu`).
+ */
+export const MAX_KOLICINA_PARTNER = 10000;
 
 /** Ono što se čuva na klijentu — nikad cijena, samo šta i koliko. */
 export type KorpaStavka = {
@@ -33,6 +40,15 @@ export type KorpaProizvod = {
   naziv: string;
   /** Fening. */
   cijena: number;
+  /**
+   * Veleprodajni pragovi za ovaj proizvod — `undefined` znači da pozivalac
+   * NIJE odobren partner (vidi `getCartProductsData`: polje se namjerno
+   * izostavlja za goste/kupce, ne šalje se prazan niz, da se veleprodajne
+   * cijene ne otkrivaju kroz mrežni odgovor neovlaštenim korisnicima).
+   * Prisustvo nepraznog niza je samo po sebi signal da `izracunajKorpu`
+   * treba primijeniti popust — nema posebnog `jePartner` parametra.
+   */
+  pragovi?: WholesalePrag[];
   slika: { url: string; alt: string | null } | null;
   brend: KorpaBrend;
 };
@@ -40,6 +56,8 @@ export type KorpaProizvod = {
 export type KorpaLinija = {
   proizvod: KorpaProizvod;
   kolicina: number;
+  /** Fening — stvarna cijena po komadu za ovu stavku (uključuje veleprodajni popust kad je primjenjiv). Jednako `proizvod.cijena` kad popust nije primijenjen. */
+  jedinicnaCijena: number;
   /** Fening. */
   medjuzbir: number;
 };
@@ -67,12 +85,19 @@ export type Korpa = {
   brojArtikala: number;
 };
 
-export function normalizujKolicinu(kolicina: number): number {
+/**
+ * `jePartner` bira gornju granicu — `false` (podrazumijevano) znači
+ * MAX_KOLICINA_PO_STAVCI, čak i kad pozivalac ne prosljedi taj parametar
+ * uopšte. Svako pozivno mjesto koje MOŽE utvrditi da je pozivalac odobreni
+ * partner ga mora eksplicitno proslijediti — ništa se ne pretpostavlja.
+ */
+export function normalizujKolicinu(kolicina: number, jePartner = false): number {
   if (!Number.isFinite(kolicina)) {
     return 1;
   }
 
-  return Math.min(Math.max(Math.floor(kolicina), 1), MAX_KOLICINA_PO_STAVCI);
+  const max = jePartner ? MAX_KOLICINA_PARTNER : MAX_KOLICINA_PO_STAVCI;
+  return Math.min(Math.max(Math.floor(kolicina), 1), max);
 }
 
 /**
@@ -83,8 +108,9 @@ export function dodajStavku(
   stavke: readonly KorpaStavka[],
   productId: string,
   kolicina = 1,
+  jePartner = false,
 ): KorpaStavka[] {
-  const dodatak = normalizujKolicinu(kolicina);
+  const dodatak = normalizujKolicinu(kolicina, jePartner);
   const postojeca = stavke.find((stavka) => stavka.productId === productId);
 
   if (!postojeca) {
@@ -93,7 +119,7 @@ export function dodajStavku(
 
   return stavke.map((stavka) =>
     stavka.productId === productId
-      ? { ...stavka, kolicina: normalizujKolicinu(stavka.kolicina + dodatak) }
+      ? { ...stavka, kolicina: normalizujKolicinu(stavka.kolicina + dodatak, jePartner) }
       : stavka,
   );
 }
@@ -103,6 +129,7 @@ export function postaviKolicinu(
   stavke: readonly KorpaStavka[],
   productId: string,
   kolicina: number,
+  jePartner = false,
 ): KorpaStavka[] {
   if (!Number.isFinite(kolicina) || kolicina < 1) {
     return ukloniStavku(stavke, productId);
@@ -110,7 +137,7 @@ export function postaviKolicinu(
 
   return stavke.map((stavka) =>
     stavka.productId === productId
-      ? { ...stavka, kolicina: normalizujKolicinu(kolicina) }
+      ? { ...stavka, kolicina: normalizujKolicinu(kolicina, jePartner) }
       : stavka,
   );
 }
@@ -129,8 +156,13 @@ export function brojArtikala(stavke: readonly KorpaStavka[]): number {
 /**
  * Čita stavke iz nepouzdanog izvora (localStorage, tijelo zahtjeva).
  * Sve što nije ispravno se tiho odbacuje — korpa nikad ne smije puknuti.
+ *
+ * Kad se poziva nad tijelom zahtjeva (npr. `createOrderAction`), `jePartner`
+ * MORA doći iz `auth()` sesije na serveru — ovo je stvarna granica koja
+ * odbacuje pokušaj gosta/kupca da naruči veleprodajnu količinu, klijentski
+ * klemp je samo UX pogodnost.
  */
-export function parsirajStavke(ulaz: unknown): KorpaStavka[] {
+export function parsirajStavke(ulaz: unknown, jePartner = false): KorpaStavka[] {
   if (!Array.isArray(ulaz)) {
     return [];
   }
@@ -153,7 +185,10 @@ export function parsirajStavke(ulaz: unknown): KorpaStavka[] {
     }
 
     const prethodna = spojene.get(productId) ?? 0;
-    spojene.set(productId, normalizujKolicinu(prethodna + normalizujKolicinu(kolicina)));
+    spojene.set(
+      productId,
+      normalizujKolicinu(prethodna + normalizujKolicinu(kolicina, jePartner), jePartner),
+    );
   }
 
   return [...spojene].map(([productId, kolicina]) => ({ productId, kolicina }));
@@ -196,10 +231,19 @@ export function izracunajDostavu(
  * Stavke čiji proizvod nije u `proizvodi` (obrisan, povučen, neodobren) se
  * preskaču — pozivalac ih prepoznaje po `Korpa.brojArtikala` ili preko
  * `nedostajuciIds`.
+ *
+ * `jePartner` ovdje utiče SAMO na gornju granicu količine (vidi
+ * `normalizujKolicinu`) — bira se globalno za cijeli poziv, ne po
+ * proizvodu, jer je to osobina KORISNIKA (odobren partner ili ne), ne
+ * proizvoda. Server (`createOrderAction`) ovo MORA proslijediti iz
+ * `auth()` sesije — ako se ne proslijedi, podrazumijeva se `false`
+ * (MAX_KOLICINA_PO_STAVCI), nikad obrnuto, da propust ne otvori veći limit
+ * nego što je namijenjeno.
  */
 export function izracunajKorpu(
   stavke: readonly KorpaStavka[],
   proizvodi: readonly KorpaProizvod[],
+  jePartner = false,
 ): Korpa {
   const poId = new Map(proizvodi.map((proizvod) => [proizvod.id, proizvod]));
   const grupePoBrendu = new Map<string, KorpaGrupa>();
@@ -210,11 +254,20 @@ export function izracunajKorpu(
       continue;
     }
 
-    const kolicina = normalizujKolicinu(stavka.kolicina);
+    const kolicina = normalizujKolicinu(stavka.kolicina, jePartner);
+    // Prisustvo `pragovi` (nepraznog niza) je jedini signal za veleprodajni
+    // popust — `getCartProductsData` ga postavlja SAMO za odobrene
+    // partnere, pa ovdje nema potrebe za odvojenim `jePartner` parametrom
+    // (i ne bi ni trebalo: ova funkcija je čista, bez pristupa sesiji).
+    const jedinicnaCijena =
+      proizvod.pragovi && proizvod.pragovi.length > 0
+        ? izracunajJedinicnuCijenu(proizvod.cijena, kolicina, proizvod.pragovi)
+        : proizvod.cijena;
     const linija: KorpaLinija = {
       proizvod,
       kolicina,
-      medjuzbir: proizvod.cijena * kolicina,
+      jedinicnaCijena,
+      medjuzbir: jedinicnaCijena * kolicina,
     };
 
     const postojeca = grupePoBrendu.get(proizvod.brend.id);
