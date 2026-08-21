@@ -14,6 +14,9 @@ import { bs } from '@/lib/i18n/bs';
 
 const HERO_SLIKA_KLJUC = 'hero_slika_url';
 const HERO_STATISTIKE_KLJUC = 'prikazi_hero_statistike';
+const HERO_NASLOV_KLJUC = 'hero_naslov';
+const HERO_OPIS_KLJUC = 'hero_opis';
+const FOOTER_OPIS_KLJUC = 'footer_opis';
 
 export type SiteSettingsRezultat = { ok: true } | { ok: false; error: string };
 
@@ -103,4 +106,78 @@ export async function setShowHeroStats(prikazi: boolean): Promise<SiteSettingsRe
     console.error('setShowHeroStats: snimanje postavke hero statistika nije uspjelo');
     return { ok: false, error: bs.admin.greskaOpsta };
   }
+}
+
+/** Čita tekstualnu postavku, `podrazumijevano` ako ključ ne postoji ili je prazan/neispravan tip — dijele je get* funkcije ispod, ne izlazi se van fajla. */
+async function getTekstPostavku(kljuc: string, podrazumijevano: string): Promise<string> {
+  const [red] = await db
+    .select({ vrijednost: settings.vrijednost })
+    .from(settings)
+    .where(eq(settings.kljuc, kljuc))
+    .limit(1);
+
+  if (!red || typeof red.vrijednost !== 'string' || red.vrijednost.trim() === '') {
+    return podrazumijevano;
+  }
+
+  return red.vrijednost;
+}
+
+/** Upisuje tekstualnu postavku — admin-only, prazan tekst se odbija (prikazani tekst na sajtu ne smije nestati). Dijele je set* funkcije ispod. */
+async function setTekstPostavku(kljuc: string, vrijednost: string): Promise<SiteSettingsRezultat> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const trimovano = vrijednost.trim();
+    if (trimovano === '') {
+      return { ok: false, error: bs.admin.postavke.tekstoviSajta.greskaPrazno };
+    }
+
+    await db
+      .insert(settings)
+      .values({ kljuc, vrijednost: trimovano })
+      .onConflictDoUpdate({ target: settings.kljuc, set: { vrijednost: trimovano } });
+
+    revalidatePath('/');
+    revalidatePath('/admin/postavke');
+
+    return { ok: true };
+  } catch {
+    console.error('setTekstPostavku: snimanje teksta na sajtu nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/** Hero naslov na početnoj — podrazumijeva trenutni hardkodirani tekst (bs.homepage.hero.naslov) ako ključ ne postoji. */
+export async function getHeroNaslov(): Promise<string> {
+  return getTekstPostavku(HERO_NASLOV_KLJUC, bs.homepage.hero.naslov);
+}
+
+/** Postavlja hero naslov — admin-only, isti obrazac kao `setHeroImageUrl`. */
+export async function setHeroNaslov(vrijednost: string): Promise<SiteSettingsRezultat> {
+  return setTekstPostavku(HERO_NASLOV_KLJUC, vrijednost);
+}
+
+/** Hero opis (podnaslov) na početnoj — podrazumijeva trenutni hardkodirani tekst (bs.homepage.hero.podnaslov) ako ključ ne postoji. */
+export async function getHeroOpis(): Promise<string> {
+  return getTekstPostavku(HERO_OPIS_KLJUC, bs.homepage.hero.podnaslov);
+}
+
+/** Postavlja hero opis — admin-only, isti obrazac kao `setHeroImageUrl`. */
+export async function setHeroOpis(vrijednost: string): Promise<SiteSettingsRezultat> {
+  return setTekstPostavku(HERO_OPIS_KLJUC, vrijednost);
+}
+
+/** Opis ispod "RITUAL" u brend koloni Footera — podrazumijeva trenutni hardkodirani tekst (bs.footer.brend.opis) ako ključ ne postoji. */
+export async function getFooterOpis(): Promise<string> {
+  return getTekstPostavku(FOOTER_OPIS_KLJUC, bs.footer.brend.opis);
+}
+
+/** Postavlja footer opis — admin-only, isti obrazac kao `setHeroImageUrl`. */
+export async function setFooterOpis(vrijednost: string): Promise<SiteSettingsRezultat> {
+  return setTekstPostavku(FOOTER_OPIS_KLJUC, vrijednost);
 }

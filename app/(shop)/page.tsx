@@ -4,7 +4,7 @@ import { and, asc, count, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, categories, productImages, products, wholesalePriceTiers } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
-import { getHeroImageUrl, getShowHeroStats } from '@/lib/domain/site-settings';
+import { getHeroImageUrl, getHeroNaslov, getHeroOpis, getShowHeroStats } from '@/lib/domain/site-settings';
 import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
 import { PartnerKartica } from './_components/PartnerKartica';
@@ -220,15 +220,25 @@ async function getPocetnaStatistika() {
 }
 
 export default async function HomePage() {
-  const [kategorije, istaknutiProizvodi, istaknutiPartneri, statistika, heroSlikaUrl, prikaziStatistike] =
-    await Promise.all([
-      getTopLevelCategoriesWithProducts(),
-      getIstaknutiProizvodi(),
-      getIstaknutiPartneri(),
-      getPocetnaStatistika(),
-      getHeroImageUrl(),
-      getShowHeroStats(),
-    ]);
+  const [
+    kategorije,
+    istaknutiProizvodi,
+    istaknutiPartneri,
+    statistika,
+    heroSlikaUrl,
+    prikaziStatistike,
+    heroNaslov,
+    heroOpis,
+  ] = await Promise.all([
+    getTopLevelCategoriesWithProducts(),
+    getIstaknutiProizvodi(),
+    getIstaknutiPartneri(),
+    getPocetnaStatistika(),
+    getHeroImageUrl(),
+    getShowHeroStats(),
+    getHeroNaslov(),
+    getHeroOpis(),
+  ]);
 
   return (
     <div className="flex flex-col">
@@ -247,10 +257,10 @@ export default async function HomePage() {
           <div className="flex flex-col justify-center bg-ritual-warm-white px-4 py-14 sm:px-6 sm:py-20 lg:px-12 lg:py-24">
             <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
               <h1 className="font-bodoni text-4xl leading-tight text-ritual-deep-green sm:text-5xl">
-                {bs.homepage.hero.naslov}
+                {heroNaslov}
               </h1>
               <p className="font-montserrat text-base leading-relaxed text-ritual-charcoal/80">
-                {bs.homepage.hero.podnaslov}
+                {heroOpis}
               </p>
 
               {prikaziStatistike ? (

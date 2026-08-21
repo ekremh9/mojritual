@@ -1,12 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { getFooterOpis } from '@/lib/domain/site-settings';
 import { bs } from '@/lib/i18n/bs';
 
 const KLASE_LINKA = 'text-sm text-ritual-warm-white/70 transition-colors hover:text-ritual-warm-white';
 const KLASE_NASLOVA_KOLONE = 'text-sm font-semibold text-ritual-warm-white';
 
-export function Footer() {
+export async function Footer() {
   const poruke = bs.footer;
+  const footerOpis = await getFooterOpis();
 
   return (
     <footer className="bg-ritual-deep-green pb-16 text-ritual-warm-white sm:pb-0">
@@ -19,7 +21,7 @@ export function Footer() {
             </span>
           </div>
           <p className="text-sm font-medium text-ritual-warm-white/90">{poruke.brend.slogan}</p>
-          <p className="text-sm text-ritual-warm-white/70">{poruke.brend.opis}</p>
+          <p className="text-sm text-ritual-warm-white/70">{footerOpis}</p>
         </div>
 
         <div className="flex flex-col gap-3">
