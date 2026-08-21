@@ -62,7 +62,7 @@ export function ProizvodKartica({ proizvod, istaknuto }: ProizvodKarticaProps) {
         {proizvod.kratkiOpis ? (
           <span className="text-sm text-ritual-charcoal/70">{proizvod.kratkiOpis}</span>
         ) : null}
-        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+        <div className="mt-auto flex flex-col gap-2 pt-2">
           <span className="text-base font-semibold text-ritual-charcoal">
             {formatCijena(proizvod.cijena)}
           </span>

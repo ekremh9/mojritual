@@ -52,14 +52,23 @@ export function BrzoDodajUKorpuDugme({ productId, imaVeleprodajnePragove }: Brzo
     <button
       type="button"
       onClick={handleClick}
-      aria-label={potvrdjeno ? bs.proizvod.dodanoUKorpu : bs.proizvod.dodajUKorpu}
-      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
+      className={`inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
         potvrdjeno
           ? 'bg-ritual-green text-ritual-deep-green'
           : 'bg-ritual-deep-green text-ritual-warm-white hover:bg-ritual-deep-green/90'
       }`}
     >
-      {potvrdjeno ? <Check className="h-4 w-4" aria-hidden="true" /> : <ShoppingBag className="h-4 w-4" aria-hidden="true" />}
+      {potvrdjeno ? (
+        <>
+          <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {bs.proizvod.dodanoUKorpu}
+        </>
+      ) : (
+        <>
+          <ShoppingBag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {bs.proizvod.uKorpu}
+        </>
+      )}
     </button>
   );
 }
