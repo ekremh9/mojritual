@@ -4,7 +4,7 @@ import { and, asc, count, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { brands, categories, productImages, products } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
-import { getHeroImageUrl } from '@/lib/domain/site-settings';
+import { getHeroImageUrl, getShowHeroStats } from '@/lib/domain/site-settings';
 import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
 import { PartnerKartica } from './_components/PartnerKartica';
@@ -202,13 +202,14 @@ async function getPocetnaStatistika() {
 }
 
 export default async function HomePage() {
-  const [kategorije, istaknutiProizvodi, istaknutiPartneri, statistika, heroSlikaUrl] =
+  const [kategorije, istaknutiProizvodi, istaknutiPartneri, statistika, heroSlikaUrl, prikaziStatistike] =
     await Promise.all([
       getTopLevelCategoriesWithProducts(),
       getIstaknutiProizvodi(),
       getIstaknutiPartneri(),
       getPocetnaStatistika(),
       getHeroImageUrl(),
+      getShowHeroStats(),
     ]);
 
   return (
@@ -234,32 +235,34 @@ export default async function HomePage() {
                 {bs.homepage.hero.podnaslov}
               </p>
 
-              <div className="flex flex-wrap gap-x-8 gap-y-3">
-                <div className="flex flex-col">
-                  <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
-                    {statistika.proizvoda}+
-                  </span>
-                  <span className="font-montserrat text-xs text-ritual-charcoal/70">
-                    {bs.homepage.hero.statistike.proizvoda}
-                  </span>
+              {prikaziStatistike ? (
+                <div className="flex flex-wrap gap-x-8 gap-y-3">
+                  <div className="flex flex-col">
+                    <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                      {statistika.proizvoda}+
+                    </span>
+                    <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                      {bs.homepage.hero.statistike.proizvoda}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                      {statistika.partnera}+
+                    </span>
+                    <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                      {bs.homepage.hero.statistike.partnera}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                      {statistika.kategorija}
+                    </span>
+                    <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                      {bs.homepage.hero.statistike.kategorija}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
-                    {statistika.partnera}+
-                  </span>
-                  <span className="font-montserrat text-xs text-ritual-charcoal/70">
-                    {bs.homepage.hero.statistike.partnera}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
-                    {statistika.kategorija}
-                  </span>
-                  <span className="font-montserrat text-xs text-ritual-charcoal/70">
-                    {bs.homepage.hero.statistike.kategorija}
-                  </span>
-                </div>
-              </div>
+              ) : null}
 
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link

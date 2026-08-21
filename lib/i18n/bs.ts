@@ -40,6 +40,7 @@ export const bs = {
     brendovi: {
       naslov: 'Za partnere',
       registracija: 'Registrujte se kao partner',
+      veleprodaja: 'Kupujete na veliko?',
     },
     kontakt: {
       naslov: 'Kontakt',
@@ -1271,6 +1272,13 @@ export const bs = {
         uklanjanje: 'Uklanjanje…',
         uspjehUklonjeno: 'Hero slika je uklonjena, početna stranica sad prikazuje gradijent.',
         greskaOpsta: 'Upload hero slike nije uspio. Pokušajte ponovo.',
+      },
+      heroStatistike: {
+        naslov: 'Statistike na početnoj',
+        opis:
+          'Broj proizvoda, partnera i kategorija u hero sekciji na početnoj stranici.',
+        labela: 'Prikaži statistike na početnoj',
+        greskaOpsta: 'Snimanje postavke nije uspjelo. Pokušajte ponovo.',
       },
     },
     greskaPristup: 'Nemate ovlaštenje za ovu akciju.',

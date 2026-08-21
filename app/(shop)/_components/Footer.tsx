@@ -43,6 +43,9 @@ export function Footer() {
           <Link href="/registracija-brend" className={KLASE_LINKA}>
             {poruke.brendovi.registracija}
           </Link>
+          <Link href="/registracija-brend" className={KLASE_LINKA}>
+            {poruke.brendovi.veleprodaja}
+          </Link>
         </div>
 
         <div className="flex flex-col gap-3">

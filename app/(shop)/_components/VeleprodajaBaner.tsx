@@ -4,14 +4,21 @@ import { jeOdobreniPartner } from '@/lib/domain/brand-access';
 import { bs } from '@/lib/i18n/bs';
 
 /**
- * Tanka informativna traka o veleprodaji — dvije varijante:
- * odobren partner (član `brand_users` čiji je `brands.status = 'odobren'`)
- * vidi kratku potvrdu bez CTA; svako drugi (gost ili obični kupac) vidi
- * poziv da se registruje kao partner. Namjerno kompaktno, ne veliki blok.
+ * Tanka informativna traka o veleprodaji — dvije varijante: odobren partner
+ * (član `brand_users` čiji je `brands.status = 'odobren'`) vidi kratku
+ * potvrdu bez CTA; gost (neprijavljen) vidi poziv da se registruje kao
+ * partner. Svaki DRUGI ulogovan korisnik (admin, obični kupac, neodobren
+ * partner) ne vidi ništa — CTA za veleprodaju za njih ostaje dostupan samo
+ * kroz stalni link u Footer-u, ne kroz ovaj baner. Namjerno kompaktno, ne
+ * veliki blok.
  */
 export async function VeleprodajaBaner() {
   const session = await auth();
   const odobrenPartner = session?.user?.id ? await jeOdobreniPartner(session.user.id) : false;
+
+  if (session?.user?.id && !odobrenPartner) {
+    return null;
+  }
 
   const poruke = bs.veleprodajaBaner;
 

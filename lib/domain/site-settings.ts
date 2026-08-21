@@ -13,6 +13,7 @@ import { settings } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
 
 const HERO_SLIKA_KLJUC = 'hero_slika_url';
+const HERO_STATISTIKE_KLJUC = 'prikazi_hero_statistike';
 
 export type SiteSettingsRezultat = { ok: true } | { ok: false; error: string };
 
@@ -61,6 +62,45 @@ export async function setHeroImageUrl(url: string | null): Promise<SiteSettingsR
     return { ok: true };
   } catch {
     console.error('setHeroImageUrl: snimanje hero slike nije uspjelo');
+    return { ok: false, error: bs.admin.greskaOpsta };
+  }
+}
+
+/** Da li se statistike (broj proizvoda/partnera/kategorija) prikazuju na hero sekciji — `true` ako ključ ne postoji (default uključeno). */
+export async function getShowHeroStats(): Promise<boolean> {
+  const [red] = await db
+    .select({ vrijednost: settings.vrijednost })
+    .from(settings)
+    .where(eq(settings.kljuc, HERO_STATISTIKE_KLJUC))
+    .limit(1);
+
+  if (!red) {
+    return true;
+  }
+
+  return red.vrijednost !== false;
+}
+
+/** Uključuje/isključuje hero statistike — admin-only, isti obrazac kao `setHeroImageUrl`. */
+export async function setShowHeroStats(prikazi: boolean): Promise<SiteSettingsRezultat> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    await db
+      .insert(settings)
+      .values({ kljuc: HERO_STATISTIKE_KLJUC, vrijednost: prikazi })
+      .onConflictDoUpdate({ target: settings.kljuc, set: { vrijednost: prikazi } });
+
+    revalidatePath('/');
+    revalidatePath('/admin/postavke');
+
+    return { ok: true };
+  } catch {
+    console.error('setShowHeroStats: snimanje postavke hero statistika nije uspjelo');
     return { ok: false, error: bs.admin.greskaOpsta };
   }
 }
