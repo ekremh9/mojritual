@@ -49,7 +49,7 @@ export function KorisnickiMeni({ user, unreadCount }: KorisnickiMeniProps) {
   const obavjestenjaHref =
     user.role === 'customer' ? '/nalog/obavjestenja' : user.role === 'brand' ? '/portal/obavjestenja' : null;
   const stavkaKlase =
-    'block rounded-lg px-3 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]';
+    'block rounded-lg px-3 py-2 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige';
 
   return (
     <div ref={kontejnerRef} className="relative">
@@ -59,7 +59,7 @@ export function KorisnickiMeni({ user, unreadCount }: KorisnickiMeniProps) {
         aria-haspopup="menu"
         aria-expanded={otvoren}
         aria-label={bs.korisnickiMeni.otvoriMeni}
-        className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+        className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige"
       >
         <span className="relative inline-flex">
           <User className="h-5 w-5" />
@@ -76,14 +76,14 @@ export function KorisnickiMeni({ user, unreadCount }: KorisnickiMeniProps) {
       {otvoren && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-50 mt-2 w-60 rounded-2xl border border-[#1C2B22]/10 bg-white p-2 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-2 w-60 rounded-2xl border border-ritual-charcoal/10 bg-white p-2 shadow-lg"
         >
-          <div className="border-b border-[#1C2B22]/10 px-3 pb-3 pt-2">
+          <div className="border-b border-ritual-charcoal/10 px-3 pb-3 pt-2">
             {user.name && (
-              <p className="truncate text-sm font-semibold text-[#16332A]">{user.name}</p>
+              <p className="truncate text-sm font-semibold text-ritual-deep-green">{user.name}</p>
             )}
             {user.email && (
-              <p className="truncate text-xs text-[#1C2B22]/70">{user.email}</p>
+              <p className="truncate text-xs text-ritual-charcoal/70">{user.email}</p>
             )}
           </div>
 
@@ -133,7 +133,7 @@ export function KorisnickiMeni({ user, unreadCount }: KorisnickiMeniProps) {
             )}
           </div>
 
-          <div className="mt-2 border-t border-[#1C2B22]/10 pt-2">
+          <div className="mt-2 border-t border-ritual-charcoal/10 pt-2">
             <button
               type="button"
               role="menuitem"

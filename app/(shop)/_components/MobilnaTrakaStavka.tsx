@@ -26,7 +26,7 @@ export function MobilnaTrakaStavka({ href, label, children, badge }: MobilnaTrak
       href={href}
       aria-current={aktivna ? 'page' : undefined}
       className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors ${
-        aktivna ? 'text-[#16332A]' : 'text-[#8A9086]'
+        aktivna ? 'text-ritual-deep-green' : 'text-[#8A9086]'
       }`}
     >
       <span className="relative flex items-center justify-center">

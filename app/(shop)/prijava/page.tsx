@@ -43,19 +43,19 @@ export default async function PrijavaPage({ searchParams }: PrijavaPageProps) {
     <div className="flex flex-1 items-center justify-center px-4 py-12 sm:py-16">
       <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold text-[#1C2B22]">{bs.prijava.naslov}</h1>
-          <p className="text-sm text-[#1C2B22]/70">{bs.prijava.podnaslov}</p>
+          <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal">{bs.prijava.naslov}</h1>
+          <p className="text-sm text-ritual-charcoal/70">{bs.prijava.podnaslov}</p>
         </div>
 
         <div className="mt-6">
           <PrijavaForma callbackUrl={sigurniCallbackUrl(callbackUrl)} />
         </div>
 
-        <p className="mt-6 text-center text-sm text-[#1C2B22]/70">
+        <p className="mt-6 text-center text-sm text-ritual-charcoal/70">
           {bs.prijava.nematePitanje}{' '}
           <Link
             href="/registracija"
-            className="font-medium text-[#16332A] underline underline-offset-2"
+            className="font-medium text-ritual-deep-green underline underline-offset-2"
           >
             {bs.prijava.registrujteSe}
           </Link>

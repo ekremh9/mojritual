@@ -17,7 +17,7 @@ export function ProizvodGalerija({ slike, naziv }: ProizvodGalerijaProps) {
 
   return (
     <div>
-      <div className="relative aspect-square w-full max-w-sm mx-auto lg:max-w-none overflow-hidden rounded-2xl bg-[#F2F5ED]">
+      <div className="relative aspect-square w-full max-w-sm mx-auto lg:max-w-none overflow-hidden rounded-2xl bg-ritual-beige">
         {glavnaSlika ? (
           <Image
             src={glavnaSlika.url}
@@ -38,10 +38,10 @@ export function ProizvodGalerija({ slike, naziv }: ProizvodGalerijaProps) {
               onClick={() => setIzabraniIndeks(indeks)}
               aria-label={bs.proizvod.prikaziSliku(indeks + 1)}
               aria-pressed={indeks === izabraniIndeks}
-              className={`relative aspect-square w-20 overflow-hidden rounded-xl bg-[#F2F5ED] border-2 transition-colors ${
+              className={`relative aspect-square w-20 overflow-hidden rounded-xl bg-ritual-beige border-2 transition-colors ${
                 indeks === izabraniIndeks
-                  ? 'border-[#16332A]'
-                  : 'border-transparent hover:border-[#1C2B22]/20'
+                  ? 'border-ritual-deep-green'
+                  : 'border-transparent hover:border-ritual-charcoal/20'
               }`}
             >
               <Image

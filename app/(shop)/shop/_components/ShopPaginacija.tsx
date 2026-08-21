@@ -30,7 +30,7 @@ export function ShopPaginacija({ filteri, stranica, ukupnoStranica }: ShopPagina
   const imaPrethodnu = stranica > 1;
   const imaSljedecu = stranica < ukupnoStranica;
   const dugmeKlase =
-    'inline-flex items-center gap-1.5 rounded-full border border-[#1C2B22]/20 px-5 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent';
+    'inline-flex items-center gap-1.5 rounded-full border border-ritual-charcoal/20 px-5 py-2 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent';
 
   return (
     <nav
@@ -47,7 +47,7 @@ export function ShopPaginacija({ filteri, stranica, ukupnoStranica }: ShopPagina
         {bs.shop.paginacija.prethodna}
       </button>
 
-      <span aria-live="polite" className="text-sm text-[#1C2B22]/70">
+      <span aria-live="polite" className="text-sm text-ritual-charcoal/70">
         {bs.shop.paginacija.stranicaOd(stranica, ukupnoStranica)}
       </span>
 

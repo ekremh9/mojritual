@@ -47,17 +47,17 @@ export default async function MojaObavjestenjaPage() {
 
       <Link
         href="/nalog"
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[#1C2B22]/70 hover:text-[#1C2B22]"
+        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-ritual-charcoal/70 hover:text-ritual-charcoal"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         {poruke.nazad}
       </Link>
 
-      <h1 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">{poruke.naslov}</h1>
+      <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">{poruke.naslov}</h1>
 
       {obavjestenja.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-2xl bg-[#C7D6BA]/30 px-6 py-16 text-center">
-          <p className="text-base text-[#1C2B22]/70">{poruke.prazno}</p>
+        <div className="flex flex-col items-center gap-2 rounded-2xl bg-ritual-green/30 px-6 py-16 text-center">
+          <p className="text-base text-ritual-charcoal/70">{poruke.prazno}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -66,23 +66,23 @@ export default async function MojaObavjestenjaPage() {
               <div
                 className={`flex flex-col gap-1 rounded-2xl border p-5 transition-shadow hover:shadow-md ${
                   obavjestenje.procitano
-                    ? 'border-[#1C2B22]/10 bg-white'
-                    : 'border-[#16332A]/20 bg-[#C7D6BA]/20'
+                    ? 'border-ritual-charcoal/10 bg-white'
+                    : 'border-ritual-deep-green/20 bg-ritual-green/20'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <span
-                    className={`text-sm text-[#1C2B22] ${
+                    className={`text-sm text-ritual-charcoal ${
                       obavjestenje.procitano ? 'font-medium' : 'font-semibold'
                     }`}
                   >
                     {obavjestenje.naslov}
                   </span>
-                  <span className="shrink-0 text-xs text-[#1C2B22]/50">
+                  <span className="shrink-0 text-xs text-ritual-charcoal/50">
                     {formatDatumVrijeme(obavjestenje.createdAt)}
                   </span>
                 </div>
-                <p className="text-sm text-[#1C2B22]/70">{obavjestenje.sadrzaj}</p>
+                <p className="text-sm text-ritual-charcoal/70">{obavjestenje.sadrzaj}</p>
               </div>
             );
 

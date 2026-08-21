@@ -16,14 +16,14 @@ export async function VeleprodajaBaner() {
   const poruke = bs.veleprodajaBaner;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#C7D6BA]/40 px-4 py-3">
-      <p className="text-sm text-[#1C2B22]">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ritual-green/40 px-4 py-3">
+      <p className="text-sm text-ritual-charcoal">
         {odobrenPartner ? poruke.partnerTekst : poruke.gostTekst}
       </p>
       {!odobrenPartner ? (
         <Link
           href="/registracija-brend"
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#16332A] px-4 py-1.5 text-xs font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-ritual-deep-green px-4 py-1.5 text-xs font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90"
         >
           {poruke.dugme}
         </Link>

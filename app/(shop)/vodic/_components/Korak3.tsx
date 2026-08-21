@@ -17,8 +17,8 @@ export function Korak3({ ciljevi, opcijePoCilju, odgovori, onPromjena }: Korak3P
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.naslov}</h2>
-        <p className="mt-1 text-sm text-[#1C2B22]/70">{poruke.podnaslov}</p>
+        <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{poruke.naslov}</h2>
+        <p className="mt-1 text-sm text-ritual-charcoal/70">{poruke.podnaslov}</p>
       </div>
 
       {ciljevi.map((cilj) => {
@@ -29,7 +29,7 @@ export function Korak3({ ciljevi, opcijePoCilju, odgovori, onPromjena }: Korak3P
 
         return (
           <div key={cilj.id} className="flex flex-col gap-3">
-            <span className="text-sm font-semibold text-[#16332A]">{cilj.naziv}</span>
+            <span className="text-sm font-semibold text-ritual-deep-green">{cilj.naziv}</span>
 
             <div
               className="flex flex-col gap-2"
@@ -41,8 +41,8 @@ export function Korak3({ ciljevi, opcijePoCilju, odgovori, onPromjena }: Korak3P
                   key={opcija.id}
                   className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors ${
                     odgovori[cilj.id] === opcija.tekstOpcije
-                      ? 'border-[#16332A] bg-[#C7D6BA]/40 text-[#1C2B22]'
-                      : 'border-[#1C2B22]/15 text-[#1C2B22] hover:bg-[#F2F5ED]'
+                      ? 'border-ritual-deep-green bg-ritual-green/40 text-ritual-charcoal'
+                      : 'border-ritual-charcoal/15 text-ritual-charcoal hover:bg-ritual-beige'
                   }`}
                 >
                   <input
@@ -50,7 +50,7 @@ export function Korak3({ ciljevi, opcijePoCilju, odgovori, onPromjena }: Korak3P
                     name={`pitanje-${cilj.id}`}
                     checked={odgovori[cilj.id] === opcija.tekstOpcije}
                     onChange={() => onPromjena({ ...odgovori, [cilj.id]: opcija.tekstOpcije })}
-                    className="h-4 w-4 border-[#1C2B22]/30 text-[#16332A] focus:ring-[#16332A]/40"
+                    className="h-4 w-4 border-ritual-charcoal/30 text-ritual-deep-green focus:ring-ritual-deep-green/40"
                   />
                   {opcija.tekstOpcije}
                 </label>

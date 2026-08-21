@@ -10,7 +10,7 @@ export function KorpaBroj() {
   }
 
   return (
-    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#16332A] text-[10px] font-medium text-white">
+    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-ritual-deep-green text-[10px] font-medium text-white">
       {brojArtikala > 99 ? '99+' : brojArtikala}
     </span>
   );

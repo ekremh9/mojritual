@@ -36,7 +36,7 @@ export function PartnerKartica({ partner, istaknuto }: PartnerKarticaProps) {
   return (
     <Link
       href={`/partner/${partner.slug}`}
-      className="relative flex flex-col gap-3 rounded-2xl border border-[#1C2B22]/10 bg-white p-5 transition-shadow hover:shadow-md"
+      className="relative flex flex-col gap-3 rounded-2xl border border-ritual-charcoal/10 bg-white p-5 transition-shadow hover:shadow-md"
     >
       {istaknuto ? (
         <Star
@@ -45,7 +45,7 @@ export function PartnerKartica({ partner, istaknuto }: PartnerKarticaProps) {
         />
       ) : null}
       <div className="flex items-center gap-3">
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#F2F5ED]">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-ritual-beige">
           {partner.logoUrl ? (
             <Image
               src={partner.logoUrl}
@@ -61,17 +61,17 @@ export function PartnerKartica({ partner, istaknuto }: PartnerKarticaProps) {
           )}
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <span className="text-sm font-semibold text-[#1C2B22]">{partner.naziv}</span>
+          <span className="text-sm font-semibold text-ritual-charcoal">{partner.naziv}</span>
           {partner.verifikovan || partner.istaknut ? (
             <div className="flex flex-wrap items-center gap-1.5">
               {partner.verifikovan ? (
-                <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#C7D6BA]/50 px-2 py-0.5 text-xs font-medium text-[#16332A]">
+                <span className="inline-flex w-fit items-center gap-1 rounded-full bg-ritual-green/50 px-2 py-0.5 text-xs font-medium text-ritual-deep-green">
                   <BadgeCheck className="h-3 w-3" aria-hidden="true" />
                   {bs.partneri.verifikovan}
                 </span>
               ) : null}
               {partner.istaknut ? (
-                <span className="inline-flex w-fit items-center rounded-full bg-[#16332A] px-2 py-0.5 text-xs font-medium text-[#F2F5ED]">
+                <span className="inline-flex w-fit items-center rounded-full bg-ritual-deep-green px-2 py-0.5 text-xs font-medium text-ritual-warm-white">
                   {bs.partneri.istaknut}
                 </span>
               ) : null}
@@ -81,7 +81,7 @@ export function PartnerKartica({ partner, istaknuto }: PartnerKarticaProps) {
       </div>
 
       {partner.kratkiOpis ? (
-        <p className="text-sm text-[#1C2B22]/70">{partner.kratkiOpis}</p>
+        <p className="text-sm text-ritual-charcoal/70">{partner.kratkiOpis}</p>
       ) : null}
 
       <span className="mt-auto pt-1 text-xs text-[#8A9086]">

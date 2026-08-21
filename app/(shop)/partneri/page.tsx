@@ -72,8 +72,8 @@ export default async function PartneriPage({ searchParams }: PartneriPageProps) 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">{bs.partneri.naslov}</h1>
-        <p className="text-sm text-[#1C2B22]/60">{bs.partneri.rezultati(partneri.length)}</p>
+        <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">{bs.partneri.naslov}</h1>
+        <p className="text-sm text-ritual-charcoal/60">{bs.partneri.rezultati(partneri.length)}</p>
       </div>
 
       <div className="mt-6">
@@ -81,8 +81,8 @@ export default async function PartneriPage({ searchParams }: PartneriPageProps) 
       </div>
 
       {partneri.length === 0 ? (
-        <div className="mt-8 flex flex-col items-center gap-4 rounded-2xl bg-[#C7D6BA]/30 px-6 py-16 text-center">
-          <p className="max-w-md text-base text-[#1C2B22]/70">{bs.partneri.prazno}</p>
+        <div className="mt-8 flex flex-col items-center gap-4 rounded-2xl bg-ritual-green/30 px-6 py-16 text-center">
+          <p className="max-w-md text-base text-ritual-charcoal/70">{bs.partneri.prazno}</p>
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

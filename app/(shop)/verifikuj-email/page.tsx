@@ -22,12 +22,12 @@ export default async function VerifikujEmailPage({ searchParams }: VerifikujEmai
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12 sm:py-16">
       <div className="flex w-full max-w-[400px] flex-col items-center gap-4 rounded-2xl bg-white p-6 text-center shadow-sm sm:p-8">
-        <p className="text-lg font-medium text-[#1C2B22]">
+        <p className="text-lg font-medium text-ritual-charcoal">
           {rezultat.ok ? bs.verifikacija.naslovUspjeh : rezultat.error}
         </p>
         <Link
           href="/"
-          className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90"
+          className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-6 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90"
         >
           {bs.verifikacija.nazadNaPocetnu}
         </Link>

@@ -16,7 +16,7 @@ export function MobilnaTraka() {
   return (
     <nav
       aria-label={poruke.naslov}
-      className="fixed inset-x-0 bottom-0 z-50 flex border-t border-[#1C2B22]/10 bg-white sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 flex border-t border-ritual-charcoal/10 bg-white sm:hidden"
     >
       <MobilnaTrakaStavka href="/" label={poruke.pocetna}>
         <Home className={IKONA_KLASE} />

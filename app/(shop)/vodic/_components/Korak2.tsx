@@ -25,10 +25,10 @@ export function Korak2({ ciljevi, odabrani, onPromjena }: Korak2Props) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.naslov}</h2>
+        <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{poruke.naslov}</h2>
         <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm text-[#1C2B22]/70">{poruke.podnaslov}</p>
-          <span className="text-sm font-medium text-[#16332A]">
+          <p className="text-sm text-ritual-charcoal/70">{poruke.podnaslov}</p>
+          <span className="text-sm font-medium text-ritual-deep-green">
             {poruke.odabrano(odabrani.length)}
           </span>
         </div>
@@ -44,10 +44,10 @@ export function Korak2({ ciljevi, odabrani, onPromjena }: Korak2Props) {
               key={cilj.id}
               className={`flex items-center gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium transition-colors ${
                 oznacen
-                  ? 'border-[#16332A] bg-[#C7D6BA]/40 text-[#1C2B22]'
+                  ? 'border-ritual-deep-green bg-ritual-green/40 text-ritual-charcoal'
                   : onemoguceno
-                    ? 'cursor-not-allowed border-[#1C2B22]/10 text-[#1C2B22]/40'
-                    : 'cursor-pointer border-[#1C2B22]/15 text-[#1C2B22] hover:bg-[#F2F5ED]'
+                    ? 'cursor-not-allowed border-ritual-charcoal/10 text-ritual-charcoal/40'
+                    : 'cursor-pointer border-ritual-charcoal/15 text-ritual-charcoal hover:bg-ritual-beige'
               }`}
             >
               <input
@@ -55,7 +55,7 @@ export function Korak2({ ciljevi, odabrani, onPromjena }: Korak2Props) {
                 checked={oznacen}
                 disabled={onemoguceno}
                 onChange={() => prekidac(cilj.id)}
-                className="h-4 w-4 rounded border-[#1C2B22]/30 text-[#16332A] focus:ring-[#16332A]/40 disabled:cursor-not-allowed"
+                className="h-4 w-4 rounded border-ritual-charcoal/30 text-ritual-deep-green focus:ring-ritual-deep-green/40 disabled:cursor-not-allowed"
               />
               {cilj.naziv}
             </label>

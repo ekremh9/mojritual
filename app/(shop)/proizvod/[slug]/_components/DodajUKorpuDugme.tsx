@@ -64,7 +64,7 @@ export function DodajUKorpuDugme({ productId, cijena, jePartner, pragovi }: Doda
     <div className="mt-1 flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-3">
         {veleprodaja ? (
-          <label className="flex items-center gap-2 text-sm font-medium text-[#1C2B22]">
+          <label className="flex items-center gap-2 text-sm font-medium text-ritual-charcoal">
             {poruke.kolicinaLabela}
             <input
               type="number"
@@ -73,21 +73,21 @@ export function DodajUKorpuDugme({ productId, cijena, jePartner, pragovi }: Doda
               inputMode="numeric"
               value={kolicina}
               onChange={(event) => postaviKolicinuIzUnosa(event.target.value)}
-              className="w-24 rounded-full border border-[#1C2B22]/20 px-4 py-2.5 text-center text-sm font-medium text-[#1C2B22] outline-none transition focus:border-[#16332A] focus:ring-2 focus:ring-[#16332A]/20"
+              className="w-24 rounded-full border border-ritual-charcoal/20 px-4 py-2.5 text-center text-sm font-medium text-ritual-charcoal outline-none transition focus:border-ritual-deep-green focus:ring-2 focus:ring-ritual-deep-green/20"
             />
           </label>
         ) : (
-          <div className="flex items-center rounded-full border border-[#1C2B22]/20">
+          <div className="flex items-center rounded-full border border-ritual-charcoal/20">
             <button
               type="button"
               onClick={() => setKolicina((trenutna) => Math.max(1, trenutna - 1))}
               disabled={kolicina <= 1}
               aria-label={bs.proizvod.smanjiKolicinu}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-ritual-charcoal transition-colors hover:bg-ritual-beige disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="w-8 text-center text-sm font-medium text-[#1C2B22]" aria-live="polite">
+            <span className="w-8 text-center text-sm font-medium text-ritual-charcoal" aria-live="polite">
               {kolicina}
             </span>
             <button
@@ -95,7 +95,7 @@ export function DodajUKorpuDugme({ productId, cijena, jePartner, pragovi }: Doda
               onClick={() => setKolicina((trenutna) => Math.min(MAX_KOLICINA_PO_STAVCI, trenutna + 1))}
               disabled={kolicina >= MAX_KOLICINA_PO_STAVCI}
               aria-label={bs.proizvod.povecajKolicinu}
-              className="flex h-11 w-11 items-center justify-center rounded-full text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-ritual-charcoal transition-colors hover:bg-ritual-beige disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -105,27 +105,27 @@ export function DodajUKorpuDugme({ productId, cijena, jePartner, pragovi }: Doda
         <button
           type="button"
           onClick={handleDodaj}
-          className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-8 py-3 text-base font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90"
+          className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3 text-base font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90"
         >
           {potvrdjeno ? bs.proizvod.dodanoUKorpu : bs.proizvod.dodajUKorpu}
         </button>
       </div>
 
       {veleprodaja ? (
-        <div className="flex flex-col gap-2 rounded-xl bg-[#F2F5ED] p-3">
+        <div className="flex flex-col gap-2 rounded-xl bg-ritual-beige p-3">
           <div className="flex flex-wrap items-baseline gap-2">
-            <span className="text-sm font-medium text-[#1C2B22]">
+            <span className="text-sm font-medium text-ritual-charcoal">
               {poruke.jedinicnaCijena(formatCijena(jedinicnaCijena))}
             </span>
             {jedinicnaCijena !== cijena ? (
-              <span className="text-xs text-[#1C2B22]/50 line-through">{formatCijena(cijena)}</span>
+              <span className="text-xs text-ritual-charcoal/50 line-through">{formatCijena(cijena)}</span>
             ) : null}
           </div>
-          <span className="text-sm font-medium text-[#1C2B22]">
+          <span className="text-sm font-medium text-ritual-charcoal">
             {poruke.ukupno(formatCijena(jedinicnaCijena * kolicina))}
           </span>
 
-          <ul className="mt-1 flex flex-col gap-0.5 text-xs text-[#1C2B22]/70">
+          <ul className="mt-1 flex flex-col gap-0.5 text-xs text-ritual-charcoal/70">
             {pragovi.map((prag) => (
               <li key={prag.minKolicina}>
                 {poruke.pragOpis(
@@ -137,7 +137,7 @@ export function DodajUKorpuDugme({ productId, cijena, jePartner, pragovi }: Doda
             ))}
           </ul>
 
-          <p className="text-xs text-[#1C2B22]/60">{poruke.napomena}</p>
+          <p className="text-xs text-ritual-charcoal/60">{poruke.napomena}</p>
         </div>
       ) : null}
     </div>

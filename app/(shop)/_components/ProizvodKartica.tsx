@@ -29,7 +29,7 @@ export function ProizvodKartica({ proizvod, istaknuto }: ProizvodKarticaProps) {
   return (
     <Link
       href={`/proizvod/${proizvod.slug}`}
-      className="relative flex flex-col overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-white transition-shadow hover:shadow-md"
+      className="relative flex flex-col overflow-hidden rounded-2xl border border-ritual-charcoal/10 bg-white transition-shadow hover:shadow-md"
     >
       {istaknuto ? (
         <Star
@@ -37,7 +37,7 @@ export function ProizvodKartica({ proizvod, istaknuto }: ProizvodKarticaProps) {
           className="absolute right-2 top-2 z-10 h-6 w-6 fill-amber-400 text-amber-400 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
         />
       ) : null}
-      <div className="relative aspect-square w-full bg-[#F2F5ED]">
+      <div className="relative aspect-square w-full bg-ritual-beige">
         {proizvod.slika ? (
           <Image
             src={proizvod.slika.url}
@@ -49,11 +49,11 @@ export function ProizvodKartica({ proizvod, istaknuto }: ProizvodKarticaProps) {
         ) : null}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="text-sm font-medium text-[#1C2B22]">{proizvod.naziv}</span>
+        <span className="text-sm font-medium text-ritual-charcoal">{proizvod.naziv}</span>
         {proizvod.kratkiOpis ? (
-          <span className="text-sm text-[#1C2B22]/70">{proizvod.kratkiOpis}</span>
+          <span className="text-sm text-ritual-charcoal/70">{proizvod.kratkiOpis}</span>
         ) : null}
-        <span className="mt-auto pt-2 text-base font-semibold text-[#1C2B22]">
+        <span className="mt-auto pt-2 text-base font-semibold text-ritual-charcoal">
           {formatCijena(proizvod.cijena)}
         </span>
       </div>

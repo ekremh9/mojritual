@@ -60,7 +60,7 @@ export default function CheckoutPage() {
 
   if (!ucitano || stavke.length === 0 || statusSesije === 'loading') {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-24 text-center text-sm text-[#1C2B22]/70">
+      <div className="mx-auto max-w-4xl px-4 py-24 text-center text-sm text-ritual-charcoal/70">
         {bs.checkout.ucitavanje}
       </div>
     );
@@ -68,7 +68,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:py-12">
-      <h1 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">{bs.checkout.naslov}</h1>
+      <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">{bs.checkout.naslov}</h1>
 
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="lg:w-1/2">
@@ -81,37 +81,37 @@ export default function CheckoutPage() {
         </div>
 
         <div className="flex flex-col gap-6 lg:w-1/2">
-          <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.checkout.pregledNarudzbe}</h2>
+          <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.checkout.pregledNarudzbe}</h2>
 
           <div className="flex flex-col gap-6">
             {korpa.grupe.map((grupa) => (
               <div
                 key={grupa.brend.id}
-                className="overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-white"
+                className="overflow-hidden rounded-2xl border border-ritual-charcoal/10 bg-white"
               >
-                <div className="border-b border-[#1C2B22]/10 px-5 py-3">
-                  <span className="text-sm font-semibold text-[#1C2B22]">{grupa.brend.naziv}</span>
+                <div className="border-b border-ritual-charcoal/10 px-5 py-3">
+                  <span className="text-sm font-semibold text-ritual-charcoal">{grupa.brend.naziv}</span>
                 </div>
 
-                <div className="flex flex-col divide-y divide-[#1C2B22]/10">
+                <div className="flex flex-col divide-y divide-ritual-charcoal/10">
                   {grupa.linije.map((linija) => (
                     <div
                       key={linija.proizvod.id}
                       className="flex items-center justify-between gap-4 px-5 py-3 text-sm"
                     >
-                      <span className="text-[#1C2B22]">
+                      <span className="text-ritual-charcoal">
                         {linija.proizvod.naziv} × {linija.kolicina}
                       </span>
-                      <span className="font-medium text-[#1C2B22]">
+                      <span className="font-medium text-ritual-charcoal">
                         {formatCijena(linija.medjuzbir)}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-[#1C2B22]/10 bg-[#F2F5ED]/60 px-5 py-3 text-sm">
-                  <span className="text-[#1C2B22]/70">{bs.checkout.dostava}</span>
-                  <span className="font-medium text-[#1C2B22]">
+                <div className="flex items-center justify-between border-t border-ritual-charcoal/10 bg-ritual-beige/60 px-5 py-3 text-sm">
+                  <span className="text-ritual-charcoal/70">{bs.checkout.dostava}</span>
+                  <span className="font-medium text-ritual-charcoal">
                     {grupa.besplatnaDostava
                       ? bs.checkout.besplatnaDostava
                       : formatCijena(grupa.dostava)}
@@ -121,7 +121,7 @@ export default function CheckoutPage() {
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 rounded-2xl bg-[#16332A] p-6 text-[#F2F5ED]">
+          <div className="flex flex-col gap-3 rounded-2xl bg-ritual-deep-green p-6 text-ritual-warm-white">
             <div className="flex items-center justify-between text-sm">
               <span>{bs.checkout.medjuzbir}</span>
               <span>{formatCijena(korpa.medjuzbir)}</span>
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
               <span>{bs.checkout.dostavaUkupno}</span>
               <span>{formatCijena(korpa.dostavaUkupno)}</span>
             </div>
-            <div className="flex items-center justify-between border-t border-[#F2F5ED]/20 pt-3 text-lg font-semibold">
+            <div className="flex items-center justify-between border-t border-ritual-warm-white/20 pt-3 text-lg font-semibold">
               <span>{bs.checkout.ukupno}</span>
               <span>{formatCijena(korpa.ukupno)}</span>
             </div>

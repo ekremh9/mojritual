@@ -15,11 +15,11 @@ import {
 import { bs } from '@/lib/i18n/bs';
 
 const KLASE_POLJA =
-  'w-full rounded-xl border border-[#1C2B22]/15 bg-white px-4 py-2.5 text-sm text-[#1C2B22] outline-none transition placeholder:text-[#1C2B22]/40 focus:border-[#16332A] focus:ring-2 focus:ring-[#16332A]/20 disabled:cursor-not-allowed disabled:bg-[#F2F5ED] disabled:text-[#1C2B22]/60';
+  'w-full rounded-xl border border-ritual-charcoal/15 bg-white px-4 py-2.5 text-sm text-ritual-charcoal outline-none transition placeholder:text-ritual-charcoal/40 focus:border-ritual-deep-green focus:ring-2 focus:ring-ritual-deep-green/20 disabled:cursor-not-allowed disabled:bg-ritual-beige disabled:text-ritual-charcoal/60';
 
-const KLASE_LABELE = 'text-sm font-medium text-[#1C2B22]';
+const KLASE_LABELE = 'text-sm font-medium text-ritual-charcoal';
 
-const KLASE_KARTICE = 'flex flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5';
+const KLASE_KARTICE = 'flex flex-col gap-4 rounded-2xl border border-ritual-charcoal/10 bg-white p-5';
 
 const PRAZAN_UNOS: CheckoutUnos = {
   ime: '',
@@ -135,7 +135,7 @@ export function CheckoutForma({
     <form onSubmit={posalji} className="flex flex-col gap-6" noValidate>
       <fieldset disabled={saljeSe} className="flex flex-col gap-6 border-0 p-0">
         <section className={KLASE_KARTICE}>
-          <h2 className="text-lg font-semibold text-[#1C2B22]">{poruke.naslov}</h2>
+          <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{poruke.naslov}</h2>
 
           <Polje id="ime" label={poruke.polja.ime} obavezno greska={greskePolja.ime}>
             {({ id, opisano }) => (
@@ -264,10 +264,10 @@ export function CheckoutForma({
         </section>
 
         <section className={KLASE_KARTICE}>
-          <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.checkout.placanje.naslov}</h2>
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#16332A]/30 bg-[#C7D6BA]/30 px-4 py-3 text-sm text-[#1C2B22]">
+          <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.checkout.placanje.naslov}</h2>
+          <div className="flex items-center gap-2.5 rounded-xl border border-ritual-deep-green/30 bg-ritual-green/30 px-4 py-3 text-sm text-ritual-charcoal">
             <span
-              className="h-4 w-4 shrink-0 rounded-full border-[5px] border-[#16332A]"
+              className="h-4 w-4 shrink-0 rounded-full border-[5px] border-ritual-deep-green"
               aria-hidden="true"
             />
             {bs.checkout.placanje.pouzece}
@@ -284,7 +284,7 @@ export function CheckoutForma({
       <button
         type="submit"
         disabled={saljeSe}
-        className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-6 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {saljeSe ? poruke.dugmeUcitavanje : poruke.dugme}
       </button>

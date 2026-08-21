@@ -6,9 +6,9 @@ import { signIn } from 'next-auth/react';
 import { bs } from '@/lib/i18n/bs';
 
 const KLASE_POLJA =
-  'w-full rounded-xl border border-[#1C2B22]/15 bg-white px-4 py-2.5 text-sm text-[#1C2B22] outline-none transition placeholder:text-[#1C2B22]/40 focus:border-[#16332A] focus:ring-2 focus:ring-[#16332A]/20';
+  'w-full rounded-xl border border-ritual-charcoal/15 bg-white px-4 py-2.5 text-sm text-ritual-charcoal outline-none transition placeholder:text-ritual-charcoal/40 focus:border-ritual-deep-green focus:ring-2 focus:ring-ritual-deep-green/20';
 
-const KLASE_LABELE = 'text-sm font-medium text-[#1C2B22]';
+const KLASE_LABELE = 'text-sm font-medium text-ritual-charcoal';
 
 type PrijavaFormaProps = {
   callbackUrl: string;
@@ -97,7 +97,7 @@ export function PrijavaForma({ callbackUrl }: PrijavaFormaProps) {
       <button
         type="submit"
         disabled={saljeSe}
-        className="mt-1 inline-flex w-full items-center justify-center rounded-full bg-[#16332A] px-6 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 inline-flex w-full items-center justify-center rounded-full bg-ritual-deep-green px-6 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {saljeSe ? bs.prijava.dugmeUcitavanje : bs.prijava.dugme}
       </button>

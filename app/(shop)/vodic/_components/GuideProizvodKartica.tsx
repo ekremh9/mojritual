@@ -28,9 +28,9 @@ export function GuideProizvodKartica({ proizvod }: { proizvod: GuideProizvod }) 
   }, [potvrdjeno]);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-white">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-ritual-charcoal/10 bg-white">
       <Link href={`/proizvod/${proizvod.slug}`} className="flex flex-1 flex-col">
-        <div className="relative aspect-square w-full bg-[#F2F5ED]">
+        <div className="relative aspect-square w-full bg-ritual-beige">
           {proizvod.slika ? (
             <Image
               src={proizvod.slika.url}
@@ -42,11 +42,11 @@ export function GuideProizvodKartica({ proizvod }: { proizvod: GuideProizvod }) 
           ) : null}
         </div>
         <div className="flex flex-1 flex-col gap-1 p-4">
-          <span className="text-sm font-medium text-[#1C2B22]">{proizvod.naziv}</span>
+          <span className="text-sm font-medium text-ritual-charcoal">{proizvod.naziv}</span>
           {proizvod.kratkiOpis ? (
-            <span className="text-sm text-[#1C2B22]/70">{proizvod.kratkiOpis}</span>
+            <span className="text-sm text-ritual-charcoal/70">{proizvod.kratkiOpis}</span>
           ) : null}
-          <span className="mt-auto pt-2 text-base font-semibold text-[#1C2B22]">
+          <span className="mt-auto pt-2 text-base font-semibold text-ritual-charcoal">
             {formatCijena(proizvod.cijena)}
           </span>
         </div>
@@ -59,7 +59,7 @@ export function GuideProizvodKartica({ proizvod }: { proizvod: GuideProizvod }) 
             dodajUKorpu(proizvod.id);
             setPotvrdjeno(true);
           }}
-          className="w-full rounded-full bg-[#16332A] px-4 py-2.5 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90"
+          className="w-full rounded-full bg-ritual-deep-green px-4 py-2.5 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90"
         >
           {potvrdjeno ? bs.vodic.rezultat.dodanoUKorpu : bs.vodic.rezultat.dodajUKorpu}
         </button>

@@ -123,7 +123,7 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
                 <Link
                   key={kategorija.slug}
                   href={`/shop?kategorija=${kategorija.slug}`}
-                  className="rounded-full bg-[#C7D6BA] px-3 py-1 text-xs font-medium text-[#1C2B22] transition-colors hover:bg-[#C7D6BA]/70"
+                  className="rounded-full bg-ritual-green px-3 py-1 text-xs font-medium text-ritual-charcoal transition-colors hover:bg-ritual-green/70"
                 >
                   {kategorija.naziv}
                 </Link>
@@ -131,23 +131,23 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
             </div>
           ) : null}
 
-          <h1 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">{proizvod.naziv}</h1>
+          <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">{proizvod.naziv}</h1>
 
           {proizvod.kratkiOpis ? (
-            <p className="text-base text-[#1C2B22]/70">{proizvod.kratkiOpis}</p>
+            <p className="text-base text-ritual-charcoal/70">{proizvod.kratkiOpis}</p>
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-3 border-y border-[#1C2B22]/10 py-5">
-          <span className="text-2xl font-semibold text-[#1C2B22]">
+        <div className="flex flex-col gap-3 border-y border-ritual-charcoal/10 py-5">
+          <span className="text-2xl font-semibold text-ritual-charcoal">
             {formatCijena(proizvod.cijena)}
           </span>
 
-          <span className="text-sm text-[#1C2B22]/70">
+          <span className="text-sm text-ritual-charcoal/70">
             {bs.proizvod.prodaje}:{' '}
             <Link
               href={`/partner/${proizvod.brandSlug}`}
-              className="font-medium text-[#1C2B22] underline underline-offset-2"
+              className="font-medium text-ritual-charcoal underline underline-offset-2"
             >
               {proizvod.brandNaziv}
             </Link>
@@ -163,8 +163,8 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
 
         {pasusiOpisa.length > 0 ? (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.proizvod.opis}</h2>
-            <div className="flex flex-col gap-3 text-sm leading-relaxed text-[#1C2B22]/80">
+            <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.proizvod.opis}</h2>
+            <div className="flex flex-col gap-3 text-sm leading-relaxed text-ritual-charcoal/80">
               {pasusiOpisa.map((pasus, indeks) => (
                 <p key={indeks}>{pasus}</p>
               ))}
@@ -174,22 +174,22 @@ export default async function ProizvodPage({ params }: ProizvodPageProps) {
 
         {proizvod.doziranje ? (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-[#1C2B22]">
+            <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">
               {bs.proizvod.sastojciIDoziranje}
             </h2>
-            <p className="whitespace-pre-line text-sm leading-relaxed text-[#1C2B22]/80">
+            <p className="whitespace-pre-line text-sm leading-relaxed text-ritual-charcoal/80">
               {proizvod.doziranje}
             </p>
           </div>
         ) : null}
 
         {proizvod.upozorenja ? (
-          <div className="flex flex-col gap-2 rounded-2xl bg-[#C7D6BA]/40 p-4">
-            <h2 className="flex items-center gap-2 text-base font-semibold text-[#1C2B22]">
+          <div className="flex flex-col gap-2 rounded-2xl bg-ritual-green/40 p-4">
+            <h2 className="font-bodoni flex items-center gap-2 text-base font-semibold text-ritual-charcoal">
               <span aria-hidden="true">⚠️</span>
               {bs.proizvod.upozorenja}
             </h2>
-            <p className="whitespace-pre-line text-sm leading-relaxed text-[#1C2B22]/80">
+            <p className="whitespace-pre-line text-sm leading-relaxed text-ritual-charcoal/80">
               {proizvod.upozorenja}
             </p>
           </div>

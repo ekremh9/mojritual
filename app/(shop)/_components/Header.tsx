@@ -15,11 +15,11 @@ export async function Header() {
   const brojNeprocitanih = session?.user?.id ? await getUnreadCount(session.user.id) : 0;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1C2B22]/10 bg-white">
+    <header className="sticky top-0 z-50 border-b border-ritual-charcoal/10 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image src="/logo.png" alt="" width={250} height={244} className="h-9 w-auto" priority />
-          <span className="font-bodoni text-lg font-semibold uppercase tracking-wide text-[#16332A]">
+          <span className="font-bodoni text-lg font-semibold uppercase tracking-wide text-ritual-deep-green">
             {bs.header.logo}
           </span>
         </Link>
@@ -27,25 +27,25 @@ export async function Header() {
         <nav className="hidden items-center gap-8 sm:flex">
           <Link
             href="/shop"
-            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
+            className="text-sm font-medium text-ritual-charcoal transition-colors hover:text-ritual-deep-green"
           >
             {bs.header.shop}
           </Link>
           <Link
             href="/vodic"
-            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
+            className="text-sm font-medium text-ritual-charcoal transition-colors hover:text-ritual-deep-green"
           >
             {bs.header.ritualVodic}
           </Link>
           <Link
             href="/partneri"
-            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
+            className="text-sm font-medium text-ritual-charcoal transition-colors hover:text-ritual-deep-green"
           >
             {bs.header.partneri}
           </Link>
           <Link
             href="/blog"
-            className="text-sm font-medium text-[#1C2B22] transition-colors hover:text-[#16332A]"
+            className="text-sm font-medium text-ritual-charcoal transition-colors hover:text-ritual-deep-green"
           >
             {bs.header.blog}
           </Link>
@@ -54,7 +54,7 @@ export async function Header() {
         <div className="flex items-center gap-3">
           <Link
             href="/korpa"
-            className="relative hidden items-center justify-center rounded-full p-2 text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] sm:flex"
+            className="relative hidden items-center justify-center rounded-full p-2 text-ritual-charcoal transition-colors hover:bg-ritual-beige sm:flex"
             aria-label={bs.header.korpa}
           >
             <ShoppingBag className="h-5 w-5" />
@@ -66,7 +66,7 @@ export async function Header() {
           ) : (
             <Link
               href="/prijava"
-              className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-4 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] sm:px-5"
+              className="inline-flex items-center justify-center rounded-full border border-ritual-charcoal/20 px-4 py-2 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige sm:px-5"
             >
               {bs.header.prijava}
             </Link>

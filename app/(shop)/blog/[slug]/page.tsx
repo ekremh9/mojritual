@@ -49,14 +49,14 @@ export default async function BlogClanakPage({ params }: BlogClanakPageProps) {
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
       <Link
         href="/blog"
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[#1C2B22]/70 hover:text-[#1C2B22]"
+        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-ritual-charcoal/70 hover:text-ritual-charcoal"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         {bs.blog.nazad}
       </Link>
 
       <div className="mt-4 flex flex-col gap-3">
-        <h1 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">{clanak.naslov}</h1>
+        <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">{clanak.naslov}</h1>
 
         <div className="flex flex-wrap items-center gap-2 text-sm text-[#8A9086]">
           {datum ? <span>{datum}</span> : null}
@@ -66,7 +66,7 @@ export default async function BlogClanakPage({ params }: BlogClanakPageProps) {
       </div>
 
       {clanak.coverUrl ? (
-        <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-2xl bg-[#F2F5ED]">
+        <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-2xl bg-ritual-beige">
           <Image
             src={clanak.coverUrl}
             alt={clanak.naslov}
@@ -78,7 +78,7 @@ export default async function BlogClanakPage({ params }: BlogClanakPageProps) {
         </div>
       ) : null}
 
-      <div className="mt-8 flex flex-col gap-4 text-base leading-relaxed text-[#1C2B22]/85">
+      <div className="mt-8 flex flex-col gap-4 text-base leading-relaxed text-ritual-charcoal/85">
         {pasusi.map((pasus, indeks) => (
           <p key={indeks}>{pasus}</p>
         ))}

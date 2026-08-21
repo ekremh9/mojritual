@@ -332,7 +332,7 @@ export default async function HomePage() {
 
       <section className="px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">
+          <h2 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">
             {bs.homepage.kategorije.naslov}
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -340,14 +340,14 @@ export default async function HomePage() {
               <Link
                 key={kategorija.id}
                 href={`/shop?kategorija=${kategorija.slug}`}
-                className="flex flex-col rounded-2xl bg-[#C7D6BA] p-5 transition-transform hover:-translate-y-0.5"
+                className="flex flex-col rounded-2xl bg-ritual-green p-5 transition-transform hover:-translate-y-0.5"
               >
-                <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-[#16332A]" />
-                <span className="mt-3 text-base font-medium text-[#1C2B22]">
+                <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-ritual-deep-green" />
+                <span className="mt-3 text-base font-medium text-ritual-charcoal">
                   {kategorija.naziv}
                 </span>
                 {kategorija.opis ? (
-                  <span className="mt-1 text-sm text-[#1C2B22]/70">{kategorija.opis}</span>
+                  <span className="mt-1 text-sm text-ritual-charcoal/70">{kategorija.opis}</span>
                 ) : null}
               </Link>
             ))}
@@ -357,7 +357,7 @@ export default async function HomePage() {
 
       <section className="px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">
+          <h2 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">
             {bs.homepage.istaknutiProizvodi.naslov}
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -372,7 +372,7 @@ export default async function HomePage() {
           <div className="mt-8 flex justify-center">
             <Link
               href="/shop"
-              className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-2.5 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+              className="inline-flex items-center justify-center rounded-full border border-ritual-charcoal/20 px-6 py-2.5 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige"
             >
               {bs.homepage.istaknutiProizvodi.vidiSve}
             </Link>
@@ -383,7 +383,7 @@ export default async function HomePage() {
       {istaknutiPartneri.length > 0 ? (
         <section className="px-4 py-14 sm:px-6">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">
+            <h2 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">
               {bs.homepage.istaknutiPartneri.naslov}
             </h2>
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
@@ -398,7 +398,7 @@ export default async function HomePage() {
             <div className="mt-8 flex justify-center">
               <Link
                 href="/partneri"
-                className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-2.5 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+                className="inline-flex items-center justify-center rounded-full border border-ritual-charcoal/20 px-6 py-2.5 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige"
               >
                 {bs.homepage.istaknutiPartneri.vidiSve}
               </Link>

@@ -43,22 +43,22 @@ export function Rezultat({ rezultat, sessionId, ulogovan, onPonovi }: RezultatPr
   return (
     <div className="mt-8 flex flex-col gap-10">
       <div>
-        <h2 className="text-xl font-semibold text-[#1C2B22] sm:text-2xl">{poruke.naslov}</h2>
-        <p className="mt-1 text-sm text-[#1C2B22]/70">{poruke.podnaslov}</p>
+        <h2 className="font-bodoni text-xl font-semibold text-ritual-charcoal sm:text-2xl">{poruke.naslov}</h2>
+        <p className="mt-1 text-sm text-ritual-charcoal/70">{poruke.podnaslov}</p>
       </div>
 
       {rezultat.grupe.map((grupa) => (
         <section key={grupa.goalId} className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold text-[#1C2B22]">{grupa.naziv}</h3>
+          <h3 className="text-lg font-semibold text-ritual-charcoal">{grupa.naziv}</h3>
 
           {grupa.tekstObjasnjenja ? (
-            <p className="rounded-2xl bg-[#C7D6BA]/30 px-5 py-4 text-sm leading-relaxed text-[#1C2B22]">
+            <p className="rounded-2xl bg-ritual-green/30 px-5 py-4 text-sm leading-relaxed text-ritual-charcoal">
               {grupa.tekstObjasnjenja}
             </p>
           ) : null}
 
           {grupa.proizvodi.length === 0 ? (
-            <p className="text-sm text-[#1C2B22]/60">{poruke.prazno}</p>
+            <p className="text-sm text-ritual-charcoal/60">{poruke.prazno}</p>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {grupa.proizvodi.map((proizvod) => (
@@ -69,7 +69,7 @@ export function Rezultat({ rezultat, sessionId, ulogovan, onPonovi }: RezultatPr
         </section>
       ))}
 
-      <div className="rounded-2xl border border-[#1C2B22]/10 bg-[#F2F5ED] px-5 py-4 text-xs leading-relaxed text-[#1C2B22]/70">
+      <div className="rounded-2xl border border-ritual-charcoal/10 bg-ritual-beige px-5 py-4 text-xs leading-relaxed text-ritual-charcoal/70">
         {bs.vodic.disclaimer}
       </div>
 
@@ -77,7 +77,7 @@ export function Rezultat({ rezultat, sessionId, ulogovan, onPonovi }: RezultatPr
         <button
           type="button"
           onClick={onPonovi}
-          className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-3 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+          className="inline-flex items-center justify-center rounded-full border border-ritual-charcoal/20 px-6 py-3 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige"
         >
           {poruke.nazadNaPocetak}
         </button>
@@ -87,7 +87,7 @@ export function Rezultat({ rezultat, sessionId, ulogovan, onPonovi }: RezultatPr
             type="button"
             onClick={sacuvajRezultat}
             disabled={cuvanje || sacuvano}
-            className="text-sm font-medium text-[#16332A] underline underline-offset-2 hover:no-underline disabled:cursor-not-allowed disabled:opacity-60"
+            className="text-sm font-medium text-ritual-deep-green underline underline-offset-2 hover:no-underline disabled:cursor-not-allowed disabled:opacity-60"
           >
             {sacuvano
               ? poruke.rezultatSacuvan
@@ -98,7 +98,7 @@ export function Rezultat({ rezultat, sessionId, ulogovan, onPonovi }: RezultatPr
         ) : (
           <Link
             href="/registracija"
-            className="text-sm font-medium text-[#16332A] underline underline-offset-2 hover:no-underline"
+            className="text-sm font-medium text-ritual-deep-green underline underline-offset-2 hover:no-underline"
           >
             {poruke.sacuvajNalog}
           </Link>

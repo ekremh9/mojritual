@@ -123,8 +123,9 @@ export default async function BrendPage({ params }: BrendPageProps) {
   return (
     <div className="flex flex-col">
       <div
-        className="relative flex h-[240px] items-end overflow-hidden sm:h-[320px]"
-        style={!brend.coverUrl ? { backgroundColor: '#16332A' } : undefined}
+        className={`relative flex h-[240px] items-end overflow-hidden sm:h-[320px] ${
+          !brend.coverUrl ? 'bg-ritual-deep-green' : ''
+        }`}
       >
         {brend.coverUrl ? (
           <>
@@ -135,7 +136,7 @@ export default async function BrendPage({ params }: BrendPageProps) {
 
         <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end gap-4 px-4 pb-6 sm:px-6 sm:pb-8">
           {brend.logoUrl ? (
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-[#F2F5ED] bg-[#F2F5ED] sm:h-20 sm:w-20">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-ritual-warm-white bg-ritual-warm-white sm:h-20 sm:w-20">
               <Image
                 src={brend.logoUrl}
                 alt={brend.naziv}
@@ -147,12 +148,12 @@ export default async function BrendPage({ params }: BrendPageProps) {
           ) : null}
           <div className="flex flex-col gap-1.5">
             {brend.verifikovan ? (
-              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-[#F2F5ED] px-2.5 py-1 text-xs font-medium text-[#16332A]">
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-ritual-warm-white px-2.5 py-1 text-xs font-medium text-ritual-deep-green">
                 <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
                 {bs.partner.verifikovan}
               </span>
             ) : null}
-            <h1 className="text-2xl font-semibold uppercase tracking-wide text-[#F2F5ED] sm:text-4xl">
+            <h1 className="font-bodoni text-2xl font-semibold uppercase tracking-wide text-ritual-warm-white sm:text-4xl">
               {brend.naziv}
             </h1>
           </div>
@@ -162,8 +163,8 @@ export default async function BrendPage({ params }: BrendPageProps) {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12">
         {pasusiPrice.length > 0 ? (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.partner.oPartneru}</h2>
-            <div className="flex flex-col gap-3 text-sm leading-relaxed text-[#1C2B22]/80">
+            <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.partner.oPartneru}</h2>
+            <div className="flex flex-col gap-3 text-sm leading-relaxed text-ritual-charcoal/80">
               {pasusiPrice.map((pasus, indeks) => (
                 <p key={indeks}>{pasus}</p>
               ))}
@@ -173,26 +174,26 @@ export default async function BrendPage({ params }: BrendPageProps) {
 
         {certifikati.length > 0 ? (
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.partner.certifikati}</h2>
+            <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.partner.certifikati}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {certifikati.map((certifikat) => (
                 <div
                   key={certifikat.id}
-                  className="flex flex-col gap-2 rounded-2xl border border-[#1C2B22]/10 bg-white p-4"
+                  className="flex flex-col gap-2 rounded-2xl border border-ritual-charcoal/10 bg-white p-4"
                 >
                   <div className="flex items-center gap-2">
-                    <Award className="h-5 w-5 shrink-0 text-[#16332A]" aria-hidden="true" />
-                    <span className="text-sm font-medium text-[#1C2B22]">{certifikat.naziv}</span>
+                    <Award className="h-5 w-5 shrink-0 text-ritual-deep-green" aria-hidden="true" />
+                    <span className="text-sm font-medium text-ritual-charcoal">{certifikat.naziv}</span>
                   </div>
                   {certifikat.opis ? (
-                    <p className="text-sm text-[#1C2B22]/70">{certifikat.opis}</p>
+                    <p className="text-sm text-ritual-charcoal/70">{certifikat.opis}</p>
                   ) : null}
                   {certifikat.dokumentUrl ? (
                     <a
                       href={certifikat.dokumentUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-auto text-sm font-medium text-[#16332A] underline underline-offset-2"
+                      className="mt-auto text-sm font-medium text-ritual-deep-green underline underline-offset-2"
                     >
                       {bs.partner.pogledajDokument}
                     </a>
@@ -204,10 +205,10 @@ export default async function BrendPage({ params }: BrendPageProps) {
         ) : null}
 
         <div className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-[#1C2B22]">{bs.partner.ponudaPartnera}</h2>
+          <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.partner.ponudaPartnera}</h2>
           {proizvodi.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-2xl bg-[#C7D6BA]/30 px-6 py-16 text-center">
-              <p className="text-base text-[#1C2B22]/70">{bs.partner.prazno}</p>
+            <div className="flex flex-col items-center gap-2 rounded-2xl bg-ritual-green/30 px-6 py-16 text-center">
+              <p className="text-base text-ritual-charcoal/70">{bs.partner.prazno}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

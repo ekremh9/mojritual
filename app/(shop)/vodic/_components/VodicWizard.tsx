@@ -128,7 +128,7 @@ export function VodicWizard({
             type="button"
             onClick={() => setKorak((trenutni) => (trenutni - 1) as Korak)}
             disabled={ucitavanje}
-            className="inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-6 py-3 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-full border border-ritual-charcoal/20 px-6 py-3 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige disabled:cursor-not-allowed disabled:opacity-60"
           >
             {bs.vodic.dugmad.nazad}
           </button>
@@ -141,7 +141,7 @@ export function VodicWizard({
             type="button"
             disabled={!mozeNastavitiIzKorak1(osnovniPodaci)}
             onClick={() => setKorak(2)}
-            className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-8 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {bs.vodic.dugmad.dalje}
           </button>
@@ -150,7 +150,7 @@ export function VodicWizard({
             type="button"
             disabled={!validanBrojCiljeva(odabraniCiljevi)}
             onClick={() => setKorak(3)}
-            className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-8 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {bs.vodic.dugmad.dalje}
           </button>
@@ -159,14 +159,14 @@ export function VodicWizard({
             type="button"
             disabled={ucitavanje}
             onClick={zavrsi}
-            className="inline-flex items-center justify-center rounded-full bg-[#16332A] px-8 py-3 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {ucitavanje ? bs.vodic.dugmad.ucitavanje : bs.vodic.dugmad.vidiRezultate}
           </button>
         )}
       </div>
 
-      <p className="text-xs leading-relaxed text-[#1C2B22]/50">{bs.vodic.disclaimer}</p>
+      <p className="text-xs leading-relaxed text-ritual-charcoal/50">{bs.vodic.disclaimer}</p>
     </div>
   );
 }

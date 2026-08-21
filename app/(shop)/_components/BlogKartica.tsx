@@ -18,9 +18,9 @@ export function BlogKartica({ clanak }: BlogKarticaProps) {
   return (
     <Link
       href={`/blog/${clanak.slug}`}
-      className="flex flex-col overflow-hidden rounded-2xl border border-[#1C2B22]/10 bg-white transition-shadow hover:shadow-md"
+      className="flex flex-col overflow-hidden rounded-2xl border border-ritual-charcoal/10 bg-white transition-shadow hover:shadow-md"
     >
-      <div className="relative aspect-video w-full shrink-0 bg-[#F2F5ED]">
+      <div className="relative aspect-video w-full shrink-0 bg-ritual-beige">
         {clanak.coverUrl ? (
           <Image
             src={clanak.coverUrl}
@@ -37,10 +37,10 @@ export function BlogKartica({ clanak }: BlogKarticaProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <h2 className="text-lg font-semibold text-[#1C2B22]">{clanak.naslov}</h2>
+        <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{clanak.naslov}</h2>
 
         {clanak.sazetak ? (
-          <p className="line-clamp-3 text-sm text-[#1C2B22]/70">{clanak.sazetak}</p>
+          <p className="line-clamp-3 text-sm text-ritual-charcoal/70">{clanak.sazetak}</p>
         ) : null}
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-2 text-xs text-[#8A9086]">

@@ -12,7 +12,7 @@ export default async function VodicPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:py-16">
-      <h1 className="text-2xl font-semibold text-[#1C2B22] sm:text-3xl">{bs.vodic.naslov}</h1>
+      <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">{bs.vodic.naslov}</h1>
       <VodicWizard ciljevi={ciljevi} opcijePoCilju={opcijePoCilju} ulogovan={!!session?.user} />
     </div>
   );

@@ -76,13 +76,13 @@ export function ShopPretraga({ filteri }: { filteri: ShopFilteri }) {
           value={pojam}
           onChange={(event) => setPojam(event.target.value)}
           placeholder={bs.shop.pretraga.placeholder}
-          className="w-full rounded-full border border-[#1C2B22]/15 bg-white py-2.5 pl-11 pr-4 text-sm text-[#1C2B22] placeholder:text-[#8A9086] focus:border-[#16332A] focus:outline-none focus:ring-2 focus:ring-[#16332A]/20"
+          className="w-full rounded-full border border-ritual-charcoal/15 bg-white py-2.5 pl-11 pr-4 text-sm text-ritual-charcoal placeholder:text-[#8A9086] focus:border-ritual-deep-green focus:outline-none focus:ring-2 focus:ring-ritual-deep-green/20"
         />
       </div>
       <button
         type="submit"
         disabled={uToku}
-        className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#16332A] px-6 py-2.5 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:opacity-60"
+        className="inline-flex shrink-0 items-center justify-center rounded-full bg-ritual-deep-green px-6 py-2.5 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:opacity-60"
       >
         {bs.shop.pretraga.dugme}
       </button>
@@ -115,7 +115,7 @@ export function ShopFilterPanel({ filteri, kategorije, aktivniFilteri }: ShopFil
         onClick={() => setOtvoreno((prethodno) => !prethodno)}
         aria-expanded={otvoreno}
         aria-controls="shop-filter-panel"
-        className="inline-flex items-center justify-between gap-2 rounded-full border border-[#1C2B22]/15 bg-white px-5 py-2.5 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED] lg:hidden"
+        className="inline-flex items-center justify-between gap-2 rounded-full border border-ritual-charcoal/15 bg-white px-5 py-2.5 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige lg:hidden"
       >
         <span className="inline-flex items-center gap-2">
           <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
@@ -129,7 +129,7 @@ export function ShopFilterPanel({ filteri, kategorije, aktivniFilteri }: ShopFil
 
       <div
         id="shop-filter-panel"
-        className={`${otvoreno ? 'flex' : 'hidden'} flex-col gap-4 rounded-2xl border border-[#1C2B22]/10 bg-white p-5 lg:flex ${
+        className={`${otvoreno ? 'flex' : 'hidden'} flex-col gap-4 rounded-2xl border border-ritual-charcoal/10 bg-white p-5 lg:flex ${
           uToku ? 'opacity-60' : ''
         }`}
       >
@@ -194,7 +194,7 @@ export function ShopFilterPanel({ filteri, kategorije, aktivniFilteri }: ShopFil
           <button
             type="button"
             onClick={() => pocniPrelaz(() => router.push('/shop'))}
-            className="mt-1 inline-flex items-center justify-center rounded-full border border-[#1C2B22]/20 px-5 py-2 text-sm font-medium text-[#1C2B22] transition-colors hover:bg-[#F2F5ED]"
+            className="mt-1 inline-flex items-center justify-center rounded-full border border-ritual-charcoal/20 px-5 py-2 text-sm font-medium text-ritual-charcoal transition-colors hover:bg-ritual-beige"
           >
             {bs.shop.filteri.ocisti}
           </button>
@@ -215,7 +215,7 @@ type FilterSelectProps = {
 function FilterSelect({ id, labela, vrijednost, onPromjena, children }: FilterSelectProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-[#1C2B22]">
+      <label htmlFor={id} className="text-sm font-medium text-ritual-charcoal">
         {labela}
       </label>
       <div className="relative">
@@ -223,7 +223,7 @@ function FilterSelect({ id, labela, vrijednost, onPromjena, children }: FilterSe
           id={id}
           value={vrijednost}
           onChange={(event) => onPromjena(event.target.value)}
-          className="w-full appearance-none rounded-xl border border-[#1C2B22]/15 bg-white py-2.5 pl-3 pr-9 text-sm text-[#1C2B22] focus:border-[#16332A] focus:outline-none focus:ring-2 focus:ring-[#16332A]/20"
+          className="w-full appearance-none rounded-xl border border-ritual-charcoal/15 bg-white py-2.5 pl-3 pr-9 text-sm text-ritual-charcoal focus:border-ritual-deep-green focus:outline-none focus:ring-2 focus:ring-ritual-deep-green/20"
         >
           {children}
         </select>

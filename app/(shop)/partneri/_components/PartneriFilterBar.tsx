@@ -67,13 +67,13 @@ export function PartneriFilterBar({ filteri }: { filteri: PartneriFilteri }) {
             value={pojam}
             onChange={(event) => setPojam(event.target.value)}
             placeholder={bs.partneri.pretraga.placeholder}
-            className="w-full rounded-full border border-[#1C2B22]/15 bg-white py-2.5 pl-11 pr-4 text-sm text-[#1C2B22] placeholder:text-[#8A9086] focus:border-[#16332A] focus:outline-none focus:ring-2 focus:ring-[#16332A]/20"
+            className="w-full rounded-full border border-ritual-charcoal/15 bg-white py-2.5 pl-11 pr-4 text-sm text-ritual-charcoal placeholder:text-[#8A9086] focus:border-ritual-deep-green focus:outline-none focus:ring-2 focus:ring-ritual-deep-green/20"
           />
         </div>
         <button
           type="submit"
           disabled={uToku}
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#16332A] px-6 py-2.5 text-sm font-medium text-[#F2F5ED] transition-colors hover:bg-[#16332A]/90 disabled:opacity-60"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-ritual-deep-green px-6 py-2.5 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:opacity-60"
         >
           {bs.partneri.pretraga.dugme}
         </button>
@@ -91,7 +91,7 @@ export function PartneriFilterBar({ filteri }: { filteri: PartneriFilteri }) {
             // ne odabere jedan od tri ponuđena sortiranja.
             value={filteri.sort === 'preporuceno' ? '' : filteri.sort}
             onChange={(event) => promijeniSort(event.target.value as PartneriSort)}
-            className="w-full appearance-none rounded-xl border border-[#1C2B22]/15 bg-white py-2.5 pl-3 pr-9 text-sm text-[#1C2B22] focus:border-[#16332A] focus:outline-none focus:ring-2 focus:ring-[#16332A]/20"
+            className="w-full appearance-none rounded-xl border border-ritual-charcoal/15 bg-white py-2.5 pl-3 pr-9 text-sm text-ritual-charcoal focus:border-ritual-deep-green focus:outline-none focus:ring-2 focus:ring-ritual-deep-green/20"
           >
             {PARTNERI_SORTOVI_VIDLJIVI.map((sort) => (
               <option key={sort} value={sort}>
