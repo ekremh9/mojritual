@@ -131,9 +131,14 @@ export const bs = {
     hero: {
       naslov: 'Tvoj ritual zdravijeg života.',
       podnaslov:
-        'Ispunite kratki Ritual Vodič i otkrijte stručno odabrane preporuke za svoje zdravstvene ciljeve — ili jednostavno pretražite najveći izbor dodataka prehrani i kozmetičkih proizvoda na jednom mjestu.',
+        'Stručno odabrani dodaci prehrani i kozmetika, uz Ritual Vodič koji predlaže personalizirana rješenja za vaše zdravstvene ciljeve.',
       cta: 'Pokreni Ritual Vodič',
-      mikroOznake: ['Stručno kreirane preporuke', 'Provjereni proizvodi', 'Brza dostava'],
+      ctaSekundarno: 'Istražite ponudu',
+      statistike: {
+        proizvoda: 'proizvoda',
+        partnera: 'partnera',
+        kategorija: 'kategorija',
+      },
     },
     kategorije: {
       naslov: 'Kupujte po kategoriji',
@@ -822,6 +827,7 @@ export const bs = {
       vodic: 'Ritual Vodič',
       cjenovnik: 'Cjenovnik',
       blog: 'Blog',
+      postavke: 'Postavke',
     },
     dashboard: {
       naslov: 'Pregled',
@@ -1248,6 +1254,23 @@ export const bs = {
         greskaStatus: 'Odaberite ispravan status.',
         greskaRecenzent: 'Odabrani recenzent nije pronađen.',
         greskaOpsta: 'Snimanje nije uspjelo. Pokušajte ponovo.',
+      },
+    },
+    postavke: {
+      naslov: 'Postavke',
+      podnaslov: 'Globalne postavke sajta.',
+      heroSlika: {
+        naslov: 'Hero slika početne stranice',
+        opis:
+          'Prikazuje se u desnoj koloni hero sekcije na početnoj. Ako nije postavljena, prikazuje se elegantan gradijent.',
+        dodaj: 'Dodaj sliku',
+        ucitavanje: 'Učitavanje…',
+        napomena:
+          'Slika se automatski smanjuje i pretvara u WebP prije objave — učitavanje može potrajati par sekundi.',
+        ukloni: 'Ukloni sliku',
+        uklanjanje: 'Uklanjanje…',
+        uspjehUklonjeno: 'Hero slika je uklonjena, početna stranica sad prikazuje gradijent.',
+        greskaOpsta: 'Upload hero slike nije uspio. Pokušajte ponovo.',
       },
     },
     greskaPristup: 'Nemate ovlaštenje za ovu akciju.',

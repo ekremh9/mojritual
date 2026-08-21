@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Geist, Geist_Mono, Montserrat } from "next/font/google";
 import { auth } from "@/auth";
 import { jeOdobreniPartner } from "@/lib/domain/brand-access";
 import { Providers } from "./providers";
@@ -12,6 +12,20 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// Za hero redizajn (naslov/opis) — raw next/font varijable su namjerno
+// drugačije imenovane od Tailwind theme ključeva (`--font-bodoni`/
+// `--font-montserrat` u globals.css) — isti obrazac kao Geist, da se
+// izbjegne kružna referenca custom property-ja na samog sebe.
+const bodoniModa = Bodoni_Moda({
+  variable: "--font-bodoni-raw",
+  subsets: ["latin"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat-raw",
   subsets: ["latin"],
 });
 
@@ -33,7 +47,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="bs"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bodoniModa.variable} ${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers jePartner={jePartner}>{children}</Providers>

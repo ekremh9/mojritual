@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
 import { auth } from '@/auth';
@@ -16,8 +17,11 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#1C2B22]/10 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-lg font-semibold text-[#16332A]">
-          {bs.header.logo}
+        <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Image src="/logo.png" alt="" width={250} height={244} className="h-9 w-auto" priority />
+          <span className="font-bodoni text-lg font-semibold uppercase tracking-wide text-[#16332A]">
+            {bs.header.logo}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 sm:flex">

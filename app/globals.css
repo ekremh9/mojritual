@@ -3,6 +3,20 @@
 :root {
   --background: #F2F5ED;
   --foreground: #1C2B22;
+
+  /*
+   * Nova paleta — uvedena za redizajn homepage hero sekcije. NAMJERNO
+   * primijenjena samo na hero (i admin/postavke upload widget) u ovom
+   * zadatku, ne na cijeli sajt — ostatak aplikacije i dalje koristi
+   * postojeće boje iznad (--background/--foreground) i hardkodirane
+   * hex vrijednosti po komponentama (#16332A, #1C2B22, itd.).
+   */
+  --ritual-green: #5FAF8F;
+  --ritual-deep-green: #245C4A;
+  --ritual-gold: #D4AF5A;
+  --ritual-warm-white: #FAF9F5;
+  --ritual-beige: #F0EDE4;
+  --ritual-charcoal: #26312D;
 }
 
 @theme inline {
@@ -10,6 +24,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-bodoni: var(--font-bodoni-raw);
+  --font-montserrat: var(--font-montserrat-raw);
+
+  --color-ritual-green: var(--ritual-green);
+  --color-ritual-deep-green: var(--ritual-deep-green);
+  --color-ritual-gold: var(--ritual-gold);
+  --color-ritual-warm-white: var(--ritual-warm-white);
+  --color-ritual-beige: var(--ritual-beige);
+  --color-ritual-charcoal: var(--ritual-charcoal);
 }
 
 body {

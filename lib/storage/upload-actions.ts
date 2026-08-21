@@ -6,11 +6,13 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { brandUsers, brands, posts, productImages, products } from '@/lib/db/schema';
+import { getHeroImageUrl, setHeroImageUrl } from '@/lib/domain/site-settings';
 import { ALLOWED_IMAGE_TYPES, MAX_PRODUCT_IMAGES, MAX_UPLOAD_SIZE_BYTES } from '@/lib/storage/image-constants';
 import {
   processBlogCover,
   processBrandCover,
   processBrandLogo,
+  processHeroImage,
   processProductImage,
 } from '@/lib/storage/image-processing';
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, obrisiSaR2, r2Client } from '@/lib/storage/r2-client';
@@ -362,5 +364,67 @@ export async function deleteProductImageAction(
     // Bez detalja unosa u logu.
     console.error('deleteProductImageAction: brisanje slike proizvoda nije uspjelo');
     return { ok: false, error: bs.portal.slike.greskaOpsta };
+  }
+}
+
+/**
+ * Snima homepage hero sliku na R2 — admin-only, jedna slika globalno
+ * (zamjenjuje se, isti obrazac kao `uploadBrandImageAction`/
+ * `uploadBlogImageAction`: stara slika ostaje na R2 kao orphan, ne briše
+ * se ovdje). Upis u `settings` ide preko `setHeroImageUrl`, koja ponavlja
+ * admin provjeru nezavisno.
+ */
+export async function uploadHeroImageAction(formData: FormData): Promise<UploadRezultat> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const provjera = await ucitajIProvjeriSliku(formData.get('file'));
+    if (!provjera.ok) {
+      return { ok: false, error: provjera.error };
+    }
+
+    const obradjena = await processHeroImage(provjera.buffer);
+    const key = `site/hero-${Date.now()}.webp`;
+    const url = await uploadNaR2(key, obradjena);
+
+    const rezultat = await setHeroImageUrl(url);
+    if (!rezultat.ok) {
+      return { ok: false, error: rezultat.error };
+    }
+
+    return { ok: true, url };
+  } catch {
+    console.error('uploadHeroImageAction: upload hero slike nije uspio');
+    return { ok: false, error: bs.admin.postavke.heroSlika.greskaOpsta };
+  }
+}
+
+/** Uklanja hero sliku — briše fajl sa R2 i vraća homepage na gradient fallback. */
+export async function removeHeroImageAction(): Promise<BrisanjeRezultat> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id || session.user.role !== 'admin') {
+      return { ok: false, error: bs.admin.greskaPristup };
+    }
+
+    const trenutniUrl = await getHeroImageUrl();
+    if (trenutniUrl) {
+      await obrisiSaR2(trenutniUrl);
+    }
+
+    const rezultat = await setHeroImageUrl(null);
+    if (!rezultat.ok) {
+      return { ok: false, error: rezultat.error };
+    }
+
+    return { ok: true };
+  } catch {
+    console.error('removeHeroImageAction: uklanjanje hero slike nije uspjelo');
+    return { ok: false, error: bs.admin.postavke.heroSlika.greskaOpsta };
   }
 }

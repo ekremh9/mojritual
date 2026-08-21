@@ -1,4 +1,13 @@
-import { Building2, Compass, LayoutDashboard, Newspaper, Package, ShoppingBag, Tag } from 'lucide-react';
+import {
+  Building2,
+  Compass,
+  LayoutDashboard,
+  Newspaper,
+  Package,
+  Settings,
+  ShoppingBag,
+  Tag,
+} from 'lucide-react';
 import { bs } from '@/lib/i18n/bs';
 import { AdminNavLink } from './AdminNavLink';
 
@@ -34,6 +43,9 @@ export function AdminNav() {
       </AdminNavLink>
       <AdminNavLink href="/admin/blog" label={bs.admin.nav.blog}>
         <Newspaper className={IKONA_KLASE} />
+      </AdminNavLink>
+      <AdminNavLink href="/admin/postavke" label={bs.admin.nav.postavke}>
+        <Settings className={IKONA_KLASE} />
       </AdminNavLink>
     </nav>
   );

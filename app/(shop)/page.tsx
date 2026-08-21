@@ -1,8 +1,10 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { and, asc, count, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { brands, productImages, products } from '@/lib/db/schema';
+import { brands, categories, productImages, products } from '@/lib/db/schema';
 import { getTopLevelCategoriesWithProducts } from '@/lib/domain/categories';
+import { getHeroImageUrl } from '@/lib/domain/site-settings';
 import { bs } from '@/lib/i18n/bs';
 import { CategoryIcon } from './_components/CategoryIcon';
 import { PartnerKartica } from './_components/PartnerKartica';
@@ -184,37 +186,141 @@ async function getIstaknutiPartneri() {
   }));
 }
 
-export default async function HomePage() {
-  const [kategorije, istaknutiProizvodi, istaknutiPartneri] = await Promise.all([
-    getTopLevelCategoriesWithProducts(),
-    getIstaknutiProizvodi(),
-    getIstaknutiPartneri(),
+/** Stvarni brojevi iz baze za hero statistike — namjerno bez keširanja, ista svježina kao ostatak homepagea. */
+async function getPocetnaStatistika() {
+  const [[proizvodaRed], [partneraRed], [kategorijaRed]] = await Promise.all([
+    db.select({ ukupno: count() }).from(products).where(eq(products.status, 'odobren')),
+    db.select({ ukupno: count() }).from(brands).where(eq(brands.status, 'odobren')),
+    db.select({ ukupno: count() }).from(categories),
   ]);
+
+  return {
+    proizvoda: proizvodaRed?.ukupno ?? 0,
+    partnera: partneraRed?.ukupno ?? 0,
+    kategorija: kategorijaRed?.ukupno ?? 0,
+  };
+}
+
+export default async function HomePage() {
+  const [kategorije, istaknutiProizvodi, istaknutiPartneri, statistika, heroSlikaUrl] =
+    await Promise.all([
+      getTopLevelCategoriesWithProducts(),
+      getIstaknutiProizvodi(),
+      getIstaknutiPartneri(),
+      getPocetnaStatistika(),
+      getHeroImageUrl(),
+    ]);
 
   return (
     <div className="flex flex-col">
-      <section className="bg-[#16332A] px-4 py-16 text-[#F2F5ED] sm:px-6 sm:py-24">
-        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <h1 className="text-3xl font-semibold leading-tight sm:text-5xl">
-            {bs.homepage.hero.naslov}
-          </h1>
-          <p className="mt-6 text-base leading-relaxed text-[#F2F5ED]/85 sm:text-lg">
-            {bs.homepage.hero.podnaslov}
-          </p>
-          <Link
-            href="/vodic"
-            className="mt-8 inline-flex items-center justify-center rounded-full bg-[#F2F5ED] px-8 py-3 text-base font-medium text-[#16332A] transition-colors hover:bg-white"
-          >
-            {bs.homepage.hero.cta}
-          </Link>
-          <ul className="mt-6 flex flex-col items-center gap-1 text-sm text-[#F2F5ED]/75 sm:flex-row sm:gap-6">
-            {bs.homepage.hero.mikroOznake.map((oznaka) => (
-              <li key={oznaka} className="flex items-center gap-1.5">
-                <span aria-hidden="true">✓</span>
-                {oznaka}
-              </li>
-            ))}
-          </ul>
+      {/*
+        Redizajn hero sekcije — nova paleta (--ritual-*) i fontovi
+        (font-bodoni/font-montserrat) primijenjeni NAMJERNO samo ovdje, ne
+        na ostatak stranice (vidi napomenu u globals.css). Dvokolonski
+        layout: lijevo tekst/CTA/statistike (uvijek), desno slika ili
+        gradient fallback — na mobitelu desna kolona uvijek ide ISPOD
+        lijeve, fiksne (manje) visine bez obzira ima li sliku ili ne
+        (jednostavnije i predvidljivije nego uslovno sakrivanje kad slika
+        nije postavljena — vidi self-review).
+      */}
+      <section className="overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          <div className="flex flex-col justify-center bg-ritual-warm-white px-4 py-14 sm:px-6 sm:py-20 lg:px-12 lg:py-24">
+            <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
+              <h1 className="font-bodoni text-4xl leading-tight text-ritual-deep-green sm:text-5xl">
+                {bs.homepage.hero.naslov}
+              </h1>
+              <p className="font-montserrat text-base leading-relaxed text-ritual-charcoal/80">
+                {bs.homepage.hero.podnaslov}
+              </p>
+
+              <div className="flex flex-wrap gap-x-8 gap-y-3">
+                <div className="flex flex-col">
+                  <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                    {statistika.proizvoda}+
+                  </span>
+                  <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                    {bs.homepage.hero.statistike.proizvoda}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                    {statistika.partnera}+
+                  </span>
+                  <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                    {bs.homepage.hero.statistike.partnera}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                    {statistika.kategorija}
+                  </span>
+                  <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                    {bs.homepage.hero.statistike.kategorija}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Link
+                  href="/vodic"
+                  className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3 font-montserrat text-sm font-medium text-ritual-warm-white transition-colors hover:opacity-90"
+                >
+                  {bs.homepage.hero.cta}
+                </Link>
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center justify-center rounded-full border border-ritual-deep-green px-8 py-3 font-montserrat text-sm font-medium text-ritual-deep-green transition-colors hover:bg-ritual-deep-green/5"
+                >
+                  {bs.homepage.hero.ctaSekundarno}
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-48 sm:h-64 lg:h-auto">
+            {heroSlikaUrl ? (
+              <Image
+                src={heroSlikaUrl}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-ritual-deep-green to-ritual-green" />
+            )}
+            {/*
+              Blagi prelaz na LIJEVOJ ivici desne kolone, gdje se dodiruje
+              sa lijevom (toplom) kolonom — isti overlay bez obzira je li
+              pozadina slika ili gradient fallback (izvan if/else iznad),
+              da granica "utapa" jednu pozadinu u drugu umjesto oštre linije.
+              5 stop-ova sa opadajućom providnošću (ease-out krivulja, ne
+              linearna) umjesto samo from/to — i providnost na samoj ivici
+              je namjerno ispod 100% (0.62) da se fotografija nazire ispod
+              čak i na najgušćem dijelu prelaza. Tailwind `bg-gradient-to-r
+              from-X to-transparent` je ovdje namjerno zamijenjen raw
+              `backgroundImage` — JIT skener ne bi uhvatio dinamički
+              sastavljen `bg-[...]` string, a inline gradient sa 5 stop-ova
+              kao jedan neprekinut Tailwind arbitrary token bio bi
+              nečitljiv.
+
+              `hidden lg:block` — MORA biti isti breakpoint kao grid prelom
+              iznad (`grid-cols-1 lg:grid-cols-2`). Ispod `lg` je desna
+              kolona naslagana ISPOD lijeve (jedna kolona), pa horizontalni
+              fade na "lijevoj ivici" tamo nema smisla (nema lijeve kolone
+              pored nje) — bez ovog uslova bi overlay ostao vidljiv preko
+              vrha slike na mobitelu/tabletu.
+            */}
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 hidden w-[40%] lg:block"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, rgba(250, 249, 245, 0.62) 0%, rgba(250, 249, 245, 0.37) 25%, rgba(250, 249, 245, 0.18) 50%, rgba(250, 249, 245, 0.07) 75%, rgba(250, 249, 245, 0) 100%)',
+              }}
+            />
+          </div>
         </div>
       </section>
 
