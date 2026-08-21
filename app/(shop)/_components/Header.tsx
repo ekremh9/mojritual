@@ -18,7 +18,7 @@ export async function Header() {
     <header className="sticky top-0 z-50 border-b border-ritual-charcoal/10 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
-          <Image src="/logo.png" alt="" width={250} height={244} className="h-9 w-auto" priority />
+          <Image src="/logo.png" alt="" width={508} height={491} className="h-9 w-auto" priority />
           <span className="font-bodoni text-lg font-semibold uppercase tracking-wide text-ritual-deep-green">
             {bs.header.logo}
           </span>

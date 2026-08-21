@@ -15,7 +15,7 @@ export async function Footer() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="" width={250} height={244} className="h-9 w-auto" />
+            <Image src="/logo.png" alt="" width={508} height={491} className="h-9 w-auto" />
             <span className="font-bodoni text-lg font-semibold uppercase tracking-wide">
               {bs.header.logo}
             </span>
