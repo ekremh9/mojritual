@@ -14,6 +14,22 @@ import { VeleprodajaBaner } from './_components/VeleprodajaBaner';
 const BROJ_ISTAKNUTIH = 10;
 const BROJ_ISTAKNUTIH_PARTNERA = 6;
 
+/**
+ * Ilustrovane pill-badge slike po top-level kategoriji (slug) —
+ * zamjenjuju lucide ikonicu + naziv tekst na homepage "Kupuj po
+ * kategoriji" sekciji, jer slike već sadrže naziv kategorije kao tekst
+ * (vidi CategoryIcon, koji ostaje kao fallback za kategoriju bez slike).
+ * Dimenzije su stvarne intrinzične dimenzije fajlova (za next/image
+ * aspect-ratio), prikaz je responsive preko `w-full h-auto`.
+ */
+const SLIKA_KATEGORIJE: Record<string, { src: string; width: number; height: number }> = {
+  suplementi: { src: '/kategorije/suplementi.png', width: 575, height: 158 },
+  sport: { src: '/kategorije/sport.png', width: 557, height: 154 },
+  higijena: { src: '/kategorije/higijena.png', width: 578, height: 152 },
+  kozmetika: { src: '/kategorije/kozmetika.png', width: 554, height: 155 },
+  bebe: { src: '/kategorije/bebe.png', width: 520, height: 159 },
+};
+
 const KOLONE_PROIZVODA = {
   id: products.id,
   slug: products.slug,
@@ -361,21 +377,37 @@ export default async function HomePage() {
             {bs.homepage.kategorije.naslov}
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {kategorije.map((kategorija) => (
-              <Link
-                key={kategorija.id}
-                href={`/shop?kategorija=${kategorija.slug}`}
-                className="flex flex-col rounded-2xl bg-ritual-green p-5 transition-transform hover:-translate-y-0.5"
-              >
-                <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-ritual-deep-green" />
-                <span className="mt-3 text-base font-medium text-ritual-charcoal">
-                  {kategorija.naziv}
-                </span>
-                {kategorija.opis ? (
-                  <span className="mt-1 text-sm text-ritual-charcoal/70">{kategorija.opis}</span>
-                ) : null}
-              </Link>
-            ))}
+            {kategorije.map((kategorija) => {
+              const slika = SLIKA_KATEGORIJE[kategorija.slug];
+
+              return (
+                <Link
+                  key={kategorija.id}
+                  href={`/shop?kategorija=${kategorija.slug}`}
+                  className="flex flex-col rounded-2xl bg-ritual-green p-5 transition-transform hover:-translate-y-0.5"
+                >
+                  {slika ? (
+                    <Image
+                      src={slika.src}
+                      alt={kategorija.naziv}
+                      width={slika.width}
+                      height={slika.height}
+                      className="h-auto w-full"
+                    />
+                  ) : (
+                    <>
+                      <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-ritual-deep-green" />
+                      <span className="mt-3 text-base font-medium text-ritual-charcoal">
+                        {kategorija.naziv}
+                      </span>
+                    </>
+                  )}
+                  {kategorija.opis ? (
+                    <span className="mt-3 text-sm text-ritual-charcoal/70">{kategorija.opis}</span>
+                  ) : null}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
