@@ -15,19 +15,19 @@ const BROJ_ISTAKNUTIH = 10;
 const BROJ_ISTAKNUTIH_PARTNERA = 6;
 
 /**
- * Ilustrovane pill-badge slike po top-level kategoriji (slug) —
- * zamjenjuju lucide ikonicu + naziv tekst na homepage "Kupuj po
- * kategoriji" sekciji, jer slike već sadrže naziv kategorije kao tekst
- * (vidi CategoryIcon, koji ostaje kao fallback za kategoriju bez slike).
+ * Ikone po top-level kategoriji (slug) — providna pozadina, uklapaju se
+ * direktno na `bg-ritual-green` kartici bez dodatnog okvira (vidi
+ * CategoryIcon, koji ostaje kao fallback za kategoriju bez slike).
  * Dimenzije su stvarne intrinzične dimenzije fajlova (za next/image
- * aspect-ratio), prikaz je responsive preko `w-full h-auto`.
+ * aspect-ratio); prikaz je na fiksnoj veličini sa `object-contain` jer
+ * omjeri stranica variraju po ikonici (npr. sport je širi od kvadratnog).
  */
 const SLIKA_KATEGORIJE: Record<string, { src: string; width: number; height: number }> = {
-  suplementi: { src: '/kategorije/suplementi.png', width: 575, height: 158 },
-  sport: { src: '/kategorije/sport.png', width: 557, height: 154 },
-  higijena: { src: '/kategorije/higijena.png', width: 578, height: 152 },
-  kozmetika: { src: '/kategorije/kozmetika.png', width: 554, height: 155 },
-  bebe: { src: '/kategorije/bebe.png', width: 520, height: 159 },
+  suplementi: { src: '/kategorije/suplementi.png', width: 371, height: 316 },
+  sport: { src: '/kategorije/sport.png', width: 410, height: 209 },
+  higijena: { src: '/kategorije/higijena.png', width: 278, height: 295 },
+  kozmetika: { src: '/kategorije/kozmetika.png', width: 308, height: 298 },
+  bebe: { src: '/kategorije/bebe.png', width: 273, height: 306 },
 };
 
 const KOLONE_PROIZVODA = {
@@ -389,21 +389,19 @@ export default async function HomePage() {
                   {slika ? (
                     <Image
                       src={slika.src}
-                      alt={kategorija.naziv}
+                      alt=""
                       width={slika.width}
                       height={slika.height}
-                      className="h-auto w-full"
+                      className="h-14 w-14 object-contain"
                     />
                   ) : (
-                    <>
-                      <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-ritual-deep-green" />
-                      <span className="mt-3 text-base font-medium text-ritual-charcoal">
-                        {kategorija.naziv}
-                      </span>
-                    </>
+                    <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-ritual-deep-green" />
                   )}
+                  <span className="mt-3 text-base font-medium text-ritual-charcoal">
+                    {kategorija.naziv}
+                  </span>
                   {kategorija.opis ? (
-                    <span className="mt-3 text-sm text-ritual-charcoal/70">{kategorija.opis}</span>
+                    <span className="mt-1 text-sm text-ritual-charcoal/70">{kategorija.opis}</span>
                   ) : null}
                 </Link>
               );
