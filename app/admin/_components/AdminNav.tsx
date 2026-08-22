@@ -7,6 +7,7 @@ import {
   Settings,
   ShoppingBag,
   Tag,
+  Users,
 } from 'lucide-react';
 import { bs } from '@/lib/i18n/bs';
 import { AdminNavLink } from './AdminNavLink';
@@ -34,6 +35,9 @@ export function AdminNav() {
       </AdminNavLink>
       <AdminNavLink href="/admin/narudzbe" label={bs.admin.nav.narudzbe}>
         <ShoppingBag className={IKONA_KLASE} />
+      </AdminNavLink>
+      <AdminNavLink href="/admin/korisnici" label={bs.admin.nav.korisnici}>
+        <Users className={IKONA_KLASE} />
       </AdminNavLink>
       <AdminNavLink href="/admin/vodic" label={bs.admin.nav.vodic}>
         <Compass className={IKONA_KLASE} />

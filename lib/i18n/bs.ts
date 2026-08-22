@@ -827,6 +827,7 @@ export const bs = {
       proizvodi: 'Proizvodi',
       brendovi: 'Brendovi',
       narudzbe: 'Narudžbe',
+      korisnici: 'Korisnici',
       vodic: 'Ritual Vodič',
       cjenovnik: 'Cjenovnik',
       blog: 'Blog',
@@ -1026,6 +1027,24 @@ export const bs = {
           uspjehVerifikovano: 'Partner je verifikovan.',
           uspjehUklonjeno: 'Verifikacija je uklonjena.',
         },
+      },
+    },
+    korisnici: {
+      naslov: 'Korisnici',
+      prazno: 'Trenutno nema registrovanih korisnika.',
+      nemaPodatka: '—',
+      tabela: {
+        ime: 'Ime',
+        email: 'Email',
+        rola: 'Rola',
+        datumRegistracije: 'Datum registracije',
+        brojNarudzbi: 'Narudžbe',
+        partner: 'Partner',
+      },
+      rola: {
+        customer: 'Kupac',
+        brand: 'Partner',
+        admin: 'Administrator',
       },
     },
     narudzbe: {
