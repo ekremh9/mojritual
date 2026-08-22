@@ -223,7 +223,7 @@ export default async function BrendPage({ params }: BrendPageProps) {
         ) : null}
 
         <div className="flex flex-col gap-3">
-          <h2 className="font-bodoni text-lg font-semibold text-ritual-charcoal">{bs.partner.ponudaPartnera}</h2>
+          <h2 className="font-bodoni text-lg font-semibold uppercase tracking-wide text-ritual-charcoal">{bs.partner.ponudaPartnera}</h2>
           {proizvodi.length === 0 ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl bg-ritual-green/30 px-6 py-16 text-center">
               <p className="text-base text-ritual-charcoal/70">{bs.partner.prazno}</p>

@@ -373,7 +373,7 @@ export default async function HomePage() {
 
       <section className="px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">
+          <h2 className="font-bodoni text-xl font-semibold uppercase tracking-wide text-ritual-charcoal sm:text-2xl">
             {bs.homepage.kategorije.naslov}
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -397,7 +397,7 @@ export default async function HomePage() {
                   ) : (
                     <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 shrink-0 text-ritual-deep-green" />
                   )}
-                  <span className="text-base font-medium text-ritual-warm-white">
+                  <span className="text-base font-medium uppercase tracking-wide text-ritual-warm-white">
                     {kategorija.naziv}
                   </span>
                 </Link>
@@ -409,7 +409,7 @@ export default async function HomePage() {
 
       <section className="px-4 py-14 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">
+          <h2 className="font-bodoni text-xl font-semibold uppercase tracking-wide text-ritual-charcoal sm:text-2xl">
             {bs.homepage.istaknutiProizvodi.naslov}
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -435,7 +435,7 @@ export default async function HomePage() {
       {istaknutiPartneri.length > 0 ? (
         <section className="px-4 py-14 sm:px-6">
           <div className="mx-auto max-w-6xl">
-            <h2 className="font-bodoni text-2xl font-semibold text-ritual-charcoal sm:text-3xl">
+            <h2 className="font-bodoni text-xl font-semibold uppercase tracking-wide text-ritual-charcoal sm:text-2xl">
               {bs.homepage.istaknutiPartneri.naslov}
             </h2>
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
