@@ -132,7 +132,7 @@ export const bs = {
     hero: {
       naslov: 'Tvoj ritual zdravijeg života.',
       podnaslov:
-        'Stručno odabrani dodaci prehrani i kozmetika, uz Ritual Vodič koji predlaže personalizirana rješenja za vaše zdravstvene ciljeve.',
+        'Personalizovani vodič kroz medicinski recenzirane suplemente i njegu. Pronađi rješenja koja je odobrio naš stručni tim, prilagođena tvojim potrebama.',
       cta: 'Pokreni Ritual Vodič',
       ctaSekundarno: 'Istraži ponudu',
       statistike: {

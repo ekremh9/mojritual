@@ -256,36 +256,36 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="flex flex-col justify-center bg-ritual-warm-white px-4 py-14 sm:px-6 sm:py-20 lg:px-12 lg:py-24">
             <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
-              <h1 className="font-bodoni text-4xl leading-tight text-ritual-deep-green sm:text-5xl">
+              <h1 className="font-bodoni text-4xl font-bold leading-tight text-ritual-deep-green sm:text-5xl">
                 {heroNaslov}
               </h1>
-              <p className="font-montserrat text-base leading-relaxed text-ritual-charcoal/80">
+              <p className="font-montserrat text-lg leading-relaxed text-ritual-charcoal">
                 {heroOpis}
               </p>
 
               {prikaziStatistike ? (
                 <div className="flex flex-wrap gap-x-8 gap-y-3">
                   <div className="flex flex-col">
-                    <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                    <span className="font-bodoni text-3xl font-bold text-ritual-deep-green">
                       {statistika.proizvoda}+
                     </span>
-                    <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                    <span className="font-montserrat text-xs uppercase tracking-wide text-ritual-charcoal/70">
                       {bs.homepage.hero.statistike.proizvoda}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                    <span className="font-bodoni text-3xl font-bold text-ritual-deep-green">
                       {statistika.partnera}+
                     </span>
-                    <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                    <span className="font-montserrat text-xs uppercase tracking-wide text-ritual-charcoal/70">
                       {bs.homepage.hero.statistike.partnera}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-bodoni text-2xl font-semibold text-ritual-deep-green">
+                    <span className="font-bodoni text-3xl font-bold text-ritual-deep-green">
                       {statistika.kategorija}
                     </span>
-                    <span className="font-montserrat text-xs text-ritual-charcoal/70">
+                    <span className="font-montserrat text-xs uppercase tracking-wide text-ritual-charcoal/70">
                       {bs.homepage.hero.statistike.kategorija}
                     </span>
                   </div>
@@ -295,13 +295,13 @@ export default async function HomePage() {
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link
                   href="/vodic"
-                  className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3 font-montserrat text-sm font-medium text-ritual-warm-white transition-colors hover:opacity-90"
+                  className="inline-flex items-center justify-center rounded-full bg-ritual-deep-green px-8 py-3.5 font-montserrat text-sm font-medium text-ritual-warm-white transition-colors hover:opacity-90"
                 >
                   {bs.homepage.hero.cta}
                 </Link>
                 <Link
                   href="/shop"
-                  className="inline-flex items-center justify-center rounded-full border border-ritual-deep-green px-8 py-3 font-montserrat text-sm font-medium text-ritual-deep-green transition-colors hover:bg-ritual-deep-green/5"
+                  className="inline-flex items-center justify-center rounded-full border border-ritual-deep-green px-8 py-3.5 font-montserrat text-sm font-medium text-ritual-deep-green transition-colors hover:bg-ritual-deep-green/5"
                 >
                   {bs.homepage.hero.ctaSekundarno}
                 </Link>
@@ -352,12 +352,6 @@ export default async function HomePage() {
               }}
             />
           </div>
-        </div>
-      </section>
-
-      <section className="px-4 pt-6 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          <VeleprodajaBaner />
         </div>
       </section>
 
@@ -437,6 +431,12 @@ export default async function HomePage() {
           </div>
         </section>
       ) : null}
+
+      <section className="px-4 py-14 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <VeleprodajaBaner />
+        </div>
+      </section>
     </div>
   );
 }

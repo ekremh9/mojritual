@@ -23,7 +23,7 @@ export async function VeleprodajaBaner() {
   const poruke = bs.veleprodajaBaner;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-ritual-green/40 px-4 py-3">
+    <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl bg-ritual-green/40 px-4 py-3 text-center">
       <p className="text-sm text-ritual-charcoal">
         {odobrenPartner ? poruke.partnerTekst : poruke.gostTekst}
       </p>
