@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { resetPasswordAction } from '@/lib/domain/auth-actions';
 import { bs } from '@/lib/i18n/bs';
 
 const KLASE_POLJA =
@@ -11,14 +10,14 @@ const KLASE_POLJA =
 
 const KLASE_LABELE = 'text-sm font-medium text-ritual-charcoal';
 
-type PrijavaFormaProps = {
-  callbackUrl: string;
+type ResetLozinkeFormaProps = {
+  token: string;
 };
 
-export function PrijavaForma({ callbackUrl }: PrijavaFormaProps) {
+export function ResetLozinkeForma({ token }: ResetLozinkeFormaProps) {
   const router = useRouter();
-  const [email, setEmail] = useState('');
   const [lozinka, setLozinka] = useState('');
+  const [potvrda, setPotvrda] = useState('');
   const [greska, setGreska] = useState<string | null>(null);
   const [saljeSe, setSaljeSe] = useState(false);
 
@@ -27,24 +26,24 @@ export function PrijavaForma({ callbackUrl }: PrijavaFormaProps) {
     setGreska(null);
     setSaljeSe(true);
 
-    try {
-      const rezultat = await signIn('credentials', {
-        email: email.trim().toLowerCase(),
-        password: lozinka,
-        redirect: false,
-      });
+    const podaci = new FormData();
+    podaci.set('token', token);
+    podaci.set('lozinka', lozinka);
+    podaci.set('potvrda', potvrda);
 
-      if (!rezultat || rezultat.error) {
-        setGreska(bs.prijava.greskaKredencijali);
+    try {
+      const rezultat = await resetPasswordAction(podaci);
+
+      if (!rezultat.ok) {
+        setGreska(rezultat.error);
         setSaljeSe(false);
         return;
       }
 
       // Namjerno ostaje u loading stanju dok navigacija ne završi.
-      router.push(callbackUrl);
-      router.refresh();
+      router.push('/prijava?reset=uspjeh');
     } catch {
-      setGreska(bs.prijava.greskaOpsta);
+      setGreska(bs.resetLozinke.greskaOpsta);
       setSaljeSe(false);
     }
   }
@@ -52,53 +51,42 @@ export function PrijavaForma({ callbackUrl }: PrijavaFormaProps) {
   return (
     <form onSubmit={posalji} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className={KLASE_LABELE}>
-          {bs.prijava.email}
+        <label htmlFor="lozinka" className={KLASE_LABELE}>
+          {bs.resetLozinke.lozinka}
         </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          placeholder={bs.prijava.emailPlaceholder}
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          disabled={saljeSe}
-          className={KLASE_POLJA}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between">
-          <label htmlFor="lozinka" className={KLASE_LABELE}>
-            {bs.prijava.lozinka}
-          </label>
-          <Link
-            href="/zaboravljena-lozinka"
-            className="text-xs font-medium text-ritual-deep-green underline underline-offset-2"
-          >
-            {bs.prijava.zaboravioLozinku}
-          </Link>
-        </div>
         <input
           id="lozinka"
           name="lozinka"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           required
           value={lozinka}
           onChange={(event) => setLozinka(event.target.value)}
           disabled={saljeSe}
           className={KLASE_POLJA}
         />
+        <p className="text-xs text-ritual-charcoal/60">{bs.resetLozinke.lozinkaPomoc}</p>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="potvrda" className={KLASE_LABELE}>
+          {bs.resetLozinke.potvrdaLozinke}
+        </label>
+        <input
+          id="potvrda"
+          name="potvrda"
+          type="password"
+          autoComplete="new-password"
+          required
+          value={potvrda}
+          onChange={(event) => setPotvrda(event.target.value)}
+          disabled={saljeSe}
+          className={KLASE_POLJA}
+        />
       </div>
 
       {greska ? (
-        <p
-          role="alert"
-          className="rounded-xl bg-[#B3261E]/10 px-4 py-3 text-sm text-[#B3261E]"
-        >
+        <p role="alert" className="rounded-xl bg-[#B3261E]/10 px-4 py-3 text-sm text-[#B3261E]">
           {greska}
         </p>
       ) : null}
@@ -108,7 +96,7 @@ export function PrijavaForma({ callbackUrl }: PrijavaFormaProps) {
         disabled={saljeSe}
         className="mt-1 inline-flex w-full items-center justify-center rounded-full bg-ritual-deep-green px-6 py-3 text-sm font-medium text-ritual-warm-white transition-colors hover:bg-ritual-deep-green/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {saljeSe ? bs.prijava.dugmeUcitavanje : bs.prijava.dugme}
+        {saljeSe ? bs.resetLozinke.dugmeUcitavanje : bs.resetLozinke.dugme}
       </button>
     </form>
   );

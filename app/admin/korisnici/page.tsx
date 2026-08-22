@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getAllUsers } from '@/lib/domain/admin-users';
 import type { Brand } from '@/lib/db/schema';
 import { bs } from '@/lib/i18n/bs';
+import { SendResetLozinkeDugme } from './_components/SendResetLozinkeDugme';
 
 export const metadata: Metadata = {
   title: bs.admin.korisnici.naslov,
@@ -31,7 +32,7 @@ export default async function AdminKorisniciPage() {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#1C2B22]/10 bg-white">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
               <tr className="border-b border-[#1C2B22]/10 text-xs font-medium uppercase tracking-wide text-[#8A9086]">
                 <th className="px-4 py-3">{poruke.tabela.ime}</th>
@@ -40,6 +41,7 @@ export default async function AdminKorisniciPage() {
                 <th className="px-4 py-3">{poruke.tabela.datumRegistracije}</th>
                 <th className="px-4 py-3">{poruke.tabela.brojNarudzbi}</th>
                 <th className="px-4 py-3">{poruke.tabela.partner}</th>
+                <th className="px-4 py-3">{poruke.tabela.akcije}</th>
               </tr>
             </thead>
             <tbody>
@@ -62,6 +64,13 @@ export default async function AdminKorisniciPage() {
                           {bs.admin.brendovi.status[korisnik.partner.status]}
                         </span>
                       </div>
+                    ) : (
+                      <span className="text-[#1C2B22]/50">{poruke.nemaPodatka}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {korisnik.role !== 'admin' ? (
+                      <SendResetLozinkeDugme userId={korisnik.id} />
                     ) : (
                       <span className="text-[#1C2B22]/50">{poruke.nemaPodatka}</span>
                     )}

@@ -37,7 +37,8 @@ export default async function PrijavaPage({ searchParams }: PrijavaPageProps) {
     redirect('/');
   }
 
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, reset } = await searchParams;
+  const resetUspjesan = (Array.isArray(reset) ? reset[0] : reset) === 'uspjeh';
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12 sm:py-16">
@@ -46,6 +47,15 @@ export default async function PrijavaPage({ searchParams }: PrijavaPageProps) {
           <h1 className="font-bodoni text-2xl font-semibold text-ritual-charcoal">{bs.prijava.naslov}</h1>
           <p className="text-sm text-ritual-charcoal/70">{bs.prijava.podnaslov}</p>
         </div>
+
+        {resetUspjesan ? (
+          <p
+            role="status"
+            className="mt-4 rounded-xl bg-ritual-green/50 px-4 py-3 text-sm font-medium text-ritual-deep-green"
+          >
+            {bs.prijava.resetUspjeh}
+          </p>
+        ) : null}
 
         <div className="mt-6">
           <PrijavaForma callbackUrl={sigurniCallbackUrl(callbackUrl)} />

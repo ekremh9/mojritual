@@ -12,6 +12,7 @@ import { guideOptionTemplates } from './guide-options';
 import { ingredients, productIngredients } from './ingredients';
 import { notifications } from './notifications';
 import { orderItems, orderShipments, orders } from './orders';
+import { passwordResetTokens } from './password-reset';
 import { productCategories, productImages, products } from './products';
 import { productGoalProposals } from './product-goal-proposals';
 import { productReviews } from './reviews';
@@ -33,6 +34,7 @@ export * from './ingredients';
 export * from './leads';
 export * from './notifications';
 export * from './orders';
+export * from './password-reset';
 export * from './products';
 export * from './product-goal-proposals';
 export * from './reviews';
@@ -52,6 +54,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   guideSessions: many(guideSessions),
   ticketMessages: many(ticketMessages),
   emailVerificationTokens: many(emailVerificationTokens),
+  passwordResetTokens: many(passwordResetTokens),
   notifications: many(notifications),
 }));
 
@@ -65,6 +68,13 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
 export const emailVerificationTokensRelations = relations(emailVerificationTokens, ({ one }) => ({
   user: one(users, {
     fields: [emailVerificationTokens.userId],
+    references: [users.id],
+  }),
+}));
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResetTokens.userId],
     references: [users.id],
   }),
 }));
