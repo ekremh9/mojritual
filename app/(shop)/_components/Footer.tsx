@@ -14,11 +14,16 @@ export async function Footer() {
     <footer className="bg-ritual-deep-green pb-16 text-ritual-warm-white sm:pb-0">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="" width={508} height={491} className="h-9 w-auto" />
-            <span className="font-bodoni text-lg font-semibold uppercase tracking-wide">
-              {bs.header.logo}
-            </span>
+          <div className="flex items-center">
+            <Image
+              src="/logo-horizontal-dark.png"
+              alt={bs.header.logo}
+              width={766}
+              height={326}
+              className="h-9 w-auto"
+            />
+            {/* Isti razlog kao Header.tsx — sr-only span, ne h1, čuva naziv brenda kao tekst bez sukoba sa h1 stranice. */}
+            <span className="sr-only">{bs.header.logo}</span>
           </div>
           <p className="text-sm font-medium text-ritual-warm-white/90">{poruke.brend.slogan}</p>
           <p className="text-sm text-ritual-warm-white/70">{footerOpis}</p>

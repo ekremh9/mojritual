@@ -17,11 +17,25 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-ritual-charcoal/10 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <Image src="/logo.png" alt="" width={508} height={491} className="h-9 w-auto" priority />
-          <span className="font-bodoni text-lg font-semibold uppercase tracking-wide text-ritual-deep-green">
-            {bs.header.logo}
-          </span>
+        <Link href="/" className="flex shrink-0 items-center">
+          <Image
+            src="/logo-horizontal.png"
+            alt={bs.header.logo}
+            width={766}
+            height={326}
+            className="h-9 w-auto"
+            priority
+          />
+          {/*
+            Logo slika već sadrži "RITUAL" tekst uklopljen u nju (vidi alt
+            iznad), ali `alt` sam po sebi ne nosi istu SEO/strukturnu
+            težinu kao pravi tekstualni element — sr-only span čuva naziv
+            brenda kao stvarni tekst na stranici. NE h1 — Header se
+            renderuje na SVAKOJ (shop) stranici, pa bi h1 ovdje sukobio
+            sa stvarnim h1 same stranice (naziv proizvoda, "Checkout",
+            itd.) na svakoj od njih.
+          */}
+          <span className="sr-only">{bs.header.logo}</span>
         </Link>
 
         <nav className="hidden items-center gap-8 sm:flex">
