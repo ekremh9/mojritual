@@ -20,7 +20,7 @@ export async function Footer() {
               alt={bs.header.logo}
               width={766}
               height={326}
-              className="h-9 w-auto"
+              className="h-14 w-auto"
             />
             {/* Isti razlog kao Header.tsx — sr-only span, ne h1, čuva naziv brenda kao tekst bez sukoba sa h1 stranice. */}
             <span className="sr-only">{bs.header.logo}</span>

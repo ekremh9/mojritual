@@ -23,7 +23,7 @@ export async function Header() {
             alt={bs.header.logo}
             width={766}
             height={326}
-            className="h-9 w-auto"
+            className="h-16 w-auto"
             priority
           />
           {/*
