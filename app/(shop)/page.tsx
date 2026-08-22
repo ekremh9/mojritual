@@ -384,7 +384,7 @@ export default async function HomePage() {
                 <Link
                   key={kategorija.id}
                   href={`/shop?kategorija=${kategorija.slug}`}
-                  className="flex flex-col rounded-2xl bg-ritual-green p-5 transition-transform hover:-translate-y-0.5"
+                  className="flex flex-row items-center gap-3 rounded-2xl bg-ritual-green p-4 transition-transform hover:-translate-y-0.5"
                 >
                   {slika ? (
                     <Image
@@ -392,17 +392,14 @@ export default async function HomePage() {
                       alt=""
                       width={slika.width}
                       height={slika.height}
-                      className="h-14 w-14 object-contain"
+                      className="h-14 w-14 shrink-0 object-contain"
                     />
                   ) : (
-                    <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 text-ritual-deep-green" />
+                    <CategoryIcon ime={kategorija.ikona} className="h-6 w-6 shrink-0 text-ritual-deep-green" />
                   )}
-                  <span className="mt-3 text-base font-medium text-ritual-charcoal">
+                  <span className="text-base font-medium text-ritual-warm-white">
                     {kategorija.naziv}
                   </span>
-                  {kategorija.opis ? (
-                    <span className="mt-1 text-sm text-ritual-charcoal/70">{kategorija.opis}</span>
-                  ) : null}
                 </Link>
               );
             })}
